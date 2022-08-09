@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/future/image';
 
 import Container from 'components/Container';
-import avatar from 'public/avatar.jpeg';
+import avatar from 'public/static/images/me.jpeg';
 
 export default function About() {
   return (
@@ -60,9 +60,9 @@ export default function About() {
 
           <h2>Fotos</h2>
           <div className="flex space-x-8">
-            <a href="/avatar.jpg">
+            <a href="/static/images/me.jpeg">
               <Image
-                alt="Lucas Bittencourt headshot"
+                alt="Lucas Bittencourt"
                 width={400}
                 quality={100}
                 src={avatar}
