@@ -4,7 +4,6 @@ import Link from 'next/link';
 
 import Container from '../components/Container';
 import BlogPostCard from '../components/BlogPostCard';
-import Subscribe from '../components/Subscribe';
 import VideoCard from '../components/VideoCard';
 
 export default function Home() {
@@ -15,11 +14,11 @@ export default function Home() {
           <div className="flex flex-col-reverse sm:flex-row items-start">
             <div className="flex flex-col pr-8">
               <h1 className="font-bold text-3xl md:text-5xl tracking-tight mb-1 text-black dark:text-white">
-                Lee Robinson
+                Lucas Bittencort
               </h1>
               <h2 className="text-gray-700 dark:text-gray-200 mb-4">
-                VP of Developer Experience at{' '}
-                <span className="font-semibold">Vercel</span>
+                Desenvolvedor Full Stack no{' '}
+                <span className="font-semibold">Curso Ênfase</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
                 Helping developers build a faster web. Teaching about web
@@ -28,10 +27,10 @@ export default function Home() {
             </div>
             <div className="w-[80px] sm:w-[176px] relative mb-8 sm:mb-0 mr-auto">
               <Image
-                alt="Lee Robinson"
+                alt="Lucas Bittencourt"
                 height={176}
                 width={176}
-                src="/avatar.jpg"
+                src="/avatar.jpeg"
                 sizes="30vw"
                 priority
                 className="rounded-full filter grayscale"
@@ -134,7 +133,6 @@ export default function Home() {
             </svg>
           </a>
           <span className="h-16" />
-          <Subscribe />
         </div>
       </Container>
     </Suspense>
