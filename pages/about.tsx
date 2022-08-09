@@ -6,7 +6,7 @@ import avatar from 'public/avatar.jpeg';
 
 export default function About() {
   return (
-    <Container title="Sobre – Lucas Bittencort">
+    <Container title="Sobre – Lucas Bittencourt">
       <div className="flex flex-col justify-center items-start max-w-2xl mx-auto mb-16 w-full">
         <h1 className="font-bold text-3xl md:text-5xl tracking-tight mb-4 text-black dark:text-white">
           Sobre mim
@@ -41,7 +41,7 @@ export default function About() {
           <h2>Bio</h2>
 
           <h3>Profissão</h3>
-          <p>Lucas Bittencort, Desenvolvedor Full Stack no Curso Ênfase</p>
+          <p>Lucas Bittencourt, Desenvolvedor Full Stack no Curso Ênfase</p>
 
           <h3>Um pouco sobre mim</h3>
           <p>
@@ -62,7 +62,7 @@ export default function About() {
           <div className="flex space-x-8">
             <a href="/avatar.jpg">
               <Image
-                alt="Lucas Bittencort headshot"
+                alt="Lucas Bittencourt headshot"
                 width={400}
                 quality={100}
                 src={avatar}

@@ -38,7 +38,7 @@ export default function Container(props) {
   const { children, ...customMeta } = props;
   const router = useRouter();
   const meta = {
-    title: 'Lucas Bittencort – Desenvolvedor.',
+    title: 'Lucas Bittencourt – Desenvolvedor.',
     description: `Desenvolvedor Full Stack JavaScript.`,
     image: 'https://lucasbittencourt.dev/static/images/lee-banner.png',
     type: 'website',
@@ -60,7 +60,7 @@ export default function Container(props) {
           href={`https://lucasbittencourt.dev${router.asPath}`}
         />
         <meta property="og:type" content={meta.type} />
-        <meta property="og:site_name" content="Lucas Bittencort" />
+        <meta property="og:site_name" content="Lucas Bittencourt" />
         <meta property="og:description" content={meta.description} />
         <meta property="og:title" content={meta.title} />
         <meta property="og:image" content={meta.image} />

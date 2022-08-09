@@ -4,7 +4,7 @@ import Image from 'next/future/image';
 export default function Uses() {
   return (
     <Container
-      title="Equipamentos – Lucas Bittencort"
+      title="Equipamentos – Lucas Bittencourt"
       description="Aqui está o que estou usando atualmente para programar, ver vídeos e
       ouvir música."
     >

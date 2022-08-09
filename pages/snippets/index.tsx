@@ -10,7 +10,7 @@ export default function Snippets({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <Container
-      title="Code Snippets – Lucas Bittencort"
+      title="Code Snippets – Lucas Bittencourt"
       description="Esta é uma coleção de trechos de código que usei no passado e salvou.
       Desde CSS até JS."
     >
