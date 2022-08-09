@@ -71,7 +71,7 @@ export default function Blog({
               Destaques
             </h3>
 
-            <p className="text-gray-500 dark:text-gray-300">
+            <p className="text-gray-600 dark:text-gray-400">
               Nenhuma postagem destacada.
             </p>
 
