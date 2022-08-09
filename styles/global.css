@@ -27,14 +27,6 @@ html {
   min-width: 360px;
 }
 
-/* .medium-zoom-overlay {
-  z-index: 3;
-}
-*/
-/* .medium-zoom-image--opened {
-  z-index: 4;
-} */
-
 #__next {
   @apply bg-gray-50 dark:bg-gray-900;
   display: flex;
@@ -239,6 +231,14 @@ input[type='email'] {
 
 .step > h3 {
   @apply my-0;
+}
+
+.medium-zoom-overlay {
+  @apply bg-gray-50 dark:bg-gray-900 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 3;
 }
 
 table {
