@@ -38,9 +38,9 @@ export default function Container(props) {
   const { children, ...customMeta } = props;
   const router = useRouter();
   const meta = {
-    title: 'Lucas Bittencourt – Desenvolvedor.',
+    title: 'Lucas Bittencourt – Dev. Full Stack.',
     description: `Desenvolvedor Full Stack JavaScript.`,
-    image: 'https://lucasbittencourt.dev/static/images/lee-banner.png',
+    image: 'https://lucasbittencourt.dev/static/images/me.jpeg',
     type: 'website',
     ...customMeta
   };
