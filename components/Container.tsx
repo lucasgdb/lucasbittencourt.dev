@@ -38,7 +38,7 @@ export default function Container(props) {
   const { children, ...customMeta } = props;
   const router = useRouter();
   const meta = {
-    title: 'Lucas Bittencourt – Dev. Full Stack.',
+    title: 'Lucas Bittencourt – Dev. Full Stack',
     description: `Desenvolvedor Full Stack JavaScript.`,
     image: 'https://lucasbittencourt.dev/static/images/me.jpeg',
     type: 'website',
@@ -73,11 +73,13 @@ export default function Container(props) {
           <meta property="article:published_time" content={meta.date} />
         )}
       </Head>
+
       <div className="flex flex-col justify-center px-8">
         <nav className="flex items-center justify-between w-full relative max-w-2xl border-gray-200 dark:border-gray-700 mx-auto pt-8 pb-8 sm:pb-16  text-gray-900 bg-gray-50  dark:bg-gray-900 bg-opacity-60 dark:text-gray-100">
           <a href="#skip" className="skip-nav">
             Skip to content
           </a>
+
           <div className="ml-[-0.60rem]">
             <MobileMenu />
             <NavItem href="/" text="Página Inicial" />
@@ -85,6 +87,7 @@ export default function Container(props) {
             <NavItem href="/snippets" text="Snippets" />
             <NavItem href="/about" text="Sobre" />
           </div>
+
           <button
             aria-label="Toggle Dark Mode"
             type="button"
@@ -121,6 +124,7 @@ export default function Container(props) {
           </button>
         </nav>
       </div>
+
       <main
         id="skip"
         className="flex flex-col justify-center px-8 bg-gray-50 dark:bg-gray-900"
