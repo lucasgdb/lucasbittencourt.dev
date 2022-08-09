@@ -1,5 +1,6 @@
 import Image from 'next/future/image';
 import { parseISO, format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { PropsWithChildren, Suspense } from 'react';
 
 import Container from 'components/Container';
@@ -33,8 +34,11 @@ export default function BlogLayout({
               src="/avatar.jpeg"
               className="rounded-full"
             />
-            <p className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-              Lucas Bittencourt / {format(parseISO(post.date), 'MMMM dd, yyyy')}
+            <p className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+              Lucas Bittencourt /{' '}
+              {format(parseISO(post.date), 'MMMM dd, yyyy', {
+                locale: ptBR
+              })}
             </p>
           </div>
 
