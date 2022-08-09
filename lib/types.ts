@@ -9,7 +9,6 @@ export type Post = {
   excerpt: string;
   coverImage: string;
   readingTime: string;
-  tweets: any[];
 };
 
 export type Snippet = {
