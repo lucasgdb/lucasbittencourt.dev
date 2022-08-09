@@ -5,8 +5,7 @@ export default function Uses() {
   return (
     <Container
       title="Equipamentos – Lucas Bittencourt"
-      description="Aqui está o que estou usando atualmente para programar, ver vídeos e
-      ouvir música."
+      description="Aqui está o que estou usando atualmente para programar, ver vídeos e ouvir música."
     >
       <article className="flex flex-col justify-center items-start max-w-2xl mx-auto mb-16 w-full">
         <h1 className="font-bold text-3xl md:text-5xl tracking-tight mb-4 text-black dark:text-white">

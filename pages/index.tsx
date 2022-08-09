@@ -3,8 +3,6 @@ import Image from 'next/future/image';
 import Link from 'next/link';
 
 import Container from '../components/Container';
-import BlogPostCard from '../components/BlogPostCard';
-import VideoCard from '../components/VideoCard';
 
 export default function Home() {
   return (

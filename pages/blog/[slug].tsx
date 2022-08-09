@@ -5,8 +5,14 @@ import { postQuery, postSlugsQuery } from 'lib/queries';
 import { sanityClient, getClient } from 'lib/sanity-server';
 import { mdxToHtml } from 'lib/mdx';
 import { Post } from 'lib/types';
+import { useEffect } from 'react';
+import mediumZoom from 'medium-zoom';
 
 export default function PostPage({ post }: { post: Post }) {
+  useEffect(() => {
+    mediumZoom('article img');
+  }, []);
+
   return (
     <BlogLayout post={post}>
       <MDXRemote {...post.content} components={components} />

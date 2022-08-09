@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/future/image';
-
+import { useEffect } from 'react';
 import Container from 'components/Container';
 import avatar from 'public/static/images/me.jpeg';
+import mediumZoom from 'medium-zoom';
 
 export default function About() {
+  useEffect(() => {
+    mediumZoom('#my-photo');
+  }, []);
+
   return (
     <Container title="Sobre – Lucas Bittencourt">
       <div className="flex flex-col justify-center items-start max-w-2xl mx-auto mb-16 w-full">
@@ -46,10 +51,10 @@ export default function About() {
           <h3>Um pouco sobre mim</h3>
           <p>
             E aí, meu nome é Lucas. Sou Desenvolvedor Full Stack no{' '}
-            <a href="https://cursoenfase.com.br/">Curso Ênfase</a>, onde tenho desafios
-            cada vez maiores e aprendo constantemente novas coisas, procurando
-            sempre me aperfeiçoar. Stack utilizada: React.js, Node.js,
-            PostgreSQL, TypeScript, AWS, Git, GitHub, entre outras.
+            <a href="https://cursoenfase.com.br/">Curso Ênfase</a>, onde tenho
+            desafios cada vez maiores e aprendo constantemente novas coisas,
+            procurando sempre me aperfeiçoar. Stack utilizada: React.js,
+            Node.js, PostgreSQL, TypeScript, AWS, Git, GitHub, entre outras.
           </p>
 
           <h3>Educação</h3>
@@ -60,15 +65,14 @@ export default function About() {
 
           <h2>Fotos</h2>
           <div className="flex space-x-8">
-            <a href="/static/images/me.jpeg">
-              <Image
-                alt="Lucas Bittencourt"
-                width={400}
-                quality={100}
-                src={avatar}
-                className="rounded-md"
-              />
-            </a>
+            <Image
+              alt="Lucas Bittencourt"
+              width={400}
+              quality={100}
+              src={avatar}
+              className="rounded-md"
+              id="my-photo"
+            />
           </div>
         </div>
       </div>
