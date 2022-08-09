@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import useSWR from 'swr';
 import cn from 'classnames';
 
 export default function BlogPostCard({ title, slug, gradient }) {

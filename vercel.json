@@ -21,14 +21,5 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/projects",
-      "destination": "/about"
-    },
-    {
-      "source": "/youtube",
-      "destination": "https://www.youtube.com/channel/UCZMli3czZnd1uoc1ShTouQw"
-    }
-  ]
+  "redirects": []
 }
