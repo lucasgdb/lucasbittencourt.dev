@@ -11,7 +11,7 @@ export default function Document(props) {
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link href="/static/favicons/favicon.ico" rel="shortcut icon" />
+        <link href="/static/favicons/favicon.png" rel="shortcut icon" />
         <link href="/static/favicons/site.webmanifest" rel="manifest" />
         <link
           href="/static/favicons/apple-touch-icon.png"
@@ -29,11 +29,6 @@ export default function Document(props) {
           rel="icon"
           sizes="16x16"
           type="image/png"
-        />
-        <link
-          color="#4a9885"
-          href="/static/favicons/safari-pinned-tab.svg"
-          rel="mask-icon"
         />
         <meta content="#ffffff" name="theme-color" />
         <meta content="#ffffff" name="msapplication-TileColor" />

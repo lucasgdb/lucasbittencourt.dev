@@ -45,24 +45,23 @@ export default function BlogLayout({
           <div className="w-full mt-4 prose dark:prose-dark max-w-none">
             {children}
           </div>
-          <div className="mt-8"></div>
-          <div className="text-sm text-gray-700 dark:text-gray-300">
+          <div className="mt-8 text-sm text-gray-700 dark:text-gray-300">
             <a
               href={`https://mobile.twitter.com/search?q=${encodeURIComponent(
-                `https://leerob.io/blog/${post.slug}`
+                `https://lucasbittencourt.dev/blog/${post.slug}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               {'Discuss on Twitter'}
             </a>
-            {` • `}
+            {' • '}
             <a
-              href="https://github.com/leerob/leerob.io/issues"
+              href="https://github.com/lucasgdb/nextjs-portfolio/issues"
               target="_blank"
               rel="noopener noreferrer"
             >
-              {'Suggest Change'}
+              Suggest Change
             </a>
           </div>
         </Suspense>

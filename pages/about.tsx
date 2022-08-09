@@ -19,7 +19,7 @@ export default function About() {
               Twitter: <a href="https://twitter.com/lucasgdbi">@lucasgdbi</a>
             </li>
             <li>
-              GitHub: <a href="https://github.com/leerob">@lucasgdb</a>
+              GitHub: <a href="https://github.com/lucasgdb">@lucasgdb</a>
             </li>
             <li>
               Website:{' '}
