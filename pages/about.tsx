@@ -46,7 +46,7 @@ export default function About() {
           <h3>Um pouco sobre mim</h3>
           <p>
             E aí, meu nome é Lucas. Sou Desenvolvedor Full Stack no{' '}
-            <a href="https://vercel.com/">Curso Ênfase</a>, onde tenho desafios
+            <a href="https://cursoenfase.com.br/">Curso Ênfase</a>, onde tenho desafios
             cada vez maiores e aprendo constantemente novas coisas, procurando
             sempre me aperfeiçoar. Stack utilizada: React.js, Node.js,
             PostgreSQL, TypeScript, AWS, Git, GitHub, entre outras.
