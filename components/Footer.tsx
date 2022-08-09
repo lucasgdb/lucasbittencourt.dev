@@ -19,11 +19,13 @@ export default function Footer() {
       <div className="w-full max-w-2xl grid grid-cols-1 gap-4 pb-16 sm:grid-cols-3">
         <div className="flex flex-col space-y-4">
           <Link href="/">
-            <a className="text-gray-500 hover:text-gray-600 transition">Home</a>
+            <a className="text-gray-500 hover:text-gray-600 transition">
+              Página Inicial
+            </a>
           </Link>
           <Link href="/about">
             <a className="text-gray-500 hover:text-gray-600 transition">
-              About
+              Sobre
             </a>
           </Link>
         </div>
@@ -32,7 +34,7 @@ export default function Footer() {
             Twitter
           </ExternalLink>
           <ExternalLink href="https://github.com/lucasgdb">GitHub</ExternalLink>
-          <ExternalLink href="https://www.youtube.com/channel/UCZMli3czZnd1uoc1ShTouQw">
+          <ExternalLink href="https://www.youtube.com/channel/UC2FNqFO-vftS6bjwr_0vChg">
             YouTube
           </ExternalLink>
         </div>

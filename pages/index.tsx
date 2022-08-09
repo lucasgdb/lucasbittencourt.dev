@@ -21,8 +21,8 @@ export default function Home() {
                 <span className="font-semibold">Curso Ênfase</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
-                Helping developers build a faster web. Teaching about web
-                development, serverless, and React / Next.js.
+                Estudando desenvolvimento Web/Mobile e tentando melhorar minhas
+                soft skills.
               </p>
             </div>
             <div className="w-[80px] sm:w-[176px] relative mb-8 sm:mb-0 mr-auto">
@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-6 text-black dark:text-white">
-            Featured Posts
+            Postagens destacadas
           </h3>
           <div className="flex gap-6 flex-col md:flex-row">
             <BlogPostCard
@@ -60,7 +60,7 @@ export default function Home() {
           </div>
           <Link href="/blog">
             <a className="flex mt-8 text-gray-600 dark:text-gray-400 leading-7 rounded-lg hover:text-gray-800 dark:hover:text-gray-200 transition-all h-6">
-              Read all posts
+              Ver todas postagens
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -113,7 +113,7 @@ export default function Home() {
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href="https://www.youtube.com/playlist?list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1"
+            href="https://www.youtube.com/channel/UC2FNqFO-vftS6bjwr_0vChg/videos"
             className="flex mt-8 text-gray-600 dark:text-gray-400 leading-7 rounded-lg hover:text-gray-800 dark:hover:text-gray-200 transition-all h-6"
           >
             Watch all videos
