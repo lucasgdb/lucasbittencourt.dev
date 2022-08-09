@@ -30,6 +30,8 @@ export async function mdxToHtml(source) {
   return {
     html: mdxSource,
     wordCount: source.split(/\s+/gu).length,
-    readingTime: readingTime(source).text
+    readingTime: `${Math.ceil(
+      parseFloat(readingTime(source).minutes.toFixed(2))
+    )}min de leitura`
   };
 }
