@@ -41,7 +41,7 @@ export default function About() {
           <h2>Bio</h2>
 
           <h3>Profissão</h3>
-          <p>Lucas Bittencourt, Desenvolvedor Full Stack no Curso Ênfase</p>
+          <p>Desenvolvedor Full Stack no Curso Ênfase</p>
 
           <h3>Um pouco sobre mim</h3>
           <p>

@@ -24,6 +24,12 @@ export default function Snippets({
         </p>
 
         <div className="grid w-full grid-cols-1 gap-4 my-2 mt-4 sm:grid-cols-2">
+          {!snippets.length && (
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
+              Nenhum trecho de código encontrado.
+            </p>
+          )}
+
           {snippets.map((snippet) => (
             <FunctionCard
               key={snippet.slug}

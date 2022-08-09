@@ -21,8 +21,8 @@ export default function Home() {
                 <span className="font-semibold">Curso Ênfase</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
-                Estudando desenvolvimento Web/Mobile e tentando melhorar minhas
-                soft skills.
+                Meu nome é Lucas Bittencourt, 23, Desenvolvedor Full Stack e
+                amante do DevOps!
               </p>
             </div>
             <div className="w-[80px] sm:w-[176px] relative mb-8 sm:mb-0 mr-auto">
@@ -32,8 +32,8 @@ export default function Home() {
                 width={176}
                 src="/avatar.jpeg"
                 sizes="30vw"
-                priority
                 className="rounded-full filter grayscale"
+                priority
               />
             </div>
           </div>
@@ -41,23 +41,31 @@ export default function Home() {
           <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-6 text-black dark:text-white">
             Postagens destacadas
           </h3>
+
           <div className="flex gap-6 flex-col md:flex-row">
-            <BlogPostCard
+            <p className="text-gray-500 dark:text-gray-300">
+              Nenhuma postagem destacada.
+            </p>
+
+            {/* <BlogPostCard
               title="Everything I Know About Style Guides, Design Systems, and Component Libraries"
               slug="style-guides-component-libraries-design-systems"
               gradient="from-[#D8B4FE] to-[#818CF8]"
-            />
-            <BlogPostCard
+            /> */}
+
+            {/* <BlogPostCard
               title="Rust Is The Future of JavaScript Infrastructure"
               slug="rust"
               gradient="from-[#6EE7B7] via-[#3B82F6] to-[#9333EA]"
-            />
-            <BlogPostCard
+            /> */}
+
+            {/* <BlogPostCard
               title="Past, Present, and Future of React State Management"
               slug="react-state-management"
               gradient="from-[#FDE68A] via-[#FCA5A5] to-[#FECACA]"
-            />
+            /> */}
           </div>
+
           <Link href="/blog">
             <a className="flex mt-8 text-gray-600 dark:text-gray-400 leading-7 rounded-lg hover:text-gray-800 dark:hover:text-gray-200 transition-all h-6">
               Ver todas postagens
@@ -78,38 +86,44 @@ export default function Home() {
             </a>
           </Link>
 
-          <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-4 mt-16 text-black dark:text-white">
+          {/* <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-4 mt-16 text-black dark:text-white">
             Learn React & Next.js
           </h3>
+
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Build and deploy a modern SaaS application using the most popular
             open-source software. This course is 12 hours long and is completely
             live streamed.
           </p>
+
           <VideoCard
             index="01"
             href="https://www.youtube.com/watch?v=MxR5I5_hOKk&list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1&index=2"
             length="1:02:45"
             title="Introduction to React 2025"
           />
+
           <VideoCard
             index="02"
             href="https://www.youtube.com/watch?v=AGl52moyISU&list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1&index=3"
             length="54:22"
             title="Firestore, Chakra UI, Absolute Imports"
           />
+
           <VideoCard
             index="03"
             href="https://www.youtube.com/watch?v=3g6-v3_BNbM&list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1&index=4"
             length="1:08:30"
             title="Designing & Building the Dashboard"
           />
+
           <VideoCard
             index="04"
             href="https://www.youtube.com/watch?v=u8iv_yhSRI8&list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1&index=5"
             length="1:13:45"
             title="Firebase Admin with Next.js + SWR"
           />
+
           <a
             target="_blank"
             rel="noopener noreferrer"
@@ -131,7 +145,7 @@ export default function Home() {
                 d="M17.5 12h-15m11.667-4l3.333 4-3.333-4zm3.333 4l-3.333 4 3.333-4z"
               />
             </svg>
-          </a>
+          </a> */}
           <span className="h-16" />
         </div>
       </Container>

@@ -26,9 +26,18 @@ export default function Blog({
         </h1>
 
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Este blog tem o intuito de aprender ensinando pessoas. Ao total, há {posts.length} artigo
+          Este blog tem o intuito de aprender ensinando pessoas. Ao total, há{' '}
+          {posts.length} artigo
           {posts.length === 1 ? '' : 's'} compartilhado
-          {posts.length === 1 ? '' : 's'}. Tenha bom proveito!
+          {posts.length === 1 ? '' : 's'}. Siga meu{' '}
+          <a
+            href="https://twitter.com/lucasgdbi"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>{' '}
+          para atualizações de futuras postagens. Tenha bom proveito!
         </p>
 
         <div className="relative w-full mb-4">
@@ -62,7 +71,11 @@ export default function Blog({
               Destaques
             </h3>
 
-            <BlogPost
+            <p className="text-gray-500 dark:text-gray-300">
+              Nenhuma postagem destacada.
+            </p>
+
+            {/* <BlogPost
               title="Rust Is The Future of JavaScript Infrastructure"
               excerpt="Why is Rust being used to replace parts of the JavaScript web ecosystem like minification (Terser), transpilation (Babel), formatting (Prettier), bundling (webpack), linting (ESLint), and more?"
               slug="rust"
@@ -78,7 +91,7 @@ export default function Blog({
               title="Building a Design System Monorepo with Turborepo"
               excerpt="Manage multiple packages with a shared build, test, and release process using Turborepo, Changesets, Storybook, and more."
               slug="turborepo-design-system-monorepo"
-            />
+            /> */}
           </>
         )}
 
