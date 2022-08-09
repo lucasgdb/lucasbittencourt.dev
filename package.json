@@ -9,6 +9,7 @@
     "sanity-start": "sanity start"
   },
   "dependencies": {
+    "@sanity/cli": "^2.30.3",
     "@sanity/image-url": "^1.0.1",
     "@sanity/webhook": "^2.0.0",
     "@tailwindcss/typography": "0.5.3",
