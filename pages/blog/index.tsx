@@ -26,8 +26,8 @@ export default function Blog({
         </h1>
 
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Este blog tem o intuito de aprender ensinando pessoas. Ao total, há{' '}
-          {posts.length} artigo
+          Criei este blog com o intuito de aprender ensinando pessoas. Ao total,
+          há {posts.length} artigo
           {posts.length === 1 ? '' : 's'} compartilhado
           {posts.length === 1 ? '' : 's'}. Siga meu{' '}
           <a
