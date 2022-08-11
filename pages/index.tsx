@@ -5,6 +5,10 @@ import Link from 'next/link';
 import Container from '../components/Container';
 import BlogPostCard from 'components/BlogPostCard';
 
+const birthDate = new Date('July, 30, 1999');
+const now = new Date();
+const age = now.getFullYear() - birthDate.getFullYear();
+
 export default function Home() {
   return (
     <Suspense fallback={null}>
@@ -20,7 +24,7 @@ export default function Home() {
                 <span className="font-semibold">Curso Ênfase</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
-                Meu nome é Lucas Bittencourt, 23, Desenvolvedor Full Stack e
+                Meu nome é Lucas Bittencourt, {age}, Desenvolvedor Full Stack e
                 amante do DevOps!
               </p>
             </div>
