@@ -3,6 +3,7 @@ import Image from 'next/future/image';
 import Link from 'next/link';
 
 import Container from '../components/Container';
+import BlogPostCard from 'components/BlogPostCard';
 
 export default function Home() {
   return (
@@ -41,24 +42,20 @@ export default function Home() {
           </h3>
 
           <div className="flex gap-6 flex-col md:flex-row">
-            <p className="text-gray-600 dark:text-gray-400">
-              Nenhuma postagem destacada.
-            </p>
+            <BlogPostCard
+              title="Performance no React - Guia completo"
+              slug="performance-no-react"
+              gradient="from-[#61DAFB] to-[#818CF8]"
+            />
 
             {/* <BlogPostCard
-              title="Everything I Know About Style Guides, Design Systems, and Component Libraries"
-              slug="style-guides-component-libraries-design-systems"
-              gradient="from-[#D8B4FE] to-[#818CF8]"
-            /> */}
-
-            {/* <BlogPostCard
-              title="Rust Is The Future of JavaScript Infrastructure"
-              slug="rust"
+              title="React Hook: useState"
+              slug="react-hook-use-state"
               gradient="from-[#6EE7B7] via-[#3B82F6] to-[#9333EA]"
             /> */}
 
             {/* <BlogPostCard
-              title="Past, Present, and Future of React State Management"
+              title="Edge Computing - O Futuro da Conectividade"
               slug="react-state-management"
               gradient="from-[#FDE68A] via-[#FCA5A5] to-[#FECACA]"
             /> */}
@@ -66,7 +63,7 @@ export default function Home() {
 
           <Link href="/blog">
             <a className="flex mt-8 text-gray-600 dark:text-gray-400 leading-7 rounded-lg hover:text-gray-800 dark:hover:text-gray-200 transition-all h-6">
-              Ver blog
+              Ver mais postagens
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -84,15 +81,12 @@ export default function Home() {
             </a>
           </Link>
 
-          {/* <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-4 mt-16 text-black dark:text-white">
-            Learn React & Next.js
+          {/*
+          <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-4 mt-16 text-black dark:text-white">
+            Canal no YouTube
           </h3>
 
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Build and deploy a modern SaaS application using the most popular
-            open-source software. This course is 12 hours long and is completely
-            live streamed.
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4"></p>
 
           <VideoCard
             index="01"
@@ -101,6 +95,7 @@ export default function Home() {
             title="Introduction to React 2025"
           />
 
+        
           <VideoCard
             index="02"
             href="https://www.youtube.com/watch?v=AGl52moyISU&list=PL6bwFJ82M6FXgctyoWXqj7H0GK8_YIeF1&index=3"

@@ -71,23 +71,19 @@ export default function Blog({
               Destaques
             </h3>
 
-            <p className="text-gray-600 dark:text-gray-400">
-              Nenhuma postagem destacada.
-            </p>
-
-            {/* <BlogPost
-              title="Rust Is The Future of JavaScript Infrastructure"
-              excerpt="Why is Rust being used to replace parts of the JavaScript web ecosystem like minification (Terser), transpilation (Babel), formatting (Prettier), bundling (webpack), linting (ESLint), and more?"
-              slug="rust"
+            <BlogPost
+              title="Performance no React"
+              excerpt="Entenda conceitos de memoização, igualdade referencial, algoritmo de reconciliação, memo, useMemo, useCallback, do porquê utilizamos a propriedade key em loops, além de exemplos práticos com código."
+              slug="performance-no-react"
             />
 
-            <BlogPost
+            {/* <BlogPost
               title="Everything I Know About Style Guides, Design Systems, and Component Libraries"
               excerpt="A deep-dive on everything I've learned in the past year building style guides, design systems, component libraries, and their best practices."
               slug="style-guides-component-libraries-design-systems"
-            />
+            /> */}
 
-            <BlogPost
+            {/* <BlogPost
               title="Building a Design System Monorepo with Turborepo"
               excerpt="Manage multiple packages with a shared build, test, and release process using Turborepo, Changesets, Storybook, and more."
               slug="turborepo-design-system-monorepo"

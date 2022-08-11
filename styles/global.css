@@ -23,8 +23,10 @@
   color: #fefefe;
 }
 
-html {
-  min-width: 360px;
+@media (min-width: 768px) {
+  .md--w-200 {
+    width: 200px;
+  }
 }
 
 #__next {
@@ -32,6 +34,11 @@ html {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+/* no mobile highlight on click */
+button {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* https://seek-oss.github.io/capsize/ */
