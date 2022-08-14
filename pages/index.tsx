@@ -43,7 +43,7 @@ export default function Home() {
 
           <div className="flex gap-6 flex-col md:flex-row">
             <BlogPostCard
-              title="Performance no React - Guia completo"
+              title="Performance no React | Guia completo"
               slug="performance-no-react"
               gradient="from-[#61DAFB] to-[#818CF8]"
             />

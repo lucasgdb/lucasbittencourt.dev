@@ -1,7 +1,12 @@
-import Image from 'next/future/image';
+import Image, { type ImageProps } from 'next/future/image';
 import { useTheme } from 'next-themes';
 
-export default function ImageWithTheme(props) {
+type ImageWithThemeProps = ImageProps & {
+  light?: string;
+  dark?: string;
+};
+
+export default function ImageWithTheme(props: ImageWithThemeProps) {
   const { theme } = useTheme();
 
   return (

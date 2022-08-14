@@ -17,8 +17,8 @@ export default function Blog({
 
   return (
     <Container
-      title="Blog – Lucas Bittencourt"
-      description="Pensamentos sobre a indústria de software, programação, tecnologia, videografia, música e minha vida pessoal."
+      title="Blog | Lucas Bittencourt"
+      description="Pensamentos sobre a indústria de software, programação e tecnologia."
     >
       <div className="flex flex-col items-start justify-center max-w-2xl mx-auto mb-16">
         <h1 className="mb-4 text-3xl font-bold tracking-tight text-black md:text-5xl dark:text-white">

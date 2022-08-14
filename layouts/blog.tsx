@@ -13,7 +13,7 @@ export default function BlogLayout({
 }: PropsWithChildren<{ post: Post }>) {
   return (
     <Container
-      title={`${post.title} – Lucas Bittencourt`}
+      title={`${post.title} | Lucas Bittencourt`}
       description={post.excerpt}
       image={urlForImage(post.coverImage).url()}
       date={new Date(post.date).toISOString()}
