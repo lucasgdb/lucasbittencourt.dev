@@ -23,9 +23,12 @@ export default function Footer() {
               Página Inicial
             </a>
           </Link>
-          <Link href="/about">
+          <Link href="/blog">
+            <a className="text-gray-500 hover:text-gray-600 transition">Blog</a>
+          </Link>
+          <Link href="/snippets">
             <a className="text-gray-500 hover:text-gray-600 transition">
-              Sobre
+              Snippets
             </a>
           </Link>
         </div>
@@ -44,9 +47,9 @@ export default function Footer() {
               Equipamentos
             </a>
           </Link>
-          <Link href="/snippets">
+          <Link href="/about">
             <a className="text-gray-500 hover:text-gray-600 transition">
-              Snippets
+              Sobre mim
             </a>
           </Link>
         </div>

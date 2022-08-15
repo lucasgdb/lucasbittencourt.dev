@@ -1,7 +1,13 @@
 import Container from 'components/Container';
+import mediumZoom from 'medium-zoom';
 import Image from 'next/future/image';
+import { useEffect } from 'react';
 
 export default function Uses() {
+  useEffect(() => {
+    mediumZoom('#my-setup');
+  }, []);
+
   return (
     <Container
       title="Equipamentos | Lucas Bittencourt"
@@ -20,6 +26,7 @@ export default function Uses() {
 
         <Image
           className="rounded-lg"
+          id="my-setup"
           alt="Meu setup"
           src="/static/images/setup.jpg"
           width={1082}
