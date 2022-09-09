@@ -13,8 +13,7 @@ module.exports = {
   },
   experimental: {
     legacyBrowsers: false,
-    browsersListForSwc: true,
-    images: { allowFutureImage: true }
+    browsersListForSwc: true
   },
   async headers() {
     return [
