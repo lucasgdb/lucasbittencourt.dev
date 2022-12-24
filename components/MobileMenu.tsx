@@ -41,6 +41,7 @@ export default function MobileMenu() {
         <MenuIcon data-hide={isMenuOpen} />
         <CrossIcon data-hide={!isMenuOpen} />
       </button>
+
       {isMenuMounted && (
         <ul
           className={cn(
@@ -53,40 +54,43 @@ export default function MobileMenu() {
             className="border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm font-semibold"
             style={{ transitionDelay: '150ms' }}
           >
-            <Link href="/">
-              <a className="flex w-auto pb-4">Página Inicial</a>
+            <Link href="/" className="flex w-auto pb-4">
+              Página Inicial
             </Link>
           </li>
           <li
             className="border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm font-semibold"
             style={{ transitionDelay: '250ms' }}
           >
-            <Link href="/blog">
-              <a className="flex w-auto pb-4">Blog</a>
+            <Link href="/blog" className="flex w-auto pb-4">
+              Blog
             </Link>
           </li>
+
           <li
             className="border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm font-semibold"
             style={{ transitionDelay: '275ms' }}
           >
-            <Link href="/snippets">
-              <a className="flex w-auto pb-4">Snippets</a>
+            <Link href="/snippets" className="flex w-auto pb-4">
+              Snippets
             </Link>
           </li>
+
           <li
             className="border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm font-semibold"
             style={{ transitionDelay: '275ms' }}
           >
-            <Link href="/about">
-              <a className="flex w-auto pb-4">Sobre mim</a>
+            <Link href="/about" className="flex w-auto pb-4">
+              Sobre mim
             </Link>
           </li>
+
           <li
             className="border-b border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm font-semibold"
             style={{ transitionDelay: '350ms' }}
           >
-            <Link href="/uses">
-              <a className="flex w-auto pb-4">Equipamentos</a>
+            <Link href="/uses" className="flex w-auto pb-4">
+              Equipamentos
             </Link>
           </li>
         </ul>
