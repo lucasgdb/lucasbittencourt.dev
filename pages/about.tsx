@@ -51,10 +51,12 @@ export default function About() {
           <h3>Um pouco sobre mim</h3>
           <p>
             E aí, meu nome é Lucas. Sou Desenvolvedor Full Stack no{' '}
-            <a href="https://www.einstein.br/Pages/Home.aspx">Hospital Albert Einstein</a>,
-            onde tenho desafios cada vez maiores e aprendo constantemente novas
-            coisas, procurando sempre me aperfeiçoar. Stack utilizada: React.js,
-            Node.js, MongoDB, AWS, Git, entre outras.
+            <a href="https://www.einstein.br/Pages/Home.aspx">
+              Hospital Albert Einstein
+            </a>
+            , onde tenho desafios cada vez maiores e aprendo constantemente
+            novas coisas, procurando sempre me aperfeiçoar. Stack utilizada:
+            React.js, Node.js, MongoDB, AWS, Git, entre outras.
           </p>
 
           <h3>Educação</h3>

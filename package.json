@@ -6,7 +6,8 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
-    "sanity:start": "sanity dev"
+    "sanity:start": "sanity dev",
+    "format": "prettier --ignore-path .eslintignore --write --check ."
   },
   "dependencies": {
     "@sanity/cli": "^3.1.2",
