@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "next lint",
     "sanity:start": "sanity dev",
-    "format": "prettier --ignore-path .eslintignore --write --check .",
+          "format": "prettier --ignore-path .eslintignore --write --check .",
     "prepare": "husky install"
   },
   "dependencies": {
