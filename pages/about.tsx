@@ -46,15 +46,15 @@ export default function About() {
           <h2>Bio</h2>
 
           <h3>Profissão</h3>
-          <p>Desenvolvedor Full Stack no Curso Ênfase</p>
+          <p>Desenvolvedor Full Stack | Hospital Albert Einstein</p>
 
           <h3>Um pouco sobre mim</h3>
           <p>
             E aí, meu nome é Lucas. Sou Desenvolvedor Full Stack no{' '}
-            <a href="https://cursoenfase.com.br/">Curso Ênfase</a>, onde tenho
-            desafios cada vez maiores e aprendo constantemente novas coisas,
-            procurando sempre me aperfeiçoar. Stack utilizada: React.js,
-            Node.js, PostgreSQL, TypeScript, AWS, Git, GitHub, entre outras.
+            <a href="https://www.einstein.br/Pages/Home.aspx">Hospital Albert Einstein</a>,
+            onde tenho desafios cada vez maiores e aprendo constantemente novas
+            coisas, procurando sempre me aperfeiçoar. Stack utilizada: React.js,
+            Node.js, MongoDB, AWS, Git, entre outras.
           </p>
 
           <h3>Educação</h3>

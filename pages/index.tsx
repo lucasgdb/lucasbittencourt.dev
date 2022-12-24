@@ -17,7 +17,7 @@ export default function Home() {
               </h1>
               <h2 className="text-gray-700 dark:text-gray-200 mb-4">
                 Desenvolvedor Full Stack no{' '}
-                <span className="font-semibold">Curso Ênfase</span>
+                <span className="font-semibold">Hospital Albert Einstein</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
                 Meu nome é Lucas Bittencourt, 23, Desenvolvedor Full Stack e
