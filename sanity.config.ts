@@ -18,37 +18,37 @@ export default createConfig({
           {
             name: 'title',
             title: 'Title',
-            type: 'string'
+            type: 'string',
           },
           {
             name: 'slug',
             title: 'Slug',
             type: 'slug',
             options: {
-              source: 'title'
-            }
+              source: 'title',
+            },
           },
           {
             name: 'content',
             title: 'Content',
-            type: 'markdown'
+            type: 'markdown',
           },
           {
             name: 'excerpt',
             title: 'Excerpt',
-            type: 'string'
+            type: 'string',
           },
           {
             name: 'coverImage',
             title: 'Cover Image',
-            type: 'image'
+            type: 'image',
           },
           {
             name: 'date',
             title: 'Date',
-            type: 'datetime'
-          }
-        ]
+            type: 'datetime',
+          },
+        ],
       },
       {
         name: 'snippet',
@@ -58,33 +58,33 @@ export default createConfig({
           {
             name: 'title',
             title: 'Title',
-            type: 'string'
+            type: 'string',
           },
           {
             name: 'slug',
             title: 'Slug',
             type: 'slug',
             options: {
-              source: 'title'
-            }
+              source: 'title',
+            },
           },
           {
             name: 'content',
             title: 'Content',
-            type: 'markdown'
+            type: 'markdown',
           },
           {
             name: 'description',
             title: 'Description',
-            type: 'string'
+            type: 'string',
           },
           {
             name: 'logo',
             title: 'Logo',
-            type: 'image'
-          }
-        ]
-      }
-    ]
-  }
+            type: 'image',
+          },
+        ],
+      },
+    ],
+  },
 });

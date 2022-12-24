@@ -16,21 +16,15 @@ const createSitemap = (slugs) => `<?xml version="1.0" encoding="UTF-8"?>
 `;
 export async function getServerSideProps({ res }) {
   const allPosts = await sanityClient.fetch(postSlugsQuery);
-  const allPages = [
-    ...allPosts.map((slug) => `blog/${slug}`),
-    ...['', 'about', 'blog', 'uses']
-  ];
+  const allPages = [...allPosts.map((slug) => `blog/${slug}`), ...['', 'about', 'blog', 'uses']];
 
   res.setHeader('Content-Type', 'text/xml');
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=1200, stale-while-revalidate=600'
-  );
+  res.setHeader('Cache-Control', 'public, s-maxage=1200, stale-while-revalidate=600');
   res.write(createSitemap(allPages));
   res.end();
 
   return {
-    props: {}
+    props: {},
   };
 }
 

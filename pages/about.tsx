@@ -13,9 +13,7 @@ export default function About() {
   return (
     <Container title="Sobre | Lucas Bittencourt">
       <div className="flex flex-col justify-center items-start max-w-2xl mx-auto mb-16 w-full">
-        <h1 className="font-bold text-3xl md:text-5xl tracking-tight mb-4 text-black dark:text-white">
-          Sobre mim
-        </h1>
+        <h1 className="font-bold text-3xl md:text-5xl tracking-tight mb-4 text-black dark:text-white">Sobre mim</h1>
         <div className="mb-8 prose dark:prose-dark leading-6">
           <h2>Links</h2>
 
@@ -29,17 +27,12 @@ export default function About() {
             </li>
 
             <li>
-              Website:{' '}
-              <Link href="https://lucasbittencourt.dev">
-                https://lucasbittencourt.dev
-              </Link>
+              Website: <Link href="https://lucasbittencourt.dev">https://lucasbittencourt.dev</Link>
             </li>
 
             <li>
               LinkedIn:{' '}
-              <a href="https://www.linkedin.com/in/lucas-bittencourt/">
-                https://www.linkedin.com/in/lucas-bittencourt
-              </a>
+              <a href="https://www.linkedin.com/in/lucas-bittencourt/">https://www.linkedin.com/in/lucas-bittencourt</a>
             </li>
           </ul>
 
@@ -51,19 +44,13 @@ export default function About() {
           <h3>Um pouco sobre mim</h3>
           <p>
             E aí, meu nome é Lucas. Sou Desenvolvedor Full Stack no{' '}
-            <a href="https://www.einstein.br/Pages/Home.aspx">
-              Hospital Albert Einstein
-            </a>
-            , onde tenho desafios cada vez maiores e aprendo constantemente
-            novas coisas, procurando sempre me aperfeiçoar. Stack utilizada:
-            React.js, Node.js, MongoDB, AWS, Git, entre outras.
+            <a href="https://www.einstein.br/Pages/Home.aspx">Hospital Albert Einstein</a>, onde tenho desafios cada vez
+            maiores e aprendo constantemente novas coisas, procurando sempre me aperfeiçoar. Stack utilizada: React.js,
+            Node.js, MongoDB, AWS, Git, entre outras.
           </p>
 
           <h3>Educação</h3>
-          <p>
-            Etec Alfredo de Barros Santos, nível Técnico. Desenvolvimento de
-            Sistemas.
-          </p>
+          <p>Etec Alfredo de Barros Santos, nível Técnico. Desenvolvimento de Sistemas.</p>
 
           <h2>Fotos</h2>
           <div className="flex space-x-8">

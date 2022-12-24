@@ -1,12 +1,7 @@
 import Link from 'next/link';
 
 const ExternalLink = ({ href, children }) => (
-  <a
-    className="text-gray-500 hover:text-gray-600 transition"
-    target="_blank"
-    rel="noopener noreferrer"
-    href={href}
-  >
+  <a className="text-gray-500 hover:text-gray-600 transition" target="_blank" rel="noopener noreferrer" href={href}>
     {children}
   </a>
 );
@@ -18,52 +13,33 @@ export default function Footer() {
 
       <div className="w-full max-w-2xl grid grid-cols-1 gap-4 pb-16 sm:grid-cols-3">
         <div className="flex flex-col space-y-4">
-          <Link
-            href="/"
-            className="text-gray-500 hover:text-gray-600 transition"
-          >
+          <Link href="/" className="text-gray-500 hover:text-gray-600 transition">
             Página Inicial
           </Link>
 
-          <Link
-            href="/blog"
-            className="text-gray-500 hover:text-gray-600 transition"
-          >
+          <Link href="/blog" className="text-gray-500 hover:text-gray-600 transition">
             Blog
           </Link>
 
-          <Link
-            href="/snippets"
-            className="text-gray-500 hover:text-gray-600 transition"
-          >
+          <Link href="/snippets" className="text-gray-500 hover:text-gray-600 transition">
             Snippets
           </Link>
         </div>
 
         <div className="flex flex-col space-y-4">
-          <ExternalLink href="https://twitter.com/lucasgdbi">
-            Twitter
-          </ExternalLink>
+          <ExternalLink href="https://twitter.com/lucasgdbi">Twitter</ExternalLink>
 
           <ExternalLink href="https://github.com/lucasgdb">GitHub</ExternalLink>
 
-          <ExternalLink href="https://www.youtube.com/channel/UC2FNqFO-vftS6bjwr_0vChg">
-            YouTube
-          </ExternalLink>
+          <ExternalLink href="https://www.youtube.com/channel/UC2FNqFO-vftS6bjwr_0vChg">YouTube</ExternalLink>
         </div>
 
         <div className="flex flex-col space-y-4">
-          <Link
-            href="/uses"
-            className="text-gray-500 hover:text-gray-600 transition"
-          >
+          <Link href="/uses" className="text-gray-500 hover:text-gray-600 transition">
             Equipamentos
           </Link>
 
-          <Link
-            href="/about"
-            className="text-gray-500 hover:text-gray-600 transition"
-          >
+          <Link href="/about" className="text-gray-500 hover:text-gray-600 transition">
             Sobre mim
           </Link>
         </div>

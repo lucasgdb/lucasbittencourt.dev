@@ -19,9 +19,8 @@ export default function Uses() {
         </h1>
 
         <p className="text-gray-700 dark:text-gray-300 mt-2 mb-8">
-          Aqui está o que estou usando atualmente para programar, ver vídeos e
-          ouvir música. A maioria deles foi acumulada ao longo dos últimos anos,
-          com uma atualização recente do escritório em 2021.
+          Aqui está o que estou usando atualmente para programar, ver vídeos e ouvir música. A maioria deles foi
+          acumulada ao longo dos últimos anos, com uma atualização recente do escritório em 2021.
         </p>
 
         <Image

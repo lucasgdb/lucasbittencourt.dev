@@ -3,10 +3,7 @@ import { isValidRequest } from '@sanity/webhook';
 import { sanityClient } from 'lib/sanity-server';
 import { postUpdatedQuery } from 'lib/queries';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // This isn't working yet - not sure why
   if (!isValidRequest(req, process.env.SANITY_STUDIO_REVALIDATE_SECRET)) {
     return res.status(401).json({ message: 'Invalid request' });
@@ -19,10 +16,7 @@ export default async function handler(
 
   try {
     const slug = await sanityClient.fetch(postUpdatedQuery, { id });
-    await Promise.all([
-      res.revalidate('/blog'),
-      res.revalidate(`/blog/${slug}`)
-    ]);
+    await Promise.all([res.revalidate('/blog'), res.revalidate(`/blog/${slug}`)]);
     return res.status(200).json({ message: `Updated ${slug}` });
   } catch (err) {
     return res.status(500).json({ message: err.message });
