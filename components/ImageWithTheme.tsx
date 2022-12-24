@@ -1,4 +1,4 @@
-import Image, { type ImageProps } from 'next/future/image';
+import Image, { type ImageProps } from 'next/image';
 import { useTheme } from 'next-themes';
 
 type ImageWithThemeProps = ImageProps & {

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/future/image';
+import Image from 'next/image';
 
 import ProsCard from 'components/ProsCard';
 import ConsCard from 'components/ConsCard';
@@ -12,8 +12,8 @@ const CustomLink = (props) => {
 
   if (isInternalLink) {
     return (
-      <Link href={href}>
-        <a {...props}>{props.children}</a>
+      <Link href={href} {...props}>
+        {props.children}
       </Link>
     );
   }

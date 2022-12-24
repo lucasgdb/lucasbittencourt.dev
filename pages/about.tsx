@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/future/image';
+import Image from 'next/image';
 import { useEffect } from 'react';
 import Container from 'components/Container';
 import avatar from 'public/static/images/me.jpeg';
@@ -31,7 +31,7 @@ export default function About() {
             <li>
               Website:{' '}
               <Link href="https://lucasbittencourt.dev">
-                <a>https://lucasbittencourt.dev</a>
+                https://lucasbittencourt.dev
               </Link>
             </li>
 
