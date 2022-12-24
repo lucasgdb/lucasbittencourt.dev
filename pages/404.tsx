@@ -11,10 +11,8 @@ export default function NotFound() {
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Por que mostrar um 404 genérico quando posso fazê-lo parecer
-          misterioso? Parece que você encontrou algo que existia ou escreveu
-          algo errado. Imagino que você tenha escrito algo errado. Você pode
-          verificar esse URL?
+          Por que mostrar um 404 genérico quando posso fazê-lo parecer misterioso? Parece que você encontrou algo que
+          existia ou escreveu algo errado. Imagino que você tenha escrito algo errado. Você pode verificar esse URL?
         </p>
 
         <Link

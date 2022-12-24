@@ -5,10 +5,7 @@ import type { PropsWithChildren } from 'react';
 import { Snippet } from 'lib/types';
 import { urlForImage } from 'lib/sanity';
 
-export default function SnippetLayout({
-  children,
-  snippet
-}: PropsWithChildren<{ snippet: Snippet }>) {
+export default function SnippetLayout({ children, snippet }: PropsWithChildren<{ snippet: Snippet }>) {
   return (
     <Container
       title={`${snippet.title} | Code Snippet`}
@@ -21,9 +18,7 @@ export default function SnippetLayout({
               {snippet.title}
             </h1>
 
-            <p className="text-gray-700 dark:text-gray-300">
-              {snippet.description}
-            </p>
+            <p className="text-gray-700 dark:text-gray-300">{snippet.description}</p>
           </div>
 
           <div className="mt-2 sm:mt-0">

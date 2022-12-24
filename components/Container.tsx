@@ -16,9 +16,7 @@ function NavItem({ href, text }) {
     <Link
       href={href}
       className={cn(
-        isActive
-          ? 'font-semibold text-gray-800 dark:text-gray-200'
-          : 'font-normal text-gray-600 dark:text-gray-400',
+        isActive ? 'font-semibold text-gray-800 dark:text-gray-200' : 'font-normal text-gray-600 dark:text-gray-400',
         'hidden md:inline-block p-1 sm:px-3 sm:py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-all'
       )}
     >
@@ -41,7 +39,7 @@ export default function Container(props) {
     description: 'Desenvolvedor Full Stack JavaScript.',
     image: 'https://lucasbittencourt.dev/static/images/me.jpeg',
     type: 'website',
-    ...customMeta
+    ...customMeta,
   };
 
   return (
@@ -50,14 +48,8 @@ export default function Container(props) {
         <title>{meta.title}</title>
         <meta name="robots" content="follow, index" />
         <meta content={meta.description} name="description" />
-        <meta
-          property="og:url"
-          content={`https://lucasbittencourt.dev${router.asPath}`}
-        />
-        <link
-          rel="canonical"
-          href={`https://lucasbittencourt.dev${router.asPath}`}
-        />
+        <meta property="og:url" content={`https://lucasbittencourt.dev${router.asPath}`} />
+        <link rel="canonical" href={`https://lucasbittencourt.dev${router.asPath}`} />
         <meta property="og:type" content={meta.type} />
         <meta property="og:site_name" content="Lucas Bittencourt" />
         <meta property="og:description" content={meta.description} />
@@ -68,9 +60,7 @@ export default function Container(props) {
         <meta name="twitter:title" content={meta.title} />
         <meta name="twitter:description" content={meta.description} />
         <meta name="twitter:image" content={meta.image} />
-        {meta.date && (
-          <meta property="article:published_time" content={meta.date} />
-        )}
+        {meta.date && <meta property="article:published_time" content={meta.date} />}
       </Head>
 
       <div className="flex flex-col justify-center px-8">
@@ -91,9 +81,7 @@ export default function Container(props) {
             aria-label="Toggle Dark Mode"
             type="button"
             className="w-9 h-9 bg-gray-200 rounded-lg dark:bg-gray-600 flex items-center justify-center  hover:ring-2 ring-gray-300  transition-all"
-            onClick={() =>
-              setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-            }
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
           >
             {mounted && (
               <svg
@@ -124,10 +112,7 @@ export default function Container(props) {
         </nav>
       </div>
 
-      <main
-        id="skip"
-        className="flex flex-col justify-center px-8 bg-gray-50 dark:bg-gray-900"
-      >
+      <main id="skip" className="flex flex-col justify-center px-8 bg-gray-50 dark:bg-gray-900">
         {children}
         <Footer />
       </main>

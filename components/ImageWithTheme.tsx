@@ -9,11 +9,5 @@ type ImageWithThemeProps = ImageProps & {
 export default function ImageWithTheme(props: ImageWithThemeProps) {
   const { theme } = useTheme();
 
-  return (
-    <Image
-      alt={props.alt}
-      src={theme === 'light' ? props.light : props.dark}
-      {...props}
-    />
-  );
+  return <Image alt={props.alt} src={theme === 'light' ? props.light : props.dark} {...props} />;
 }

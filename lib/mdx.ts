@@ -18,20 +18,18 @@ export async function mdxToHtml(source) {
           rehypeAutolinkHeadings,
           {
             properties: {
-              className: ['anchor']
-            }
-          }
-        ]
+              className: ['anchor'],
+            },
+          },
+        ],
       ],
-      format: 'mdx'
-    }
+      format: 'mdx',
+    },
   });
 
   return {
     html: mdxSource,
     wordCount: source.split(/\s+/gu).length,
-    readingTime: `${Math.ceil(
-      parseFloat(readingTime(source).minutes.toFixed(2))
-    )}min de leitura`
+    readingTime: `${Math.ceil(parseFloat(readingTime(source).minutes.toFixed(2)))}min de leitura`,
   };
 }

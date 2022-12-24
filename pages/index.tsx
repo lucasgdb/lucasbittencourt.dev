@@ -16,12 +16,10 @@ export default function Home() {
                 Lucas Bittencourt
               </h1>
               <h2 className="text-gray-700 dark:text-gray-200 mb-4">
-                Desenvolvedor Full Stack no{' '}
-                <span className="font-semibold">Hospital Albert Einstein</span>
+                Desenvolvedor Full Stack no <span className="font-semibold">Hospital Albert Einstein</span>
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-16">
-                Meu nome é Lucas Bittencourt, 23, Desenvolvedor Full Stack e
-                amante do DevOps!
+                Meu nome é Lucas Bittencourt, 23, Desenvolvedor Full Stack e amante do DevOps!
               </p>
             </div>
             <div className="w-[80px] sm:w-[176px] relative mb-8 sm:mb-0 mr-auto">
@@ -37,9 +35,7 @@ export default function Home() {
             </div>
           </div>
 
-          <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-6 text-black dark:text-white">
-            Destaques
-          </h3>
+          <h3 className="font-bold text-2xl md:text-4xl tracking-tight mb-6 text-black dark:text-white">Destaques</h3>
 
           <div className="flex gap-6 flex-col md:flex-row">
             <BlogPostCard
@@ -66,12 +62,7 @@ export default function Home() {
             className="flex mt-8 text-gray-600 dark:text-gray-400 leading-7 rounded-lg hover:text-gray-800 dark:hover:text-gray-200 transition-all h-6"
           >
             Ver mais postagens
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 w-6 ml-1"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="h-6 w-6 ml-1">
               <path
                 stroke="currentColor"
                 strokeLinecap="round"

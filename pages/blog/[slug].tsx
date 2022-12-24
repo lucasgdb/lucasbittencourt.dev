@@ -24,13 +24,13 @@ export async function getStaticPaths() {
   const paths = await sanityClient.fetch(postSlugsQuery);
   return {
     paths: paths.map((slug) => ({ params: { slug } })),
-    fallback: 'blocking'
+    fallback: 'blocking',
   };
 }
 
 export async function getStaticProps({ params, preview = false }) {
   const { post } = await getClient(preview).fetch(postQuery, {
-    slug: params.slug
+    slug: params.slug,
   });
 
   if (!post) {
@@ -44,8 +44,8 @@ export async function getStaticProps({ params, preview = false }) {
       post: {
         ...post,
         content: html,
-        readingTime
-      }
-    }
+        readingTime,
+      },
+    },
   };
 }

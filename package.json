@@ -54,18 +54,12 @@
     "node": ">=16.13"
   },
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json}": [
+    "**/*.{ts,tsx,js,jsx}": [
       "eslint .",
       "prettier --ignore-path .eslintignore --write ."
     ],
     "**/*.md": [
       "prettier --ignore-path .eslintignore --write ."
     ]
-  },
-  "prettier": {
-    "arrowParens": "always",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "none"
   }
 }

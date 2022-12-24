@@ -7,13 +7,9 @@ import { indexQuery } from 'lib/queries';
 import { getClient } from 'lib/sanity-server';
 import { Post } from 'lib/types';
 
-export default function Blog({
-  posts
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Blog({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [searchValue, setSearchValue] = useState('');
-  const filteredBlogPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const filteredBlogPosts = posts.filter((post) => post.title.toLowerCase().includes(searchValue.toLowerCase()));
 
   return (
     <Container
@@ -21,20 +17,13 @@ export default function Blog({
       description="Pensamentos sobre a indústria de software, programação e tecnologia."
     >
       <div className="flex flex-col items-start justify-center max-w-2xl mx-auto mb-16">
-        <h1 className="mb-4 text-3xl font-bold tracking-tight text-black md:text-5xl dark:text-white">
-          Blog
-        </h1>
+        <h1 className="mb-4 text-3xl font-bold tracking-tight text-black md:text-5xl dark:text-white">Blog</h1>
 
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Criei este blog com o intuito de aprender ensinando pessoas. Ao total,
-          há {posts.length} artigo
+          Criei este blog com o intuito de aprender ensinando pessoas. Ao total, há {posts.length} artigo
           {posts.length === 1 ? '' : 's'} compartilhado
           {posts.length === 1 ? '' : 's'}. Siga meu{' '}
-          <a
-            href="https://twitter.com/lucasgdbi"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://twitter.com/lucasgdbi" target="_blank" rel="noopener noreferrer">
             Twitter
           </a>{' '}
           para atualizações de futuras postagens. Tenha bom proveito!
@@ -97,18 +86,11 @@ export default function Blog({
           </h3>
 
           {!filteredBlogPosts.length && (
-            <p className="mb-4 text-gray-600 dark:text-gray-400">
-              Nenhuma postagem encontrada.
-            </p>
+            <p className="mb-4 text-gray-600 dark:text-gray-400">Nenhuma postagem encontrada.</p>
           )}
 
           {filteredBlogPosts.map((post) => (
-            <BlogPost
-              key={post.title}
-              slug={post.slug}
-              title={post.title}
-              excerpt={post.excerpt}
-            />
+            <BlogPost key={post.title} slug={post.slug} title={post.title} excerpt={post.excerpt} />
           ))}
         </Suspense>
       </div>

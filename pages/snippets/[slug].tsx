@@ -18,13 +18,13 @@ export async function getStaticPaths() {
   const paths = await sanityClient.fetch(snippetSlugsQuery);
   return {
     paths: paths.map((slug) => ({ params: { slug } })),
-    fallback: 'blocking'
+    fallback: 'blocking',
   };
 }
 
 export async function getStaticProps({ params, preview = false }) {
   const { snippet } = await getClient(preview).fetch(snippetsQuery, {
-    slug: params.slug
+    slug: params.slug,
   });
 
   if (!snippet) {
@@ -37,8 +37,8 @@ export async function getStaticProps({ params, preview = false }) {
     props: {
       snippet: {
         ...snippet,
-        content: html
-      }
-    }
+        content: html,
+      },
+    },
   };
 }
