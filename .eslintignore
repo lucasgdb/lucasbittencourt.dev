@@ -2,3 +2,6 @@
 .vercel
 .next
 .sanity
+node_modules
+
+yarn.lock
