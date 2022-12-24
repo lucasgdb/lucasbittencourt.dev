@@ -56,11 +56,18 @@
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx,json}": [
       "eslint . --fix",
-      "prettier --ignore-path .eslintignore --write ."
+      "prettier --ignore-path .eslintignore --write .",
+      "git add"
     ],
-    "**/*.{md}": [
-      "prettier --ignore-path .eslintignore --write ."
+    "**/*.md": [
+      "prettier --ignore-path .eslintignore --write .",
+      "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "prettier": {
     "arrowParens": "always",
