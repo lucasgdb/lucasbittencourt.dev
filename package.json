@@ -6,8 +6,9 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
-    "sanity:start": "sanity dev",
-    "format": "prettier --ignore-path .eslintignore --write --check ."
+          "sanity:start": "sanity dev",
+    "format": "prettier --ignore-path .eslintignore --write --check .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@sanity/cli": "^3.1.2",
@@ -36,6 +37,7 @@
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.1",
     "globby": "13.1.3",
+    "husky": "^8.0.2",
     "postcss": "^8.4.20",
     "prettier": "2.8.1",
     "reading-time": "^1.5.0",
