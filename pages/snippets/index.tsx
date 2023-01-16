@@ -1,6 +1,6 @@
 import Container from 'components/Container';
 import FunctionCard from 'components/FunctionCard';
-import { InferGetStaticPropsType } from 'next';
+import { type InferGetStaticPropsType } from 'next';
 import { allSnippetsQuery } from 'lib/queries';
 import { getClient } from 'lib/sanity-server';
 import { Snippet } from 'lib/types';
