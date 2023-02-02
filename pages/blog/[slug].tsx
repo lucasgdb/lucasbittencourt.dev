@@ -10,7 +10,7 @@ import mediumZoom from 'medium-zoom';
 
 export default function PostPage({ post }: { post: Post }) {
   useEffect(() => {
-    mediumZoom('article img');
+    mediumZoom('#article img');
   }, []);
 
   return (
