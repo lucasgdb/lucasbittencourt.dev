@@ -29,7 +29,8 @@ export default function BlogLayout({ children, post }: PropsWithChildren<{ post:
               src="/avatar.jpeg"
               className="rounded-full"
             />
-            <p className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+
+            <p className="ml-2 text-sm text-gray-700 dark:text-gray-300">
               Lucas Bittencourt /{' '}
               {format(parseISO(post.date), 'MMMM dd, yyyy', {
                 locale: ptBR,
@@ -44,7 +45,9 @@ export default function BlogLayout({ children, post }: PropsWithChildren<{ post:
         </div>
 
         <Suspense fallback={null}>
-          <div className="w-full mt-4 prose dark:prose-dark max-w-none">{children}</div>
+          <div className="w-full mt-4 prose dark:prose-dark max-w-none" id="article">
+            {children}
+          </div>
 
           <div className="mt-8 text-sm text-gray-700 dark:text-gray-300">
             <a
