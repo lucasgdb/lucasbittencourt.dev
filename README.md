@@ -7,8 +7,8 @@ This application requires Node.js v16.13+.
 ```bash
 $ git clone https://github.com/lucasgdb/nextjs-portfolio.git
 $ cd nextjs-portfolio
-$ yarn
-$ yarn dev
+$ pnpm i
+$ pnpm dev
 ```
 
 Create a `.env` file similar to [`.env.example`](https://github.com/lucasgdb/nextjs-portfolio/blob/main/.env.example).
