@@ -1,7 +1,7 @@
 import Image from 'next/image';
+import type { PropsWithChildren } from 'react';
 
 import Container from 'components/Container';
-import type { PropsWithChildren } from 'react';
 import { Snippet } from 'lib/types';
 import { urlForImage } from 'lib/sanity';
 

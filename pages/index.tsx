@@ -44,11 +44,11 @@ export default function Home() {
               gradient="from-[#61DAFB] to-[#818CF8]"
             />
 
-            {/* <BlogPostCard
-              title="React Hook: useState"
-              slug="react-hook-use-state"
-              gradient="from-[#6EE7B7] via-[#3B82F6] to-[#9333EA]"
-            /> */}
+            <BlogPostCard
+              title="JavaScript moderno | Básico"
+              slug="javascript-moderno"
+              gradient="from-[#323330] via-[#F0DB4F] to-[#F0DB4F]"
+            />
 
             {/* <BlogPostCard
               title="Edge Computing - O Futuro da Conectividade"

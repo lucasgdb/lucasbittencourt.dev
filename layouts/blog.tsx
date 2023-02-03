@@ -1,13 +1,23 @@
 import Image from 'next/image';
 import { parseISO, format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import { PropsWithChildren, Suspense } from 'react';
+import { PropsWithChildren, Suspense, useEffect } from 'react';
+import { urlForImage } from 'lib/sanity';
+import mediumZoom from 'medium-zoom';
 
 import Container from 'components/Container';
 import { Post } from 'lib/types';
-import { urlForImage } from 'lib/sanity';
+import { useMounted } from 'hooks/useMounted';
 
 export default function BlogLayout({ children, post }: PropsWithChildren<{ post: Post }>) {
+  const mounted = useMounted();
+
+  useEffect(() => {
+    if (mounted) {
+      mediumZoom('#article img');
+    }
+  }, [mounted]);
+
   return (
     <Container
       title={`${post.title} | Lucas Bittencourt`}
