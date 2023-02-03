@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import Container from 'components/Container';
-import avatar from 'public/static/images/me.jpeg';
 import mediumZoom from 'medium-zoom';
 
 export default function About() {
@@ -57,8 +56,9 @@ export default function About() {
             <Image
               alt="Lucas Bittencourt"
               width={400}
+              height={400}
               quality={100}
-              src={avatar}
+              src="/static/images/me.jpeg"
               className="rounded-md"
               id="my-photo"
             />
