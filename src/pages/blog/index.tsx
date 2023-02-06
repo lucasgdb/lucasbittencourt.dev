@@ -61,16 +61,16 @@ export default function Blog({ posts }: InferGetStaticPropsType<typeof getStatic
             </h3>
 
             <BlogPost
+              title="JavaScript moderno"
+              excerpt="Aprenda as principais funcionalidades do JavaScript moderno."
+              slug="javascript-moderno"
+            />
+
+            <BlogPost
               title="Performance no React"
               excerpt="Entenda conceitos de memoização, igualdade referencial, algoritmo de reconciliação, memo, useMemo, useCallback, do porquê utilizamos a propriedade key em loops, além de exemplos práticos com código."
               slug="performance-no-react"
             />
-
-            {/* <BlogPost
-              title="Everything I Know About Style Guides, Design Systems, and Component Libraries"
-              excerpt="A deep-dive on everything I've learned in the past year building style guides, design systems, component libraries, and their best practices."
-              slug="style-guides-component-libraries-design-systems"
-            /> */}
 
             {/* <BlogPost
               title="Building a Design System Monorepo with Turborepo"
