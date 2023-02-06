@@ -1,7 +1,7 @@
 export default function ConsCard({ title, cons }) {
   return (
     <div className="border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900 rounded-xl p-6 my-6 w-full">
-      <span>{`Você não pode usar ${title} se...`}</span>
+      <span>Você não pode usar {title} se...</span>
       <div className="mt-4">
         {cons.map((con) => (
           <div key={con} className="flex font-medium items-baseline mb-2">

@@ -49,8 +49,8 @@ export default function BlogLayout({ children, post }: PropsWithChildren<{ post:
           </div>
 
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 min-w-32 md:mt-0">
-            {post.readingTime}
             {` • `}
+            {post.readingTime}
           </p>
         </div>
 
