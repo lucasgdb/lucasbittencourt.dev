@@ -189,6 +189,10 @@ pre {
   scrollbar-width: none; /* Firefox */
 }
 
+html {
+  scroll-behavior: smooth !important;
+}
+
 body::-webkit-scrollbar-thumb {
   border-radius: 8px;
   background-color: #6b6b6b;
