@@ -7,6 +7,8 @@ import mediumZoom from 'medium-zoom';
 export default function About() {
   useEffect(() => {
     mediumZoom('#my-photo');
+    mediumZoom('#setup-photo');
+    mediumZoom('#family-photo');
   }, []);
 
   return (
@@ -48,20 +50,42 @@ export default function About() {
             Node.js, MongoDB, AWS, Git, entre outras.
           </p>
 
-          <h3>Educação</h3>
-          <p>Etec Alfredo de Barros Santos, nível Técnico. Desenvolvimento de Sistemas.</p>
-
           <h2>Fotos</h2>
-          <div className="flex space-x-8">
-            <Image
-              alt="Lucas Bittencourt"
-              width={400}
-              height={400}
-              quality={100}
-              src="/static/images/me.jpeg"
-              className="rounded-md"
-              id="my-photo"
-            />
+
+          <div className="flex flex-col gap-y-4">
+            <div className="flex space-x-8">
+              <Image
+                alt="Lucas Bittencourt"
+                width={300}
+                height={300}
+                quality={100}
+                src="/static/images/me.jpeg"
+                className="rounded-md"
+                id="my-photo"
+              />
+            </div>
+
+            <div className="flex gap-4 flex-wrap">
+              <Image
+                alt="Setup"
+                width={300}
+                height={300}
+                quality={100}
+                src="/static/images/setup.jpg"
+                className="rounded-md"
+                id="setup-photo"
+              />
+
+              <Image
+                alt="Family"
+                width={300}
+                height={300}
+                quality={100}
+                src="/static/images/family.jpg"
+                className="rounded-md"
+                id="family-photo"
+              />
+            </div>
           </div>
         </div>
       </div>
