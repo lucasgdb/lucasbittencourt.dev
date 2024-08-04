@@ -1,69 +1,33 @@
 {
   "private": true,
-  "license": "MIT",
   "scripts": {
-    "build": "next build",
     "dev": "next dev",
-    "start": "next start",
-    "lint": "next lint",
-    "sanity:start": "sanity dev",
-    "format": "prettier --ignore-path .eslintignore --write --check .",
-    "delete:node_modules": "find . -name \"node_modules\" -exec rm -rf '{}' +",
-    "delete:build": "find . -name \"build\" -exec rm -rf '{}' +",
-    "clear": "yarn delete:node_modules && yarn delete:build",
-    "prepare": "husky install"
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "@sanity/cli": "^3.52.0",
-    "@sanity/image-url": "^1.0.2",
-    "@sanity/webhook": "^4.0.4",
-    "@tailwindcss/typography": "0.5.9",
-    "classnames": "^2.3.2",
-    "date-fns": "2.29.3",
-    "easymde": "^2.18.0",
-    "medium-zoom": "^1.1.0",
-    "motion": "^10.15.5",
-    "next": "13.2.4",
-    "next-mdx-remote": "^4.4.1",
-    "next-sanity": "^9.4.2",
-    "next-themes": "^0.2.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "sanity": "3.52.0",
-    "sanity-plugin-markdown": "^4.1.2",
-    "styled-components": "^5.3.9",
-    "tailwindcss": "3.2.7",
-    "use-delayed-render": "^0.0.7"
+    "@vercel/analytics": "^1.3.1",
+    "@vercel/speed-insights": "^1.0.12",
+    "geist": "1.3.1",
+    "next": "15.0.0-rc.0",
+    "next-mdx-remote": "^5.0.0",
+    "react": "19.0.0-rc-8269d55d-20240802",
+    "react-dom": "19.0.0-rc-8269d55d-20240802",
+    "sugar-high": "^0.7.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.28",
-    "autoprefixer": "10.4.13",
-    "eslint": "8.34.0",
-    "eslint-config-next": "13.2.4",
-    "globby": "13.1.3",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
-    "postcss": "^8.4.21",
-    "prettier": "2.8.4",
-    "reading-time": "^1.5.0",
-    "rehype": "12.0.1",
-    "rehype-autolink-headings": "6.1.1",
-    "rehype-code-titles": "1.2.0",
-    "rehype-prism-plus": "^1.5.1",
-    "rehype-slug": "5.1.0",
-    "remark-gfm": "^3.0.1",
-    "typescript": "^5.5.4"
+    "babel-plugin-react-compiler": "0.0.0-experimental-334f00b-20240725",
+    "@types/node": "^22.1.0",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
+    "eslint-config-next": "15.0.0-rc.0",
+    "tailwindcss": "4.0.0-alpha.13",
+    "@tailwindcss/postcss": "4.0.0-alpha.13",
+    "postcss": "^8.4.40",
+    "typescript": "5.5.4"
   },
-  "engines": {
-    "node": ">=16.13"
-  },
-  "lint-staged": {
-    "**/*.{ts,tsx,js,jsx}": [
-      "eslint",
-      "prettier --write"
-    ],
-    "**/*.md": [
-      "prettier --write"
-    ]
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc"
   }
 }

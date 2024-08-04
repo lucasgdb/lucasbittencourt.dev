@@ -1,0 +1,250 @@
+---
+title: "React Performance"
+publishedAt: "2022-08-11"
+summary: "Learn concepts like memoization, referential equality, reconciliation algorithm, memo - useMemo - useCallback functions, why we should use the key property in loops and practical code examples."
+---
+
+## Table of contents:
+
+- [Reconciliation algorithm](#reconciliation-algorithm)
+- [Memoization](#memoization)
+- [Referential equality](#referential-equality)
+- [React Hook: useMemo](#react-hook-usememo)
+  - [Avoiding heavy recalculations](#1-avoiding-heavy-recalculations)
+  - [Maintaining referential equality](#2-maintaining-referential-equality)
+- [React Hook: useCallback](#react-hook-usecallback)
+  - [Maintaining referential equality](#maintaining-referential-equality)
+- [React: memo](#react-memo)
+- [Why should we use the key property in loops?](#why-should-we-use-the-key-property-in-loops)
+  - [Why should not we use the index in loops](#why-should-not-we-use-the-index-in-loops)
+- [Avoiding derived states](#avoiding-derived-states)
+
+### Reconciliation algorithm
+
+In React, a single component can have nested components. When it is rendered, all its children are rendered together.
+
+There is a underlying diffing algorithm called the [reconciliation algorithm](https://pt-br.reactjs.org/docs/reconciliation.html)
+that manages the render of the component hierarchy.
+
+To understand what the render process does, we can break it down into 3 parts:
+
+1. It generates the [Virtual DOM](https://pt-br.reactjs.org/docs/faq-internals.html#what-is-the-virtual-dom) from JSX code
+2. It compares the Virtual DOM with the real DOM using a diffing algorithm
+3. It commits only the differences to the real DOM
+
+Without the reconciliation algorithm, updating the real DOM with every component rendering would be an extremely slow process.
+
+### Memoization
+
+It's a technique which saves the return value from pure functions.
+Allowing them to be memoized and thus avoiding heavy recalculations.
+Pure functions are functions that don't depend on external values;
+therefore, it will always return the same result given the same input.
+
+### Referential equality
+
+When we say referential equality, it means that we need to ensure reference types are equal when they have not changed.
+
+In JavaScript we have primitive types and reference types.
+
+- Two idential primitive types are always equal in a shallow compararison (e.g. `25 === 25`, `'Lucas' === 'Lucas'`, `true === true`).
+- Two idential reference types are not always equal in a shallow comparison (e.g. `{ age: 25 } === { age: 25 }`, `['Lucas'] === ['Lucas']`).
+  Therefore, in every render, they appear different from the previous render.
+
+We enforce these reference types (e.g. objects, arrays and functions) to be the same as the previous render to use in these scenarios:
+
+- The dependencies array of useEffect
+- Component props
+
+## React Hook: useMemo
+
+Syntax:
+
+```ts
+const memoizedValue = useMemo(() => expensiveFunction(), dependencies);
+```
+
+You use `useMemo` to memoize values, helping avoid heavy recalculations or to maintain referential equality.
+
+### 1. Avoiding heavy recalculations
+
+#### Don't do this:
+
+```ts
+// this will trigger on every render
+const filteredList = heavyFunction(myList);
+```
+
+#### Do this instead:
+
+```ts
+// this triggers only when myList changes
+const filteredList = useMemo(() => heavyFunction(myList), [myList]);
+```
+
+### 2. Maintaining referential equality
+
+#### Don't do this:
+
+```tsx
+const person = { name: props.name, age: props.age };
+
+// This will trigger on every render
+useEffect(() => {
+  console.log(person);
+}, [person]);
+```
+
+#### Do this instead:
+
+```tsx
+const person = useMemo(
+  () => ({ name: props.name, age: props.age }),
+  [props.name, props.age]
+);
+
+// this triggers only when person changes
+useEffect(() => {
+  console.log(person);
+}, [person]);
+```
+
+## React Hook: useCallback
+
+Syntax:
+
+```ts
+const memoizedFunction = useCallback(functionToMemoize, dependencies);
+```
+
+You use `useCallback` to memoize functions, allowing you to maintain referential equality.
+
+### Maintaining referential equality
+
+#### Don't do this:
+
+```tsx
+const doSideEffect = () => setTimeout(console.log, 1000);
+
+// this will trigger on every render
+useEffect(() => {
+  cosnt sideEffect = doSideEffect();
+
+  return () => clearTimeout(sideEffect);
+}, [doSideEffect]);
+```
+
+#### Do this instead:
+
+```tsx
+const doSideEffect = useCallback(() => setTimeout(console.log, 1000), []);
+
+// this triggers only once
+useEffect(() => {
+  const sideEffect = doSideEffect();
+
+  return () => clearTimeout(sideEffect);
+}, [doSideEffect]);
+```
+
+#### Do this instead:
+
+```tsx
+const doSideEffect = useCallback(
+  () => setTimeout(() => console.log(name), 1000),
+  [name]
+);
+
+// this triggers only when name changes
+useEffect(() => {
+  const sideEffect = doSideEffect();
+
+  return () => clearTimeout(sideEffect);
+}, [doSideEffect]);
+```
+
+## React: memo
+
+Syntax:
+
+```ts
+const MemoizedComponent = memo(ComponentToMemoize, diffingAlgorithm?);
+```
+
+As we know, when a component renders, all its children are rendered by default.
+However, to skip rendering a component whose props have not changed, we can memoize it with `memo` function.
+The default diffing algorithm uses a shallow comparison (===).
+
+#### shallow comparison
+
+```tsx
+function ComponentToMemoize(props) {
+  return (
+    <div>
+      <p>{props.name}</p>
+    </div>
+  );
+}
+
+function diffingAlgorithm(prevProps, nextProps) {
+  return previousProps.name === nextProps.name;
+}
+
+const MemoizedComponent = memo(ComponentToMemoize, diffingAlgorithm);
+```
+
+## Why should we use the key property in loops?
+
+Syntax:
+
+```tsx
+{
+  list.map((item) => <p key={item.id}>{item.text}</p>);
+}
+```
+
+The key attribute helps React identify which items have changed, are added, or are removed,
+which is essential for performance optimization, especially during the re-render process.
+Typically, the key should be a unique identifier such as an ID from your data.
+
+### Why should not we use the index in loops?
+
+Syntax:
+
+```tsx
+{
+  list.map((item, index) => <p key={index}>{item.text}</p>);
+}
+```
+
+In a scenario where there is a list with 10 items and there is a change of position, addition or removal,
+all the element keys will change in order (0..10), this can lead to unnecessary re-renders and decreased performance.
+
+## Avoiding derived states
+
+Derived states are states created by another state.
+
+#### Don't do it!
+
+```tsx
+const [repos, setRepos] = useState([]);
+const [filteredRepos, setFilteredRepos] = useState([]);
+const [search, setSearch] = useState([]);
+
+useEffect(() => {
+  if (search.length) {
+    setFilteredRepos(repos.filter((repo) => repo.name.includes(search)));
+  }
+}, [search, repos]);
+```
+
+#### Do it!
+
+```tsx
+const [repos, setRepos] = useState([]);
+const [search, setSearch] = useState([]);
+
+const filteredRepos = repos.filter((repo) => repo.name.includes(search));
+```
+
+We don't need an additional state derived from another state. We can just create a new variable at runtime.
