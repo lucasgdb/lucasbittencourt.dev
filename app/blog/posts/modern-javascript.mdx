@@ -1,0 +1,624 @@
+---
+title: "Modern JavaScript"
+publishedAt: "2023-02-03"
+summary: "Learn modern JavasScript concepts like optional chaining, rest - spread - nullish coalescing operators and much more."
+---
+
+## Table of contents:
+
+- [Falsy, Truthy and Nullish values](#falsy-truthy-and-nullish-values)
+  - [Falsy values](#falsy-values)
+  - [Truthy values](#truthy-values)
+  - [Nullish values](#nullish-values)
+- [Numeric separators](#numeric-separators)
+- [Template literals](#template-literals)
+- [Shorthand property names](#shorthand-property-names)
+- [Logical operator AND](#logical-operator-and)
+- [Logical operator OR](#logical-operator-or)
+- [Nullish Coalescing operator](#nullish-coalescing-operator)
+- [Logical Assignment operator](#logical-assignment-operator)
+  - [AND equals (&&=)](#and-equals-)
+  - [OR equals (||=)](#or-equals-)
+  - [Nullish Coalescing equals (??=)](#nullish-coalescing-equals-)
+- [Optional Chaining](#optional-chaining)
+- [Destructuring assignment](#destructuring-assignment)
+- [Spread operator](#rest-operator)
+- [Rest operator](#rest-operator)
+- [Rest parameters](#rest-parameters)
+- [Default function parameters](#default-function-parameters)
+- [Arrow functions expressions](#arrow-functions-expressions)
+- [async/await](#asyncawait)
+  - [top-level await](#top-level-await)
+- [try...catch...finally](#trycatchfinally)
+
+## Falsy, Truthy & Nullish values
+
+JavaScript implicitly converts values when they are in a boolean context (such as in conditional operations)
+
+### Falsy values
+
+Falsy values, when implicitly converted, are equivalent to `false`:
+
+- `false`
+- `''`
+- `0`, `-0`, `0n`, `-0n`, `0.0`, `-0.0`
+- `null`
+- `undefined`
+- `NaN`
+
+### Truthy values
+
+Truthy values, when implicitly converted, are equivalent to `true`:
+
+- `true`
+- Any non-empty string
+- Any number less than 0 ou greater than 0 (including floating-point numbers)
+- `Infinity`, `-Infinity`
+- `[]` (Array, empty or non-empty)
+- `{}` (Object, empty or non-empty)
+
+### Nullish values
+
+Nullish values are always falsy and there are two possible values:
+
+- `null`
+- `undefined`
+
+## Numeric separators
+
+Numeric separators improve the readability of literal numbers by adding a visual separator between groups, using an underscore ( \_ )
+
+```ts
+const oneMillion = 1_000_000; // 1000000
+const oneBillion = 1_000_000_000; // 1000000000
+const oneMillionFiftyCents = 1_000_000.5; // 1000000.50
+```
+
+## Template literals
+
+Template literals (or template strings) is a syntactic sugar to build strings.
+
+#### Don't do this:
+
+```ts
+const fullname = "My name is " + username + " " + lastname;
+```
+
+#### Do this instead:
+
+```ts
+const fullname = `My name is ${username} ${lastname}`;
+```
+
+> It's good practice to use template literals for concatenation and + for mathematical operations.
+
+## Shorthand property names
+
+We can use a shorter syntax for property names in object literals to simplify object creation.
+
+#### Don't do this:
+
+```ts
+const person = {
+  username: username,
+  lastname: lastname,
+  getFullname: getFullname,
+};
+```
+
+#### Do this instead:
+
+```ts
+const person = {
+  username,
+  lastname,
+  getFullname,
+};
+```
+
+#### Don't do this:
+
+```ts
+const person = {
+  person.name,
+};
+```
+
+This way will throw an Uncaught SyntaxError: Unexpected token '.'
+
+#### Do this instead:
+
+```ts
+const person = {
+  name: person.name,
+};
+```
+
+#### Bonus:
+
+```ts
+const person = {
+  fullname: "Lucas Bittencourt",
+  getFullname() {
+    return this.fullname;
+  },
+};
+```
+
+Learn more about [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions#description)
+
+## Logical operator AND
+
+The logical operator AND ( **&&** ) returns the right-hand value if the left-hand value is [truthy](#truthy-values).
+
+```ts
+console.log(false && "Lucas Bittencourt"); // false
+console.log(undefined && "Lucas Bittencourt"); // undefined
+console.log(null && "Lucas Bittencourt"); // null
+console.log(NaN && "Lucas Bittencourt"); // NaN
+
+console.log(true && "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(1 && "Lucas Bittencourt"); // Lucas Bittencourt
+
+console.log(1 && true && "Lucas Bittencourt"); // 'Lucas Bittencourt'
+console.log(1 && false && "Lucas Bittencourt"); // false
+```
+
+#### JSX:
+
+```tsx
+{
+  hasMinimumAge && <SomeComponent />;
+}
+```
+
+## Logical operator OR
+
+The logical operator OR ( **||** ) returns the right-hand value if the left-hand value is [falsy](#falsy-values).
+
+```ts
+console.log(false || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(undefined || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(null || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(NaN || "Lucas Bittencourt"); // Lucas Bittencourt
+
+console.log(true || "Lucas Bittencourt"); // true
+console.log(1 || "Lucas Bittencourt"); // 1
+
+console.log(0 || false || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(0 || true || "Lucas Bittencourt"); // true
+console.log(1 || true || "Lucas Bittencourt"); // 1
+```
+
+## Nullish Coalescing operator
+
+The Nullish coalescing operator ( **??** ) returns the right-hand value if the left-hand value is [nullish](#nullish-values).
+
+```ts
+console.log("" ?? "Lucas Bittencourt"); // ''
+console.log(0 ?? "Lucas Bittencourt"); // 0
+console.log(true ?? "Lucas Bittencourt"); // true
+
+console.log(null ?? "Lucas Bittencourt"); // "Lucas Bittencourt"
+console.log(undefined ?? "Lucas Bittencourt"); // "Lucas Bittencourt"
+
+console.log(undefined ?? null ?? "Lucas Bittencourt"); // 'Lucas Bittencourt'
+console.log(undefined ?? false ?? "Lucas Bittencourt"); // false
+```
+
+## Logical Assignment operator
+
+We can now assign values conditionally using logical operators.
+
+### AND equals (&&=)
+
+Only evaluates the right operand and assigns to the left if the left operand is [truthy](#truthy-values).
+
+#### Don't do this:
+
+```ts
+let intersectionObserver = new IntersectionObserver();
+
+function resetIntersectionObserver() {
+  if (intersectionObserver) {
+    intersectionObserver = new IntersectionObserver();
+  }
+
+  return intersectionObserver;
+}
+```
+
+#### Do this instead:
+
+```ts
+let intersectionObserver = new IntersectionObserver();
+
+function resetIntersectionObserver() {
+  intersectionObserver &&= new IntersectionObserver();
+  return intersectionObserver;
+}
+```
+
+### OR equals (||=)
+
+Only evaluates the right operand and assigns to the left if the left operand is [falsy](#falsy-values).
+
+#### Don't do this:
+
+```ts
+let intersectionObserver;
+
+function getIntersectionObserver() {
+  if (!intersectionObserver) {
+    intersectionObserver = new IntersectionObserver();
+  }
+
+  return intersectionObserver;
+}
+```
+
+#### Do this instead:
+
+```ts
+let intersectionObserver = null;
+
+function getIntersectionObserver() {
+  intersectionObserver ||= new IntersectionObserver();
+  return intersectionObserver;
+}
+```
+
+### Nullish Coalescing equals (??=)
+
+Only evaluates the right operand and assigns to the left if the left operand is [nullish](#nullish-values).
+
+#### Don't do this:
+
+```ts
+let intersectionObserver = null;
+
+function getIntersectionObserver() {
+  if (intersectionObserver === null || intersectionObserver === undefined) {
+    intersectionObserver = new IntersectionObserver();
+  }
+
+  return intersectionObserver;
+}
+```
+
+#### Do this instead:
+
+```ts
+let intersectionObserver = null;
+
+function getIntersectionObserver() {
+  intersectionObserver ??= new IntersectionObserver();
+  return intersectionObserver;
+}
+```
+
+## Optional Chaining
+
+Optional Chaining is a safe way to access object properties that may be nullish.
+
+#### Don't do this:
+
+```ts
+console.log(object.nullishReference.name);
+```
+
+This can lead to a runtime error: Uncaught TypeError: Cannot read properties of undefined (reading 'name')
+
+#### Do this instead:
+
+```ts
+console.log(object.nullishReference?.name);
+```
+
+We also can use optional chaining in conditionals.
+
+```ts
+if (object.nullishReference?.name) {
+  console.log("Hello, world");
+}
+```
+
+We also can use optional chaining in arrays.
+
+```ts
+console.log(userList?.[0]?.name);
+```
+
+We also can use optional chaining in functions.
+
+```ts
+getUserData?.();
+getUserData?.()?.name;
+```
+
+## Destructuring assignment
+
+The [destructuring assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) syntax is a JavaScript expression that makes it possible to unpack values from arrays,
+or properties from objects, into distinct variables.
+
+#### Don't do this:
+
+```ts
+const username = user.username;
+const lastname = user.lastname;
+```
+
+#### Do this instead:
+
+```ts
+const { username, lastname } = user;
+```
+
+We can destructure from functions:
+
+```ts
+const { username, lastname } = getUser();
+```
+
+We can set a default value:
+
+```ts
+const { username = "Lucas", lastname } = user;
+```
+
+We can destructure nested objects:
+
+```ts
+const {
+  username,
+  lastname,
+  information: { email, age },
+} = user;
+```
+
+We can rename object properties when destructuring:
+
+```ts
+const { username: name } = user;
+```
+
+We can create another object using the [rest operator](#rest-operator) when destructuring:
+
+```ts
+const { username, lastname, ...userInfo } = user;
+```
+
+We can destructure function parameters:
+
+```ts
+function getUsername({ name, lastname }) {
+  return `${name} ${lastname}`;
+}
+```
+
+#### Don't do this:
+
+```ts
+const user1 = userList[0];
+const user2 = userList[1];
+```
+
+#### Do this instead:
+
+```ts
+const [user1, user2] = userList;
+```
+
+We can skip array elements when destructuring:
+
+```ts
+const [user1, user2, , user4] = userList;
+```
+
+We can destructure multidimensional arrays:
+
+```ts
+const [[a, , c], , [, h, i]] = myArray;
+```
+
+We can set a default value:
+
+```ts
+const [a = 1, b, c] = numberList;
+```
+
+We can destructure objects within arrays:
+
+```ts
+const [{ username, lastname }, user2] = userList;
+```
+
+We can destructure arrays as if they were objects:
+
+```ts
+const {
+  0: user1,
+  1: user2,
+  2: { username, lastname },
+} = userList;
+```
+
+We can create another array using the [rest operator](#rest-operator) when destructuring:
+
+```ts
+const [user1, user2, ...moreUsers] = userList;
+```
+
+We can destructure function parameters:
+
+```ts
+function sumNumbers([a, b, c]) {
+  return a + b + c;
+}
+```
+
+## Spread operator
+
+Spread operator "expands" an array or object into its elements.
+
+```ts
+const newUser = { ...user, age: 25 };
+
+const newUserList = [...userList, newUser];
+```
+
+We can spread nested object elements:
+
+```ts
+const newUser = {
+  information: {
+    ...user.information,
+    username: "Lucas",
+  },
+  age: 25,
+};
+```
+
+We can spread array elements as function arguments:
+
+```ts
+createUserList(argument1, argument2, ...arguments);
+```
+
+## Rest operator
+
+Rest operator collects multiple elements and "condenses" them into a single element.
+
+```ts
+const { username, lastname, ...otherInfo } = user;
+
+const [a, b, c, ...otherNumbers] = numberList;
+```
+
+## Rest parameters
+
+Rest parameters represents [variadic functions](https://en.cppreference.com/w/c/variadic) and provide a way to accept an indeterminate number of parameters.
+
+```ts
+function total(...numbers) {
+  return sum(numbers);
+}
+```
+
+## Default function parameters
+
+We can define default function parameters for optional arguments.
+
+```ts
+function getUsername(username = "Lucas Bittencourt") {
+  return username;
+}
+```
+
+We can set an object as default parameter:
+
+```ts
+function getUsername(user = { username: "Lucas Bittencourt" }) {
+  return user.username;
+}
+```
+
+## Arrow functions expressions
+
+[Arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) are compact functions.
+
+```ts
+const getUser = (username, lastname) => {
+  return {
+    username,
+    lastname,
+  };
+};
+```
+
+When an arrow function has only one statement, we can omit the `return` keyword and its brackets.
+
+```ts
+const getUsername = (username) => username.trim();
+```
+
+When returning a literal object, we need to ensure it is enclosed in parentheses:
+
+```ts
+const getUserInfo = (name) => ({
+  name: name.trim(),
+});
+```
+
+We can also return a literal array:
+
+```ts
+const getNumbers = () => [1, 2, 3];
+```
+
+We can have an asynchronus arrow function:
+
+```ts
+const getUsername = async (username) => Promise.resolve(username);
+```
+
+## async/await
+
+JavaScript async/await is syntactic sugar for promises.
+
+#### Don't do this:
+
+```ts
+function fetchUser() {
+  getUser().then((user) => console.log(user));
+}
+```
+
+#### Do this instead:
+
+```ts
+async function fetchUser() {
+  const user = await getUser();
+  console.log(user);
+}
+```
+
+### top-level await
+
+We can use a top-level await without the need for an asynchronus function.
+
+```ts
+const username = await Promise.resolve("Lucas Bittencourt");
+```
+
+## try...catch...finally
+
+The try...catch statement is comprised of a try block and either a catch block, a finally block, or both.
+The code in the try block is executed first, and if it throws an exception, the code in the catch block will be executed.
+The code in the finally block will always be executed before control flow exits the entire construct.
+
+#### Don't do this:
+
+```ts
+function fetchUser() {
+  getUser()
+    .then((user) => console.log(user))
+    .catch((error) => console.error(error))
+    .finally(() => console.info("Código executado!"));
+}
+```
+
+#### Do this instead:
+
+```ts
+async function fetchUser() {
+  try {
+    const user = await getUser();
+    console.info(user);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    console.log("Código executado!");
+  }
+}
+```

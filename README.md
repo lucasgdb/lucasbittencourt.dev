@@ -1,18 +1,16 @@
-# nextjs-portfolio
+# lucasbittencourt.dev
 
-## Running Locally
+This is a porfolio site complete with a blog. Includes:
 
-This application requires Node.js v16.13+.
+- MDX and Markdown support
+- Optimized for SEO (sitemap, robots, JSON-LD schema)
+- RSS Feed
+- Dynamic OG images
+- Syntax highlighting
+- Tailwind v4
+- Vercel Speed Insights / Web Analytics
+- Geist font
 
-```bash
-$ git clone https://github.com/lucasgdb/nextjs-portfolio.git
-$ cd nextjs-portfolio
-$ pnpm i
-$ pnpm dev
-```
+## Link
 
-Create a `.env` file similar to [`.env.example`](https://github.com/lucasgdb/nextjs-portfolio/blob/main/.env.example).
-
-## Cloning / Forking
-
-Please review the [license](https://github.com/lucasgdb/nextjs-portfolio/blob/main/LICENSE.txt) and remove all of my personal information (resume, blog posts, images, etc.).
+https://lucasbittencourt.dev
