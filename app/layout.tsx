@@ -11,7 +11,7 @@ import { baseUrl } from "./sitemap";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   icons: {
-    icon: "/logo-32x32.png",
+    icon: "/logo.png",
     shortcut: "/logo-32x32.png",
   },
   title: {
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "My Portfolio",
     locale: "en_US",
     type: "website",
-    images: ["/logo.png"],
+    images: [`${baseUrl}/logo.png`],
   },
   robots: {
     index: true,
