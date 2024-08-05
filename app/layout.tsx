@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "My Portfolio",
     locale: "en_US",
     type: "website",
-    images: [`${baseUrl}/logo.png`],
+    images: ["/logo.png"],
   },
   robots: {
     index: true,

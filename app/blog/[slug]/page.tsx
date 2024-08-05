@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { CustomMDX } from "app/components/mdx";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import { baseUrl } from "app/sitemap";
+import type { Metadata, ResolvingMetadata } from "next";
 
 export async function generateStaticParams() {
   let posts = getBlogPosts();
@@ -11,7 +12,15 @@ export async function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }) {
+type generateMetadataProps = {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata(
+  { params }: generateMetadataProps,
+  parent: ResolvingMetadata
+): Promise<Metadata | undefined> {
   let post = getBlogPosts().find((post) => post.slug === params.slug);
   if (!post) {
     return;
@@ -27,6 +36,8 @@ export function generateMetadata({ params }) {
     ? image
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
 
+  const previousImages = (await parent).openGraph?.images || [];
+
   return {
     title,
     description,
@@ -40,13 +51,14 @@ export function generateMetadata({ params }) {
         {
           url: ogImage,
         },
+        ...previousImages,
       ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      images: [ogImage, ...previousImages],
     },
   };
 }
