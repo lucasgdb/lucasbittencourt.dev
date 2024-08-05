@@ -20,13 +20,12 @@ export const metadata: Metadata = {
   },
   description: "This is my portfolio.",
   openGraph: {
-    title: "My Portfolio",
+    title: "Lucas Bittencourt",
     description: "This is my portfolio.",
     url: baseUrl,
     siteName: "My Portfolio",
     locale: "en_US",
     type: "website",
-    // images: ["/logo.png"],
   },
   robots: {
     index: true,
