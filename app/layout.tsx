@@ -11,8 +11,8 @@ import { baseUrl } from "./sitemap";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   icons: {
-    icon: "/favicon32x32.png",
-    shortcut: "/favicon-16x16.png",
+    icon: "/logo32x32.png",
+    shortcut: "/logo32x32.png",
   },
   title: {
     default: "lucasbittencourt.dev",
