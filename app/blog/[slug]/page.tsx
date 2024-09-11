@@ -3,6 +3,7 @@ import { CustomMDX } from "app/components/mdx";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import { baseUrl } from "app/sitemap";
 import type { Metadata, ResolvingMetadata } from "next";
+import { WatcherBar } from "app/components/watcher-bar";
 
 export async function generateStaticParams() {
   let posts = getBlogPosts();
@@ -72,6 +73,7 @@ export default function Blog({ params }) {
 
   return (
     <section>
+      <WatcherBar />
       <script
         type="application/ld+json"
         suppressHydrationWarning
