@@ -6,7 +6,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { WatcherBar } from "app/components/watcher-bar";
 
 export async function generateStaticParams() {
-  let posts = getBlogPosts();
+  const posts = getBlogPosts();
 
   return posts.map((post) => ({
     slug: post.slug,
@@ -14,8 +14,7 @@ export async function generateStaticParams() {
 }
 
 type generateMetadataProps = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata(
@@ -24,18 +23,19 @@ export async function generateMetadata(
 ): Promise<Metadata | undefined> {
   const { slug } = await params;
 
-  let post = getBlogPosts().find((post) => post.slug === slug);
+  const post = getBlogPosts().find((post) => post.slug === slug);
   if (!post) {
     return;
   }
 
-  let {
+  const {
     title,
     publishedAt: publishedTime,
     summary: description,
     image,
   } = post.metadata;
-  let ogImage = image
+
+  const ogImage = image
     ? image
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
 
@@ -69,8 +69,7 @@ export async function generateMetadata(
 export default async function Blog({ params }) {
   const { slug } = await params;
 
-  let post = getBlogPosts().find((post) => post.slug === slug);
-
+  const post = getBlogPosts().find((post) => post.slug === slug);
   if (!post) {
     return notFound();
   }
