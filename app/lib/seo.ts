@@ -21,9 +21,8 @@ export function postUrl(slug: string) {
   return `${baseUrl}/blog/${slug}`;
 }
 
-export function ogImageUrl(title: string) {
-  return `${baseUrl}/og?${new URLSearchParams({ title })}`;
-}
+// The same Open Graph image (the logo) for every page without its own image.
+export const ogImageUrl = `${baseUrl}/og`;
 
 // Next.js replaces (doesn't merge) `alternates` from parent layouts, so every
 // page sets its canonical URL together with the RSS feed link.
@@ -36,9 +35,6 @@ export function pageAlternates(path: string) {
 
 export const ogImageSize = { width: 1200, height: 630 };
 
-export function ogImage(title: string) {
-  return { url: ogImageUrl(title), ...ogImageSize, alt: title };
-}
 
 // Next.js replaces `openGraph` from parent layouts too, so pages spread this.
 export function baseOpenGraph() {
@@ -46,12 +42,12 @@ export function baseOpenGraph() {
     siteName: site.name,
     locale: site.locale,
     type: "website" as const,
-    images: [ogImage(person.name)],
+    images: [{ url: ogImageUrl, ...ogImageSize, alt: person.name }],
   };
 }
 
 export function postImageUrl(post: Post) {
-  return post.metadata.image ?? ogImageUrl(post.metadata.title);
+  return post.metadata.image ?? ogImageUrl;
 }
 
 // JSON.stringify doesn't escape "<", so a value containing "</script>" could

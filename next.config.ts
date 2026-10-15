@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // These routes read files from disk at request time, so the files must be
-  // bundled with their serverless functions.
+  // The MCP route reads the posts from disk at request time, so they must be
+  // bundled with its serverless function.
   outputFileTracingIncludes: {
     "/api/mcp": ["./app/blog/posts/**/*.mdx"],
-    "/og": ["./app/og/fonts/Geist-Bold.ttf", "./public/logo.png"],
   },
 };
 
