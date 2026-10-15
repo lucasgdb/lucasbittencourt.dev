@@ -3,7 +3,15 @@
 
 import type { MetadataRoute } from "next";
 import { getLastModified as lastModified, type Post } from "../blog/utils.ts";
-import { allowAiTraining, baseUrl, isIndexable, person, site } from "./site.ts";
+import {
+  allowAiTraining,
+  baseUrl,
+  isIndexable,
+  mcpEndpoint,
+  mcpPage,
+  person,
+  site,
+} from "./site.ts";
 
 const personId = `${baseUrl}/#person`;
 const websiteId = `${baseUrl}/#website`;
@@ -160,12 +168,49 @@ export function postJsonLd(post: Post) {
   };
 }
 
+export function mcpPageJsonLd() {
+  const url = `${baseUrl}/mcp`;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "@id": `${url}#article`,
+        headline: mcpPage.title,
+        description: mcpPage.description,
+        url,
+        mainEntityOfPage: url,
+        dateModified: mcpPage.updatedAt,
+        inLanguage: site.language,
+        author: { "@id": personId },
+        publisher: { "@id": personId },
+        isPartOf: { "@id": websiteId },
+        about: [
+          "Model Context Protocol",
+          "Large language models",
+          "Tool calling",
+          "Retrieval-augmented generation",
+        ],
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+          { "@type": "ListItem", position: 2, name: mcpPage.title },
+        ],
+      },
+    ],
+  };
+}
+
 export function buildSitemap(posts: Post[]): MetadataRoute.Sitemap {
   const latest = posts.map(lastModified).sort().at(-1);
 
   return [
     { url: baseUrl, lastModified: latest },
     { url: `${baseUrl}/blog`, lastModified: latest },
+    { url: `${baseUrl}/mcp`, lastModified: mcpPage.updatedAt },
     ...posts.map((post) => ({
       url: postUrl(post.slug),
       lastModified: lastModified(post),
@@ -194,7 +239,8 @@ export function buildRobots(
 
   return {
     rules: [
-      { userAgent: "*", allow: "/" },
+      // The MCP endpoint (/api/mcp) is for MCP clients, not for indexing.
+      { userAgent: "*", allow: "/", disallow: "/api/" },
       allowTraining
         ? { userAgent: aiTrainingCrawlers, allow: "/" }
         : { userAgent: aiTrainingCrawlers, disallow: "/" },
@@ -268,6 +314,11 @@ export function buildLlmsTxt(posts: Post[]) {
 ## Blog posts
 
 ${postLinks}
+
+## MCP server
+
+- [MCP server](${baseUrl}/mcp): how to connect an AI assistant to this website with the Model Context Protocol, and the AI concepts behind it
+- MCP endpoint (Streamable HTTP, read-only, no authentication): ${mcpEndpoint}
 
 ## Optional
 

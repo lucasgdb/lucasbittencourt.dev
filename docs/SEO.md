@@ -72,13 +72,19 @@ Ask in ChatGPT (with search), Perplexity, Gemini and Google (AI Mode), then reco
 
 Results vary by user, location and time. Look for trends, not single answers.
 
-## AI agent compatibility
+## AI agent compatibility (MCP server)
 
-Assessed and intentionally **not implemented**: this is a static portfolio with no actions to perform.
+The site is also an MCP server, documented at `/mcp`:
 
-- **Public API / OpenAPI**: no data or operations that justify an API. The RSS feed, sitemap and llms.txt already expose the content in machine-readable form.
-- **MCP server**: no tool or private resource an agent needs. Agents can read the public HTML.
-- **Forms**: the site has none. If a contact form is added, use semantic `<form>`, `<label>` and native validation.
+- **Endpoint**: `https://lucasbittencourt.dev/api/mcp` (Streamable HTTP, stateless, read-only, no authentication, CORS open).
+- **Code**: `app/lib/mcp.ts` (tools, search, HTTP handler) and `app/api/mcp/route.ts`. Tests in `tests/mcp.test.ts` use the official MCP client against the real handler.
+- **Tools**: `get_profile`, `list_posts`, `get_post`, `search_blog` (BM25 over post sections, results link to the section anchor).
+- **Same source of truth** as the pages, JSON-LD and llms.txt, so answers stay consistent with the site and cite canonical URLs.
+- **Not a discovery channel**: search engines don't crawl MCP servers. `/api/` is disallowed in robots.txt and the endpoint sends `X-Robots-Tag: noindex`. The `/mcp` page is in the sitemap and listed in llms.txt.
+- **Deploy**: the route reads the `.mdx` posts at request time; `outputFileTracingIncludes` in `next.config.ts` bundles them with the function. If the endpoint is abused, add a rate limit rule for `/api/mcp` in the Vercel Firewall.
+- **Monitoring**: Vercel → Logs/Observability, filter by `/api/mcp`.
+
+There is no public API/OpenAPI: the MCP tools, the RSS feed, the sitemap and llms.txt already expose the content in machine-readable form.
 
 ## Missing content (not invented)
 

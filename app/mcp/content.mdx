@@ -1,0 +1,183 @@
+This website is also an **MCP server**. Any AI assistant that supports the Model Context Protocol
+(Claude, Cursor, VS Code and others) can connect to it, read my profile and blog posts, and search them
+to answer questions with links to the source.
+
+## Table of contents:
+
+- [Connect to this server](#connect-to-this-server)
+- [Available tools](#available-tools)
+- [AI concepts behind it](#ai-concepts-behind-it)
+  - [Large Language Models (LLMs)](#large-language-models-llms)
+  - [Tokens and the context window](#tokens-and-the-context-window)
+  - [Tool calling](#tool-calling)
+  - [Model Context Protocol (MCP)](#model-context-protocol-mcp)
+  - [Retrieval-Augmented Generation (RAG)](#retrieval-augmented-generation-rag)
+  - [Agents](#agents)
+- [What happens in a tool call](#what-happens-in-a-tool-call)
+- [Security and good practices](#security-and-good-practices)
+- [MCP vs. SEO](#mcp-vs-seo)
+
+## Connect to this server
+
+Endpoint (Streamable HTTP, no authentication):
+
+<McpEndpoint />
+
+### Claude Code
+
+<McpCommand />
+
+### Claude (claude.ai and Claude Desktop)
+
+Go to **Settings → Connectors → Add custom connector**, and paste the endpoint URL.
+
+### Cursor
+
+Add it to `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+
+<McpConfig format="cursor" />
+
+### VS Code
+
+Add it to `.vscode/mcp.json`:
+
+<McpConfig format="vscode" />
+
+### MCP Inspector
+
+To see the raw requests and responses, run the official inspector and connect to the endpoint
+using the **Streamable HTTP** transport:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Then ask your assistant something like _"What does Lucas write about the Node.js event loop?"_.
+It will call the tools below and answer with links to the posts.
+
+## Available tools
+
+<McpTools />
+
+All tools are **read-only**: they don't change anything and don't call external services.
+
+## AI concepts behind it
+
+### Large Language Models (LLMs)
+
+An LLM is a model trained on a huge amount of text to predict the next piece of text. That's enough to write,
+summarize, translate and reason about code, but it has two limitations:
+
+- It only knows what was in its training data, up to a **knowledge cutoff** date.
+- When it doesn't know something, it may generate a plausible but wrong answer (a **hallucination**).
+
+Most of the techniques below exist to give the model **fresh and reliable context** at the moment it answers.
+
+### Tokens and the context window
+
+Models don't read characters or words, they read **tokens** (pieces of words, around 4 characters of English text each).
+Everything the model sees in a conversation (instructions, messages, documents, tool results) must fit in its
+**context window**, which is limited and has a cost.
+
+That's why it's better to give the model the **relevant passages** than to paste a whole website into the conversation.
+
+### Tool calling
+
+Tool calling (or function calling) lets the model ask the application to run a function. The application describes
+the available tools (name, description and a JSON Schema for the arguments), and the model replies with a structured call
+instead of text:
+
+```json
+{ "name": "search_blog", "arguments": { "query": "process.nextTick vs promises" } }
+```
+
+The application runs the function, sends the result back to the model, and the model uses it to write the answer.
+**The model never runs code by itself**: the application decides what to execute.
+
+### Model Context Protocol (MCP)
+
+[MCP](https://modelcontextprotocol.io) is an open protocol, created by Anthropic, that standardizes how AI applications connect to
+tools and data. Before it, every assistant needed a custom integration for every service. With MCP,
+a service implements **one server**, and it works with every compatible client.
+
+- **Host**: the AI application (e.g. Claude Code, Cursor)
+- **Client**: the connection the host keeps with each server
+- **Server**: exposes capabilities, like this website
+
+A server can expose three kinds of capabilities:
+
+- **Tools**: functions the model decides to call (e.g. `search_blog`)
+- **Resources**: data the application can read and attach to the context (e.g. files)
+- **Prompts**: reusable prompt templates the user can pick
+
+Messages use [JSON-RPC 2.0](https://www.jsonrpc.org/specification), over one of two transports:
+
+- **stdio**: the host starts the server as a local process (common for local tools, e.g. file system access)
+- **Streamable HTTP**: the server is a remote URL (like this one)
+
+### Retrieval-Augmented Generation (RAG)
+
+RAG means **retrieving** relevant information and adding it to the model's context before it **generates** the answer.
+The answer is then **grounded** on real content, and the model can cite where it came from.
+
+The `search_blog` tool is a small retriever:
+
+1. **Chunking**: every post is split into sections (by headings).
+2. **Ranking**: sections are scored with [BM25](https://en.wikipedia.org/wiki/Okapi_BM25), a classic keyword relevance algorithm
+   (the same family used by search engines), giving extra weight to matches in titles and headings.
+3. **Grounded results**: it returns the best passages with a link to the exact section of the post.
+
+Many RAG systems use **embeddings** instead: each text becomes a vector of numbers that represents its meaning,
+and the search returns the closest vectors (semantic search). Embeddings find synonyms and paraphrases, but need an
+embedding model and a vector database. For a few blog posts, keyword ranking is accurate, free and runs in milliseconds.
+
+### Agents
+
+An agent is a model running in a loop: it decides which tool to call, reads the result, and repeats until the task is done.
+Coding assistants like Claude Code are agents: they read files, run commands and edit code step by step.
+
+MCP is what lets you plug new tools into agents without changing the agent itself.
+
+## What happens in a tool call
+
+When you ask _"How does process.nextTick differ from promises?"_, the client sends a JSON-RPC request to the endpoint:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "search_blog",
+    "arguments": { "query": "How does process.nextTick differ from promises?", "limit": 1 }
+  }
+}
+```
+
+And the server answers with the most relevant passage:
+
+<McpExampleResult />
+
+(Trimmed: the response also carries the same data as text in `content`, for clients that don't read `structuredContent`.)
+
+The model reads the excerpt, answers your question, and links to the section.
+
+## Security and good practices
+
+- **Least privilege**: expose only what the model needs. This server is read-only and only serves public content.
+- **Validate inputs**: never trust tool arguments, they are generated by a model (and can be influenced by prompt injection).
+- **Annotate tools**: hints like `readOnlyHint` and `destructiveHint` help clients decide when to ask the user for confirmation.
+- **No secrets in responses**: everything a tool returns goes into the model's context.
+- **Authentication**: for private data, protect the server with OAuth (supported by the MCP specification) instead of API keys in URLs.
+- **Local servers**: validate the `Host` and `Origin` headers to prevent DNS rebinding attacks.
+
+## MCP vs. SEO
+
+They solve different problems:
+
+- **SEO and GEO** help search engines and AI search (Google, ChatGPT Search, Perplexity) **discover** and cite this website.
+  This site uses canonical URLs, structured data (JSON-LD), a sitemap and an [llms.txt](/llms.txt) for that.
+- **MCP** lets an assistant **use** this website as a tool on behalf of a user, during a conversation.
+
+Search engines don't crawl MCP servers. But both read the **same source of truth**: the profile, the posts, the
+canonical URLs and the dates come from the same code, so a page, its JSON-LD, the llms.txt and an MCP answer never contradict each other.

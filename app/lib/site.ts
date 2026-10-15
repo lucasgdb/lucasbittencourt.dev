@@ -3,6 +3,18 @@
 
 export const baseUrl = "https://lucasbittencourt.dev";
 
+// Path of the MCP server (app/api/mcp/route.ts). The /mcp page documents it.
+export const mcpPath = "/api/mcp";
+export const mcpEndpoint = `${baseUrl}${mcpPath}`;
+
+export const mcpPage = {
+  title: "MCP server",
+  description:
+    "Connect your AI assistant to this website with the Model Context Protocol, and learn the AI concepts behind it: LLMs, tool calling, MCP and RAG.",
+  // Update when app/mcp/content.mdx changes meaningfully (sitemap, JSON-LD).
+  updatedAt: "2026-10-14",
+};
+
 export const site = {
   name: "lucasbittencourt.dev",
   locale: "en_US",

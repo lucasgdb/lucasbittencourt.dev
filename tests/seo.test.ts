@@ -49,6 +49,7 @@ test("sitemap lists only canonical URLs with real modification dates", () => {
   assert.deepEqual(urls, [
     baseUrl,
     `${baseUrl}/blog`,
+    `${baseUrl}/mcp`,
     ...posts.map((post) => `${baseUrl}/blog/${post.slug}`),
   ]);
   assert.equal(new Set(urls).size, urls.length);
@@ -67,15 +68,16 @@ test("robots.txt allows search crawlers and references the sitemap", () => {
   const robots = buildRobots("production", true);
   const rules = [robots.rules].flat();
 
-  assert.deepEqual(rules[0], { userAgent: "*", allow: "/" });
+  // Everything is crawlable except the MCP endpoint (not a page)
+  assert.deepEqual(rules[0], { userAgent: "*", allow: "/", disallow: "/api/" });
   assert.equal(robots.sitemap, `${baseUrl}/sitemap.xml`);
-  assert.ok(rules.every((rule) => !("disallow" in rule)));
+  assert.ok(rules.slice(1).every((rule) => !("disallow" in rule)));
 });
 
 test("robots.txt can block AI training crawlers without blocking search", () => {
   const rules = [buildRobots(undefined, false).rules].flat();
 
-  assert.deepEqual(rules[0], { userAgent: "*", allow: "/" });
+  assert.deepEqual(rules[0], { userAgent: "*", allow: "/", disallow: "/api/" });
   assert.ok([rules[1].userAgent].flat().includes("GPTBot"));
   assert.ok([rules[1].userAgent].flat().includes("Google-Extended"));
   assert.ok(![rules[1].userAgent].flat().includes("OAI-SearchBot"));
@@ -146,6 +148,7 @@ test("llms.txt follows the proposal structure and links every post", () => {
 
   assert.match(llms, /^# Lucas Bittencourt\n\n> /);
   assert.ok(llms.includes("\n## Blog posts\n"));
+  assert.ok(llms.includes(`${baseUrl}/api/mcp`));
   for (const post of posts) {
     assert.ok(llms.includes(`(${baseUrl}/blog/${post.slug})`), post.slug);
   }
