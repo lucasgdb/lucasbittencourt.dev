@@ -5,7 +5,12 @@ import { highlight } from "sugar-high";
 import { CustomMDX } from "app/components/mdx";
 import { JsonLd } from "app/components/json-ld";
 import { mcpTools, searchBlog } from "app/lib/mcp";
-import { baseOpenGraph, mcpPageJsonLd, pageAlternates } from "app/lib/seo";
+import {
+  baseOpenGraph,
+  mcpPageJsonLd,
+  ogImage,
+  pageAlternates,
+} from "app/lib/seo";
 import { mcpEndpoint, mcpPage } from "app/lib/site";
 
 export const metadata: Metadata = {
@@ -17,6 +22,7 @@ export const metadata: Metadata = {
     title: mcpPage.title,
     description: mcpPage.description,
     url: "/mcp",
+    images: [ogImage(mcpPage.title, "Connect your AI assistant to this website")],
   },
 };
 

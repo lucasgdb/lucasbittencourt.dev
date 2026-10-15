@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { BlogPosts } from "app/components/posts";
 import { JsonLd } from "app/components/json-ld";
 import { getSortedBlogPosts } from "app/blog/utils";
-import { baseOpenGraph, blogJsonLd, pageAlternates } from "app/lib/seo";
-import { site } from "app/lib/site";
+import { baseOpenGraph, blogJsonLd, ogImage, pageAlternates } from "app/lib/seo";
+import { person, site } from "app/lib/site";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     title: "Blog",
     description: site.blogDescription,
     url: "/blog",
+    images: [ogImage("Blog", person.name)],
   },
 };
 
