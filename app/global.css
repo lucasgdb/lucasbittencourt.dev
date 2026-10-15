@@ -26,9 +26,10 @@
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
+/* White on blue-600: readable selected text in both themes (5.2:1) */
 ::selection {
-  background-color: #47a3f3;
-  color: #fefefe;
+  background-color: #2563eb;
+  color: #ffffff;
 }
 
 /*
@@ -42,21 +43,25 @@
 
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
-  --sh-sign: #737f8c;
-  --sh-string: #007f7a;
+  --sh-sign: #636f7a;
+  --sh-string: #007b76;
   --sh-keyword: #d02317;
-  --sh-comment: #7c7272;
-  --sh-jsxliterals: #6266d1;
-  --sh-property: #c4500f;
-  --sh-entity: #c4500f;
+  --sh-comment: #746a6a;
+  --sh-jsxliterals: #5f62ca;
+  --sh-property: #b84a0d;
+  --sh-entity: #b84a0d;
 
+  /*
+   * Dark: near-black and off-white instead of pure black and white, which
+   * glares (halation) and tires the eyes in long reads (~17:1 instead of 21:1).
+   */
   @variant dark {
-    --background: #000000;
-    --foreground: #ffffff;
+    --background: #0a0a0a;
+    --foreground: #ededed;
     color-scheme: dark;
 
     --sh-class: #4c97f8;
-    --sh-identifier: white;
+    --sh-identifier: #ededed;
     --sh-sign: #8996a3;
     --sh-keyword: #f47067;
     --sh-string: #0fa295;
@@ -86,11 +91,15 @@ html {
 }
 
 .prose a {
-  @apply underline transition-colors decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-colors decoration-neutral-500 underline-offset-2 decoration-[0.1em];
+}
+
+/* Color on the element (not ::after): the dark: variant can't follow a pseudo-element */
+.prose .anchor {
+  @apply text-neutral-300 dark:text-neutral-700;
 }
 
 .prose .anchor:after {
-  @apply text-neutral-300 dark:text-neutral-700;
   content: "#";
 }
 
@@ -99,7 +108,7 @@ html {
 }
 
 .prose pre {
-  @apply bg-neutral-100 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-900 py-2 px-3 text-sm;
+  @apply bg-neutral-100 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-800 py-2 px-3 text-sm;
 }
 
 .prose code {
@@ -122,7 +131,7 @@ html {
 }
 
 .prose p {
-  @apply my-4 text-neutral-800 dark:text-neutral-200;
+  @apply my-4 text-neutral-800 dark:text-neutral-300;
 }
 
 .prose h1 {
@@ -201,7 +210,7 @@ table {
 }
 
 .progress-bar {
-  @apply h-1 w-full fixed top-0 left-0 bg-neutral-800 dark:bg-white origin-left;
+  @apply h-1 w-full fixed top-0 left-0 bg-neutral-800 dark:bg-neutral-200 origin-left;
   animation: progress-bar linear;
   animation-timeline: scroll();
   scale: 0 1;

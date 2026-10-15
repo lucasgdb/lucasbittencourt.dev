@@ -9,7 +9,7 @@ export const themeStorageKey = "theme";
 // Browser UI color (address bar on mobile), same as --background.
 export const themeColors: Record<Theme, string> = {
   light: "#fafafa",
-  dark: "#000000",
+  dark: "#0a0a0a",
 };
 
 // The theme-color meta tags rendered by Next.js follow the system. An explicit
