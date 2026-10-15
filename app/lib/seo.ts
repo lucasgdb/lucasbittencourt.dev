@@ -21,12 +21,8 @@ export function postUrl(slug: string) {
   return `${baseUrl}/blog/${slug}`;
 }
 
-export function ogImageUrl(title: string, subtitle?: string) {
-  const params = new URLSearchParams({ title });
-  if (subtitle) {
-    params.set("subtitle", subtitle);
-  }
-  return `${baseUrl}/og?${params}`;
+export function ogImageUrl(title: string) {
+  return `${baseUrl}/og?${new URLSearchParams({ title })}`;
 }
 
 // Next.js replaces (doesn't merge) `alternates` from parent layouts, so every
@@ -40,12 +36,8 @@ export function pageAlternates(path: string) {
 
 export const ogImageSize = { width: 1200, height: 630 };
 
-export function ogImage(title: string, subtitle?: string) {
-  return {
-    url: ogImageUrl(title, subtitle),
-    ...ogImageSize,
-    alt: subtitle ? `${title} – ${subtitle}` : title,
-  };
+export function ogImage(title: string) {
+  return { url: ogImageUrl(title), ...ogImageSize, alt: title };
 }
 
 // Next.js replaces `openGraph` from parent layouts too, so pages spread this.
@@ -54,12 +46,12 @@ export function baseOpenGraph() {
     siteName: site.name,
     locale: site.locale,
     type: "website" as const,
-    images: [ogImage(person.name, person.jobTitle)],
+    images: [ogImage(person.name)],
   };
 }
 
 export function postImageUrl(post: Post) {
-  return post.metadata.image ?? ogImageUrl(post.metadata.title, person.name);
+  return post.metadata.image ?? ogImageUrl(post.metadata.title);
 }
 
 // JSON.stringify doesn't escape "<", so a value containing "</script>" could

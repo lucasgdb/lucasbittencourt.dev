@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: mcpPage.title,
     description: mcpPage.description,
     url: "/mcp",
-    images: [ogImage(mcpPage.title, "Connect your AI assistant to this website")],
+    images: [ogImage(mcpPage.title)],
   },
 };
 

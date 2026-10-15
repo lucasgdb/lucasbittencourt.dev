@@ -6,7 +6,6 @@ import { site } from "app/lib/site";
 // Fonts and logo are read from disk, so next.config.ts bundles them with this
 // function (outputFileTracingIncludes).
 const fontsDir = path.join(process.cwd(), "app", "og", "fonts");
-const geistRegular = fs.readFileSync(path.join(fontsDir, "Geist-Regular.ttf"));
 const geistBold = fs.readFileSync(path.join(fontsDir, "Geist-Bold.ttf"));
 const logo = `data:image/png;base64,${fs
   .readFileSync(path.join(process.cwd(), "public", "logo.png"))
@@ -17,7 +16,7 @@ const logo = `data:image/png;base64,${fs
 export function GET(request: Request) {
   const url = new URL(request.url);
   const title = (url.searchParams.get("title") || site.name).slice(0, 100);
-  const subtitle = url.searchParams.get("subtitle")?.slice(0, 120);
+  const fontSize = title.length > 60 ? 72 : title.length > 30 ? 88 : 112;
 
   return new ImageResponse(
     (
@@ -29,19 +28,19 @@ export function GET(request: Request) {
           justifyContent: "center",
           width: "100%",
           height: "100%",
-          padding: "64px 96px",
+          padding: "48px 80px",
           backgroundColor: "#000",
           color: "#fff",
           fontFamily: "Geist",
           textAlign: "center",
         }}
       >
-        <img src={logo} width={112} height={112} style={{ borderRadius: 16 }} />
+        <img src={logo} width={200} height={200} />
         <div
           style={{
             display: "flex",
-            marginTop: 48,
-            fontSize: title.length > 40 ? 56 : 72,
+            marginTop: 40,
+            fontSize,
             fontWeight: 700,
             letterSpacing: "-0.03em",
             lineHeight: 1.1,
@@ -49,38 +48,12 @@ export function GET(request: Request) {
         >
           {title}
         </div>
-        {subtitle && (
-          <div
-            style={{
-              display: "flex",
-              marginTop: 24,
-              fontSize: 32,
-              color: "#a3a3a3",
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            bottom: 48,
-            fontSize: 26,
-            color: "#737373",
-          }}
-        >
-          {site.name}
-        </div>
       </div>
     ),
     {
       width: 1200,
       height: 630,
-      fonts: [
-        { name: "Geist", data: geistRegular, weight: 400, style: "normal" },
-        { name: "Geist", data: geistBold, weight: 700, style: "normal" },
-      ],
+      fonts: [{ name: "Geist", data: geistBold, weight: 700, style: "normal" }],
     }
   );
 }

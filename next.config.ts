@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // bundled with their serverless functions.
   outputFileTracingIncludes: {
     "/api/mcp": ["./app/blog/posts/**/*.mdx"],
-    "/og": ["./app/og/fonts/*.ttf", "./public/logo.png"],
+    "/og": ["./app/og/fonts/Geist-Bold.ttf", "./public/logo.png"],
   },
 };
 
