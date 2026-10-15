@@ -1,9 +1,21 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { CustomMDX } from "app/components/mdx";
-import { formatDate, getBlogPosts } from "app/blog/utils";
-import { baseUrl } from "app/sitemap";
-import type { Metadata, ResolvingMetadata } from "next";
+import { JsonLd } from "app/components/json-ld";
 import { WatcherBar } from "app/components/watcher-bar";
+import { formatDate, getBlogPosts } from "app/blog/utils";
+import {
+  baseOpenGraph,
+  ogImageSize,
+  pageAlternates,
+  postImageUrl,
+  postJsonLd,
+} from "app/lib/seo";
+import { person } from "app/lib/site";
+
+// Only the posts generated at build time exist; anything else is a 404.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const posts = getBlogPosts();
@@ -13,14 +25,13 @@ export async function generateStaticParams() {
   }));
 }
 
-type generateMetadataProps = {
+type BlogProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata(
-  { params }: generateMetadataProps,
-  parent: ResolvingMetadata
-): Promise<Metadata | undefined> {
+export async function generateMetadata({
+  params,
+}: BlogProps): Promise<Metadata | undefined> {
   const { slug } = await params;
 
   const post = getBlogPosts().find((post) => post.slug === slug);
@@ -28,45 +39,39 @@ export async function generateMetadata(
     return;
   }
 
-  const {
-    title,
-    publishedAt: publishedTime,
-    summary: description,
-    image,
-  } = post.metadata;
-
-  const ogImage = image
-    ? image
-    : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
-
-  const previousImages = (await parent).openGraph?.images || [];
+  const { title, publishedAt, updatedAt, summary: description } = post.metadata;
+  const image = postImageUrl(post);
+  const path = `/blog/${post.slug}`;
 
   return {
     title,
     description,
+    alternates: pageAlternates(path),
     openGraph: {
+      ...baseOpenGraph(),
       title,
       description,
       type: "article",
-      publishedTime,
-      url: `${baseUrl}/blog/${post.slug}`,
+      publishedTime: publishedAt,
+      modifiedTime: updatedAt ?? publishedAt,
+      authors: [person.name],
+      url: path,
       images: [
-        {
-          url: ogImage,
-        },
-        ...previousImages,
+        post.metadata.image
+          ? { url: image, alt: title }
+          : { url: image, ...ogImageSize, alt: title },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage, ...previousImages],
+      images: [image],
     },
   };
 }
 
-export default async function Blog({ params }) {
+export default async function Blog({ params }: BlogProps) {
   const { slug } = await params;
 
   const post = getBlogPosts().find((post) => post.slug === slug);
@@ -74,37 +79,26 @@ export default async function Blog({ params }) {
     return notFound();
   }
 
+  const { publishedAt, updatedAt } = post.metadata;
+
   return (
     <section>
       <WatcherBar />
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            headline: post.metadata.title,
-            datePublished: post.metadata.publishedAt,
-            dateModified: post.metadata.publishedAt,
-            description: post.metadata.summary,
-            image: post.metadata.image
-              ? `${baseUrl}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-            url: `${baseUrl}/blog/${post.slug}`,
-            author: {
-              "@type": "Person",
-              name: "My Portfolio",
-            },
-          }),
-        }}
-      />
+      <JsonLd data={postJsonLd(post)} />
       <h1 className="title font-semibold text-2xl tracking-tighter">
         {post.metadata.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {formatDate(post.metadata.publishedAt, true)}
+          By <Link href="/">{person.name}</Link> ·{" "}
+          <time dateTime={publishedAt}>{formatDate(publishedAt, true)}</time>
+          {updatedAt && updatedAt !== publishedAt && (
+            <>
+              {" "}
+              · Updated{" "}
+              <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+            </>
+          )}
         </p>
       </div>
       <article className="prose">

@@ -1,43 +1,68 @@
 import "./global.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Navbar } from "./components/nav";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "./components/footer";
-import { baseUrl } from "./sitemap";
+import { baseUrl, isIndexable, person, site } from "./lib/site";
+import { baseOpenGraph } from "./lib/seo";
+
+const defaultTitle = `${person.name} – ${person.jobTitle}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   icons: {
     icon: "/logo.png",
     shortcut: "/logo-32x32.png",
+    apple: "/logo.png",
   },
   title: {
-    default: "lucasbittencourt.dev",
-    template: "%s | lucasbittencourt.dev",
+    default: defaultTitle,
+    template: `%s | ${person.name}`,
   },
-  description: "This is my portfolio.",
+  description: site.description,
+  applicationName: site.name,
+  authors: [{ name: person.name, url: baseUrl }],
+  creator: person.name,
   openGraph: {
-    title: "Lucas Bittencourt",
-    description: "This is my portfolio.",
+    ...baseOpenGraph(),
+    title: defaultTitle,
+    description: site.description,
     url: baseUrl,
-    siteName: "My Portfolio",
-    locale: "en_US",
-    type: "website",
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
+  twitter: {
+    card: "summary_large_image",
   },
+  robots: isIndexable()
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      }
+    : { index: false, follow: false },
+  // Optional: HTML-tag verification for Google Search Console and Bing
+  // Webmaster Tools (DNS verification needs no code). See docs/SEO.md.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 const cx = (...classes) => classes.filter(Boolean).join(" ");
@@ -49,7 +74,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang={site.language}
       data-scroll-behavior="smooth"
       className={cx(
         "text-black bg-white dark:text-white dark:bg-black",
@@ -58,13 +83,13 @@ export default function RootLayout({
       )}
     >
       <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto">
-        <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
+        <div className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
           <Navbar />
-          {children}
+          <main>{children}</main>
           <Footer />
-          <Analytics />
-          <SpeedInsights />
-        </main>
+        </div>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

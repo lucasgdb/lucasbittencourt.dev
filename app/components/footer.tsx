@@ -1,3 +1,5 @@
+import { person } from "app/lib/site";
+
 function ArrowIcon() {
   return (
     <svg
@@ -33,9 +35,9 @@ export default function Footer() {
         <li>
           <a
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
+            rel="me noopener noreferrer"
             target="_blank"
-            href="https://github.com/lucasgdb"
+            href={person.profiles.github}
           >
             <ArrowIcon />
             <p className="ml-2 h-7">github</p>
@@ -44,9 +46,9 @@ export default function Footer() {
         <li>
           <a
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
+            rel="me noopener noreferrer"
             target="_blank"
-            href="https://linkedin.com/in/lucas-bittencourt"
+            href={person.profiles.linkedin}
           >
             <ArrowIcon />
             <p className="ml-2 h-7">linkedin</p>
@@ -57,7 +59,7 @@ export default function Footer() {
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://github.com/lucasgdb/lucasbittencourt.dev"
+            href={person.sourceCode}
           >
             <ArrowIcon />
             <p className="ml-2 h-7">view source</p>
@@ -65,7 +67,7 @@ export default function Footer() {
         </li>
       </ul>
       <p className="mt-8 text-neutral-600 dark:text-neutral-300">
-        © {new Date().getFullYear()} MIT Licensed
+        © {new Date().getFullYear()} {person.name}. MIT Licensed
       </p>
     </footer>
   );

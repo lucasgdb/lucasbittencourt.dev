@@ -1,7 +1,8 @@
 ---
 title: "Modern JavaScript"
 publishedAt: "2023-02-03"
-summary: "Learn modern JavasScript concepts like optional chaining, rest - spread - nullish coalescing operators and much more."
+updatedAt: "2026-10-14"
+summary: "Learn modern JavaScript concepts like optional chaining, rest - spread - nullish coalescing operators, immutable array methods, Object.groupBy, Set methods, iterator helpers, structuredClone and much more."
 image: "https://i.imgur.com/gKN5mZO.png"
 ---
 
@@ -23,26 +24,38 @@ image: "https://i.imgur.com/gKN5mZO.png"
   - [Nullish Coalescing equals (??=)](#nullish-coalescing-equals-)
 - [Optional Chaining](#optional-chaining)
 - [Destructuring assignment](#destructuring-assignment)
-- [Spread operator](#rest-operator)
+- [Spread operator](#spread-operator)
 - [Rest operator](#rest-operator)
 - [Rest parameters](#rest-parameters)
 - [Default function parameters](#default-function-parameters)
 - [Arrow functions expressions](#arrow-functions-expressions)
 - [async/await](#asyncawait)
   - [top-level await](#top-level-await)
+  - [Running promises in parallel](#running-promises-in-parallel)
+  - [Promise.withResolvers](#promisewithresolvers)
 - [try...catch...finally](#trycatchfinally)
+  - [Error cause](#error-cause)
+- [Array.prototype.at](#arrayprototypeat)
+- [findLast and findLastIndex](#findlast-and-findlastindex)
+- [Immutable array methods](#immutable-array-methods)
+- [Object.groupBy and Map.groupBy](#objectgroupby-and-mapgroupby)
+- [Set methods](#set-methods)
+- [Iterator helpers](#iterator-helpers)
+- [structuredClone](#structuredclone)
+- [Object.hasOwn](#objecthasown)
+- [Private class fields](#private-class-fields)
 
 ## Falsy, Truthy & Nullish values
 
-JavaScript implicitly converts values when they are in a boolean context (such as in conditional operations)
+JavaScript implicitly converts values when they are in a boolean context (such as in conditional operations).
 
 ### Falsy values
 
 Falsy values, when implicitly converted, are equivalent to `false`:
 
 - `false`
-- `''`
-- `0`, `-0`, `0n`, `-0n`, `0.0`, `-0.0`
+- `""` (empty string, including `''` and empty template literals)
+- `0`, `-0`, `0n`
 - `null`
 - `undefined`
 - `NaN`
@@ -52,8 +65,8 @@ Falsy values, when implicitly converted, are equivalent to `false`:
 Truthy values, when implicitly converted, are equivalent to `true`:
 
 - `true`
-- Any non-empty string
-- Any number less than 0 ou greater than 0 (including floating-point numbers)
+- Any non-empty string (including `"0"` and `"false"`)
+- Any number other than `0` (including negative and floating-point numbers)
 - `Infinity`, `-Infinity`
 - `[]` (Array, empty or non-empty)
 - `{}` (Object, empty or non-empty)
@@ -72,12 +85,12 @@ Numeric separators improve the readability of literal numbers by adding a visual
 ```ts
 const oneMillion = 1_000_000; // 1000000
 const oneBillion = 1_000_000_000; // 1000000000
-const oneMillionFiftyCents = 1_000_000.5; // 1000000.50
+const oneMillionFiftyCents = 1_000_000.5; // 1000000.5
 ```
 
 ## Template literals
 
-Template literals (or template strings) is a syntactic sugar to build strings.
+Template literals (or template strings) are a syntactic sugar to build strings.
 
 #### Don't do this:
 
@@ -121,7 +134,7 @@ const person = {
 
 ```ts
 const person = {
-  person.name,
+  user.name,
 };
 ```
 
@@ -131,7 +144,7 @@ This way will throw an Uncaught SyntaxError: Unexpected token '.'
 
 ```ts
 const person = {
-  name: person.name,
+  name: user.name,
 };
 ```
 
@@ -146,11 +159,12 @@ const person = {
 };
 ```
 
-Learn more about [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions#description)
+Learn more about it [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions#description)
 
 ## Logical operator AND
 
 The logical operator AND ( **&&** ) returns the right-hand value if the left-hand value is [truthy](#truthy-values).
+Otherwise, it returns the left-hand value.
 
 ```ts
 console.log(false && "Lucas Bittencourt"); // false
@@ -161,7 +175,7 @@ console.log(NaN && "Lucas Bittencourt"); // NaN
 console.log(true && "Lucas Bittencourt"); // Lucas Bittencourt
 console.log(1 && "Lucas Bittencourt"); // Lucas Bittencourt
 
-console.log(1 && true && "Lucas Bittencourt"); // 'Lucas Bittencourt'
+console.log(1 && true && "Lucas Bittencourt"); // Lucas Bittencourt
 console.log(1 && false && "Lucas Bittencourt"); // false
 ```
 
@@ -173,9 +187,13 @@ console.log(1 && false && "Lucas Bittencourt"); // false
 }
 ```
 
+Be careful with numbers in JSX: `{items.length && <List />}` renders `0` when the list is empty.
+Use `{items.length > 0 && <List />}` instead.
+
 ## Logical operator OR
 
 The logical operator OR ( **||** ) returns the right-hand value if the left-hand value is [falsy](#falsy-values).
+Otherwise, it returns the left-hand value.
 
 ```ts
 console.log(false || "Lucas Bittencourt"); // Lucas Bittencourt
@@ -196,20 +214,27 @@ console.log(1 || true || "Lucas Bittencourt"); // 1
 The Nullish coalescing operator ( **??** ) returns the right-hand value if the left-hand value is [nullish](#nullish-values).
 
 ```ts
-console.log("" ?? "Lucas Bittencourt"); // ''
+console.log("" ?? "Lucas Bittencourt"); // ""
 console.log(0 ?? "Lucas Bittencourt"); // 0
 console.log(true ?? "Lucas Bittencourt"); // true
 
-console.log(null ?? "Lucas Bittencourt"); // "Lucas Bittencourt"
-console.log(undefined ?? "Lucas Bittencourt"); // "Lucas Bittencourt"
+console.log(null ?? "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(undefined ?? "Lucas Bittencourt"); // Lucas Bittencourt
 
-console.log(undefined ?? null ?? "Lucas Bittencourt"); // 'Lucas Bittencourt'
+console.log(undefined ?? null ?? "Lucas Bittencourt"); // Lucas Bittencourt
 console.log(undefined ?? false ?? "Lucas Bittencourt"); // false
+```
+
+Prefer `??` over `||` for default values when `0`, `""` or `false` are valid values:
+
+```ts
+const timeout = options.timeout || 5_000; // 0 becomes 5000 (bug)
+const timeout = options.timeout ?? 5_000; // 0 stays 0
 ```
 
 ## Logical Assignment operator
 
-We can now assign values conditionally using logical operators.
+We can assign values conditionally using logical operators.
 
 ### AND equals (&&=)
 
@@ -218,26 +243,15 @@ Only evaluates the right operand and assigns to the left if the left operand is 
 #### Don't do this:
 
 ```ts
-let intersectionObserver = new IntersectionObserver();
-
-function resetIntersectionObserver() {
-  if (intersectionObserver) {
-    intersectionObserver = new IntersectionObserver();
-  }
-
-  return intersectionObserver;
+if (user.name) {
+  user.name = user.name.trim();
 }
 ```
 
 #### Do this instead:
 
 ```ts
-let intersectionObserver = new IntersectionObserver();
-
-function resetIntersectionObserver() {
-  intersectionObserver &&= new IntersectionObserver();
-  return intersectionObserver;
-}
+user.name &&= user.name.trim();
 ```
 
 ### OR equals (||=)
@@ -247,26 +261,15 @@ Only evaluates the right operand and assigns to the left if the left operand is 
 #### Don't do this:
 
 ```ts
-let intersectionObserver;
-
-function getIntersectionObserver() {
-  if (!intersectionObserver) {
-    intersectionObserver = new IntersectionObserver();
-  }
-
-  return intersectionObserver;
+if (!options.title) {
+  options.title = "Untitled";
 }
 ```
 
 #### Do this instead:
 
 ```ts
-let intersectionObserver = null;
-
-function getIntersectionObserver() {
-  intersectionObserver ||= new IntersectionObserver();
-  return intersectionObserver;
-}
+options.title ||= "Untitled";
 ```
 
 ### Nullish Coalescing equals (??=)
@@ -276,26 +279,35 @@ Only evaluates the right operand and assigns to the left if the left operand is 
 #### Don't do this:
 
 ```ts
-let intersectionObserver = null;
+let cache = null;
 
-function getIntersectionObserver() {
-  if (intersectionObserver === null || intersectionObserver === undefined) {
-    intersectionObserver = new IntersectionObserver();
+function getCache() {
+  if (cache === null || cache === undefined) {
+    cache = new Map();
   }
 
-  return intersectionObserver;
+  return cache;
 }
 ```
 
 #### Do this instead:
 
 ```ts
-let intersectionObserver = null;
+let cache = null;
 
-function getIntersectionObserver() {
-  intersectionObserver ??= new IntersectionObserver();
-  return intersectionObserver;
+function getCache() {
+  cache ??= new Map();
+  return cache;
 }
+```
+
+The difference between `||=` and `??=`:
+
+```ts
+const options = { retries: 0 };
+
+options.retries ||= 3; // 3, because 0 is falsy
+options.retries ??= 3; // 0, because 0 is not nullish
 ```
 
 ## Optional Chaining
@@ -335,6 +347,12 @@ We also can use optional chaining in functions.
 ```ts
 getUserData?.();
 getUserData?.()?.name;
+```
+
+We can combine it with the [Nullish Coalescing operator](#nullish-coalescing-operator) to provide a default value.
+
+```ts
+const city = user.address?.city ?? "Unknown";
 ```
 
 ## Destructuring assignment
@@ -458,6 +476,12 @@ function sumNumbers([a, b, c]) {
 }
 ```
 
+We can swap variables without a temporary variable:
+
+```ts
+[a, b] = [b, a];
+```
+
 ## Spread operator
 
 Spread operator "expands" an array or object into its elements.
@@ -472,6 +496,7 @@ We can spread nested object elements:
 
 ```ts
 const newUser = {
+  ...user,
   information: {
     ...user.information,
     username: "Lucas",
@@ -483,8 +508,13 @@ const newUser = {
 We can spread array elements as function arguments:
 
 ```ts
-createUserList(argument1, argument2, ...arguments);
+const numbers = [5, 1, 8];
+
+Math.max(...numbers); // 8
 ```
+
+Spread only creates a **shallow copy**: nested objects are still shared with the original object.
+To create a deep copy, use [structuredClone](#structuredclone).
 
 ## Rest operator
 
@@ -498,13 +528,18 @@ const [a, b, c, ...otherNumbers] = numberList;
 
 ## Rest parameters
 
-Rest parameters represents [variadic functions](https://en.cppreference.com/w/c/variadic) and provide a way to accept an indeterminate number of parameters.
+[Rest parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters) provide
+a way to accept an indefinite number of arguments as an array (variadic functions).
 
 ```ts
-function total(...numbers) {
-  return sum(numbers);
+function sum(...numbers) {
+  return numbers.reduce((total, number) => total + number, 0);
 }
+
+sum(1, 2, 3); // 6
 ```
+
+Prefer rest parameters over the old `arguments` object, which is not a real array and doesn't exist in arrow functions.
 
 ## Default function parameters
 
@@ -524,6 +559,16 @@ function getUsername(user = { username: "Lucas Bittencourt" }) {
 }
 ```
 
+We can combine it with destructuring to create named options:
+
+```ts
+function createUser({ name, role = "user", active = true } = {}) {
+  return { name, role, active };
+}
+
+createUser({ name: "Lucas" }); // { name: "Lucas", role: "user", active: true }
+```
+
 ## Arrow functions expressions
 
 [Arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) are compact functions.
@@ -537,7 +582,7 @@ const getUser = (username, lastname) => {
 };
 ```
 
-When an arrow function has only one statement, we can omit the `return` keyword and its brackets.
+When an arrow function has only one expression, we can omit the `return` keyword and the curly braces.
 
 ```ts
 const getUsername = (username) => username.trim();
@@ -557,11 +602,17 @@ We can also return a literal array:
 const getNumbers = () => [1, 2, 3];
 ```
 
-We can have an asynchronus arrow function:
+We can have an asynchronous arrow function:
 
 ```ts
-const getUsername = async (username) => Promise.resolve(username);
+const getUser = async (id) => {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+};
 ```
+
+Arrow functions don't have their own `this`: they use the `this` of the place where they were created.
+That's why they are great for callbacks, but should not be used as object methods.
 
 ## async/await
 
@@ -586,10 +637,74 @@ async function fetchUser() {
 
 ### top-level await
 
-We can use a top-level await without the need for an asynchronus function.
+In ES modules (e.g. `.mjs` files, `"type": "module"` or `<script type="module">`), we can use `await`
+at the top level, without an async function.
 
 ```ts
-const username = await Promise.resolve("Lucas Bittencourt");
+const config = await fetch("/config.json").then((response) => response.json());
+```
+
+### Running promises in parallel
+
+Awaiting independent promises one by one runs them in sequence.
+
+#### Don't do this:
+
+```ts
+// the second request only starts after the first one finishes
+const user = await getUser();
+const posts = await getPosts();
+```
+
+#### Do this instead:
+
+```ts
+// both requests run at the same time
+const [user, posts] = await Promise.all([getUser(), getPosts()]);
+```
+
+- `Promise.all`: rejects as soon as one promise rejects
+- `Promise.allSettled`: waits for all of them and returns the status of each one
+- `Promise.race`: settles with the first promise that settles
+- `Promise.any`: fulfills with the first promise that fulfills
+
+```ts
+const results = await Promise.allSettled([getUser(), getPosts()]);
+
+for (const result of results) {
+  if (result.status === "fulfilled") {
+    console.log(result.value);
+  } else {
+    console.error(result.reason);
+  }
+}
+```
+
+### Promise.withResolvers
+
+Creates a promise and returns it together with its `resolve` and `reject` functions,
+useful to turn callback APIs into promises.
+
+#### Don't do this:
+
+```ts
+let resolve, reject;
+
+const promise = new Promise((res, rej) => {
+  resolve = res;
+  reject = rej;
+});
+```
+
+#### Do this instead:
+
+```ts
+const { promise, resolve, reject } = Promise.withResolvers();
+
+socket.once("ready", resolve);
+socket.once("error", reject);
+
+await promise;
 ```
 
 ## try...catch...finally
@@ -605,7 +720,7 @@ function fetchUser() {
   getUser()
     .then((user) => console.log(user))
     .catch((error) => console.error(error))
-    .finally(() => console.info("Código executado!"));
+    .finally(() => console.info("Finished!"));
 }
 ```
 
@@ -619,7 +734,238 @@ async function fetchUser() {
   } catch (error) {
     console.error(error);
   } finally {
-    console.log("Código executado!");
+    console.log("Finished!");
   }
 }
 ```
+
+If you don't need the error, you can omit it:
+
+```ts
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+```
+
+### Error cause
+
+When you catch an error and throw a new one, use the `cause` option to keep the original error.
+
+```ts
+async function getUser(id) {
+  try {
+    return await database.users.find(id);
+  } catch (error) {
+    throw new Error(`Failed to get user ${id}`, { cause: error });
+  }
+}
+```
+
+## Array.prototype.at
+
+`at()` returns the item at the given index, and accepts negative indexes to count from the end.
+
+#### Don't do this:
+
+```ts
+const lastUser = userList[userList.length - 1];
+```
+
+#### Do this instead:
+
+```ts
+const lastUser = userList.at(-1);
+```
+
+## findLast and findLastIndex
+
+Like `find` and `findIndex`, but searching from the end of the array.
+
+```ts
+const numbers = [1, 2, 3, 4, 5];
+
+numbers.findLast((number) => number % 2 === 0); // 4
+numbers.findLastIndex((number) => number % 2 === 0); // 3
+```
+
+## Immutable array methods
+
+`sort`, `reverse` and `splice` **mutate** the original array, which causes bugs, for example, with React state.
+Their immutable versions return a new array and keep the original one untouched:
+
+- `toSorted()` instead of `sort()`
+- `toReversed()` instead of `reverse()`
+- `toSpliced()` instead of `splice()`
+- `with(index, value)` instead of `array[index] = value`
+
+#### Don't do this:
+
+```ts
+const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name));
+```
+
+#### Do this instead:
+
+```ts
+const sortedUsers = users.toSorted((a, b) => a.name.localeCompare(b.name));
+```
+
+```ts
+const numbers = [3, 1, 2];
+
+numbers.toSorted(); // [1, 2, 3]
+numbers.toReversed(); // [2, 1, 3]
+numbers.toSpliced(0, 1); // [1, 2]
+numbers.with(0, 10); // [10, 1, 2]
+
+console.log(numbers); // [3, 1, 2], unchanged
+```
+
+## Object.groupBy and Map.groupBy
+
+Groups the items of an array (or any iterable) by the value returned by a callback.
+
+#### Don't do this:
+
+```ts
+const usersByRole = users.reduce((groups, user) => {
+  groups[user.role] ??= [];
+  groups[user.role].push(user);
+  return groups;
+}, {});
+```
+
+#### Do this instead:
+
+```ts
+const usersByRole = Object.groupBy(users, (user) => user.role);
+// { admin: [...], user: [...] }
+```
+
+Use `Map.groupBy` when the keys are not strings, such as objects or dates:
+
+```ts
+const usersByTeam = Map.groupBy(users, (user) => user.team);
+
+usersByTeam.get(team); // users of that team
+```
+
+## Set methods
+
+Sets now have methods to combine and compare them:
+
+```ts
+const frontend = new Set(["Lucas", "Ana", "John"]);
+const backend = new Set(["Lucas", "Mary"]);
+
+frontend.union(backend); // Set { "Lucas", "Ana", "John", "Mary" }
+frontend.intersection(backend); // Set { "Lucas" }
+frontend.difference(backend); // Set { "Ana", "John" }
+frontend.symmetricDifference(backend); // Set { "Ana", "John", "Mary" }
+
+new Set(["Lucas"]).isSubsetOf(frontend); // true
+frontend.isSupersetOf(new Set(["Ana"])); // true
+frontend.isDisjointFrom(new Set(["Peter"])); // true
+```
+
+Remember: `set.has()` is much faster than `array.includes()` for large lists.
+
+## Iterator helpers
+
+Iterators now have methods like `map`, `filter`, `take`, `drop`, `flatMap`, `reduce`, `some`, `every`, `find` and `toArray`.
+Unlike array methods, they are **lazy**: each item goes through the whole chain one at a time,
+without creating intermediate arrays, and the processing stops as soon as possible.
+
+```ts
+function* naturalNumbers() {
+  let number = 1;
+
+  while (true) {
+    yield number++;
+  }
+}
+
+const firstEvenSquares = naturalNumbers()
+  .filter((number) => number % 2 === 0)
+  .map((number) => number ** 2)
+  .take(3)
+  .toArray();
+
+// [4, 16, 36], even with an infinite generator
+```
+
+They also work with `Map` and `Set` iterators:
+
+```ts
+const adminNames = usersById
+  .values()
+  .filter((user) => user.role === "admin")
+  .map((user) => user.name)
+  .toArray();
+```
+
+## structuredClone
+
+`structuredClone` creates a **deep copy** of a value. It's available in browsers, Node.js, Deno and Bun.
+
+#### Don't do this:
+
+```ts
+const copy = JSON.parse(JSON.stringify(user));
+```
+
+It loses `Date` objects (they become strings), `Map`, `Set`, `undefined` values, and fails with circular references.
+
+#### Do this instead:
+
+```ts
+const copy = structuredClone(user);
+```
+
+Functions and DOM nodes can't be cloned (it throws a `DataCloneError`), and class instances lose their prototype (they become plain objects).
+
+## Object.hasOwn
+
+Checks if an object has a property of its own (not inherited).
+
+#### Don't do this:
+
+```ts
+Object.prototype.hasOwnProperty.call(user, "name");
+```
+
+#### Do this instead:
+
+```ts
+Object.hasOwn(user, "name");
+```
+
+## Private class fields
+
+Class fields and methods starting with `#` are truly private: they can't be accessed outside of the class.
+
+```ts
+class Counter {
+  #count = 0;
+
+  increment() {
+    this.#count++;
+    return this.#count;
+  }
+
+  static create() {
+    return new Counter();
+  }
+}
+
+const counter = Counter.create();
+
+counter.increment(); // 1
+counter.#count; // SyntaxError: Private field '#count' must be declared in an enclosing class
+```
+
+Unlike TypeScript's `private` keyword, which only exists at compile time, `#` fields are private at runtime.

@@ -1,12 +1,5 @@
-import { baseUrl } from "app/sitemap";
+import { buildRobots } from "app/lib/seo";
 
 export default function robots() {
-  return {
-    rules: [
-      {
-        userAgent: "*",
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-  };
+  return buildRobots(process.env.VERCEL_ENV);
 }

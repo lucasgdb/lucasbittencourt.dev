@@ -4,8 +4,15 @@ import path from "path";
 type Metadata = {
   title: string;
   publishedAt: string;
+  updatedAt?: string;
   summary: string;
   image?: string;
+};
+
+export type Post = {
+  metadata: Metadata;
+  slug: string;
+  content: string;
 };
 
 function parseFrontmatter(fileContent: string) {
@@ -37,7 +44,7 @@ function readMDXFile(filePath: string) {
   return parseFrontmatter(rawContent);
 }
 
-function getMDXData(dir: string) {
+function getMDXData(dir: string): Post[] {
   const mdxFiles = getMDXFiles(dir);
   return mdxFiles.map((file) => {
     const { metadata, content } = readMDXFile(path.join(dir, file));
@@ -53,6 +60,17 @@ function getMDXData(dir: string) {
 
 export function getBlogPosts() {
   return getMDXData(path.join(process.cwd(), "app", "blog", "posts"));
+}
+
+// Newest first
+export function getSortedBlogPosts() {
+  return getBlogPosts().sort((a, b) =>
+    b.metadata.publishedAt.localeCompare(a.metadata.publishedAt)
+  );
+}
+
+export function getLastModified(post: Post) {
+  return post.metadata.updatedAt ?? post.metadata.publishedAt;
 }
 
 function getTimeAgo(date: Date) {

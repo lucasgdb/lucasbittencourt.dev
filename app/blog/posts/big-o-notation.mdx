@@ -1,0 +1,416 @@
+---
+title: "Big-O notation"
+publishedAt: "2024-10-10"
+summary: "Learn what Big-O notation is, the difference between time and space complexity, the most common complexities from O(1) to O(n!), and how to analyze the complexity of your own code."
+---
+
+## Table of contents:
+
+- [What is Big-O notation?](#what-is-big-o-notation)
+- [Time complexity vs Space complexity](#time-complexity-vs-space-complexity)
+- [How to find the Big-O of your code](#how-to-find-the-big-o-of-your-code)
+- [Time complexity](#time-complexity)
+  - [O(1): Constant time](#o1-constant-time)
+  - [O(log n): Logarithmic time](#olog-n-logarithmic-time)
+  - [O(n): Linear time](#on-linear-time)
+  - [O(n log n): Linearithmic time](#on-log-n-linearithmic-time)
+  - [O(n \* m): Two different inputs](#on-m-two-different-inputs)
+  - [O(n²): Quadratic time](#on-quadratic-time)
+  - [O(2ⁿ): Exponential time](#o2-exponential-time)
+  - [O(n!): Factorial time](#on-factorial-time)
+- [Space complexity](#space-complexity)
+- [Common JavaScript operations](#common-javascript-operations)
+
+## What is Big-O notation?
+
+Big-O notation describes how the cost of an algorithm grows as the size of its input (`n`) grows.
+It doesn't measure seconds or bytes, it measures the **growth rate**. That's why an algorithm that is
+fast with 10 items can become unusable with 1 million items.
+
+Big-O usually describes the **worst case**. If you search for an item in an array, you may find it
+in the first position, but in the worst case you will have to check every item, so the search is `O(n)`.
+
+In Big-O notation, we only care about the largest term, so `O(log n) + O(n)` simplifies to `O(n)`.
+When `n` is big enough, the largest term dominates everything else.
+
+How many operations each complexity needs as `n` grows:
+
+<Table
+  data={{
+    headers: ["Big-O", "n = 10", "n = 100", "n = 1,000"],
+    rows: [
+      ["O(1)", "1", "1", "1"],
+      ["O(log n)", "~3", "~7", "~10"],
+      ["O(n)", "10", "100", "1,000"],
+      ["O(n log n)", "~33", "~664", "~9,966"],
+      ["O(n²)", "100", "10,000", "1,000,000"],
+      ["O(2ⁿ)", "1,024", "~1.27 × 10³⁰", "~1.07 × 10³⁰¹"],
+      ["O(n!)", "3,628,800", "~9.33 × 10¹⁵⁷", "~4.02 × 10²⁵⁶⁷"],
+    ],
+  }}
+/>
+
+## Time complexity vs Space complexity
+
+- **Time complexity**: how the number of operations grows as the input grows.
+- **Space complexity**: how the extra memory used by the algorithm grows as the input grows.
+
+Usually, we don't count the input itself as space, only the extra memory the algorithm allocates
+(also known as auxiliary space).
+
+Very often you trade one for the other: you use more memory (e.g. a `Set` or a cache) to make an algorithm faster.
+
+## How to find the Big-O of your code
+
+1. **Drop the constants**: two sequential loops over the same list are `O(2n)`, which simplifies to `O(n)`.
+2. **Drop the non-dominant terms**: `O(n² + n)` simplifies to `O(n²)`.
+3. **Sequential steps add up**: a loop over `a` followed by a loop over `b` is `O(a + b)`.
+4. **Nested steps multiply**: a loop over `b` inside a loop over `a` is `O(a * b)`.
+5. **Different inputs, different variables**: if a function receives two lists, don't call both of them `n`.
+
+Example:
+
+```ts
+function printReport(list: number[]) {
+  // O(n)
+  for (const item of list) {
+    console.log(item);
+  }
+
+  // O(n)
+  const total = list.reduce((sum, item) => sum + item, 0);
+
+  // O(n²)
+  for (const a of list) {
+    for (const b of list) {
+      console.log(a * b);
+    }
+  }
+
+  return total;
+}
+
+// O(n + n + n²) = O(2n + n²) = O(n²)
+```
+
+## Time complexity
+
+### O(1): Constant time
+
+The number of operations doesn't depend on the input size.
+
+Example:
+
+```ts
+const list = [10, 20, 30, 40];
+const users = new Map([[1, { name: "Lucas" }]]);
+
+list[2]; // accessing an index
+list.push(50); // adding to the end of an array
+users.get(1); // Map/Set lookups (on average)
+```
+
+### O(log n): Logarithmic time
+
+Every step cuts the problem in half. Doubling the input adds only one more step.
+The classic example is binary search, which only works on a **sorted** list.
+
+Example:
+
+```ts
+function binarySearch(list: number[], target: number) {
+  let start = 0;
+  let end = list.length - 1;
+
+  while (start <= end) {
+    const middle = Math.floor((start + end) / 2);
+
+    if (list[middle] === target) {
+      return middle;
+    }
+
+    if (list[middle] < target) {
+      start = middle + 1; // discard the left half
+    } else {
+      end = middle - 1; // discard the right half
+    }
+  }
+
+  return -1;
+}
+
+binarySearch([1, 3, 5, 7, 9, 11], 9); // 4
+```
+
+With 1,000,000 items, binary search needs at most ~20 steps.
+
+### O(n): Linear time
+
+The number of operations grows in the same proportion as the input.
+
+Example:
+
+```ts
+function sum(list: number[]) {
+  let total = 0;
+
+  for (const item of list) {
+    total += item;
+  }
+
+  return total;
+}
+```
+
+Methods like `map`, `filter`, `find`, `includes` and `indexOf` are also `O(n)`, because they may need to visit every item.
+
+### O(n log n): Linearithmic time
+
+It's the complexity of the efficient sorting algorithms, such as Merge Sort, Heap Sort and the average case of Quick Sort.
+It's also the complexity of `Array.prototype.sort` in modern JavaScript engines.
+
+Example:
+
+```ts
+function mergeSort(list: number[]): number[] {
+  if (list.length <= 1) {
+    return list;
+  }
+
+  const middle = Math.floor(list.length / 2);
+
+  // splitting the list in half: log n levels
+  const left = mergeSort(list.slice(0, middle));
+  const right = mergeSort(list.slice(middle));
+
+  // merging both halves: n operations per level
+  const result: number[] = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) {
+      result.push(left[i++]);
+    } else {
+      result.push(right[j++]);
+    }
+  }
+
+  return [...result, ...left.slice(i), ...right.slice(j)];
+}
+```
+
+If your algorithm needs a sorted list, keep in mind that sorting already costs `O(n log n)`.
+
+### O(n \* m): Two different inputs
+
+When you loop over one input inside a loop over **another** input, the complexity depends on both sizes.
+
+#### Don't do this:
+
+```ts
+// O(n * m): for each user, we loop over all admins
+function getAdminUsers(users: User[], admins: User[]) {
+  return users.filter((user) => admins.some((admin) => admin.id === user.id));
+}
+```
+
+#### Do this instead:
+
+```ts
+// O(n + m): creating the Set is O(m) and each lookup is O(1)
+function getAdminUsers(users: User[], admins: User[]) {
+  const adminIds = new Set(admins.map((admin) => admin.id));
+
+  return users.filter((user) => adminIds.has(user.id));
+}
+```
+
+### O(n²): Quadratic time
+
+It's the same as `O(n * m)`, but both loops go over the **same** input.
+With 10,000 items, it's already 100,000,000 operations.
+
+#### Don't do this:
+
+```ts
+// O(n²): for each item, we loop over the list again
+function hasDuplicates(list: number[]) {
+  for (let i = 0; i < list.length; i++) {
+    for (let j = i + 1; j < list.length; j++) {
+      if (list[i] === list[j]) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+```
+
+#### Do this instead:
+
+```ts
+// O(n): Set lookups are O(1)
+function hasDuplicates(list: number[]) {
+  const seen = new Set<number>();
+
+  for (const item of list) {
+    if (seen.has(item)) {
+      return true;
+    }
+
+    seen.add(item);
+  }
+
+  return false;
+}
+```
+
+Notice the trade-off: the second version is faster, but it uses `O(n)` extra memory for the `Set`.
+
+### O(2ⁿ): Exponential time
+
+The number of operations doubles with every new item in the input. It usually happens in recursive functions
+that call themselves more than once without saving previous results.
+
+#### Don't do this:
+
+```ts
+// O(2ⁿ): fibonacci(n - 1) and fibonacci(n - 2) recalculate the same values many times
+function fibonacci(n: number): number {
+  if (n <= 1) {
+    return n;
+  }
+
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fibonacci(45); // takes several seconds
+```
+
+#### Do this instead:
+
+```ts
+// O(n): each value is calculated only once (memoization)
+function fibonacci(n: number, cache = new Map<number, number>()): number {
+  if (n <= 1) {
+    return n;
+  }
+
+  if (cache.has(n)) {
+    return cache.get(n)!;
+  }
+
+  const result = fibonacci(n - 1, cache) + fibonacci(n - 2, cache);
+  cache.set(n, result);
+
+  return result;
+}
+
+fibonacci(45); // instant
+```
+
+### O(n!): Factorial time
+
+The worst one in this list. It appears when you need to generate every possible order (permutation) of the input.
+With only 10 items, there are 3,628,800 permutations.
+
+Example:
+
+```ts
+function permutations(list: string[]): string[][] {
+  if (list.length <= 1) {
+    return [list];
+  }
+
+  return list.flatMap((item, index) => {
+    const rest = [...list.slice(0, index), ...list.slice(index + 1)];
+
+    return permutations(rest).map((permutation) => [item, ...permutation]);
+  });
+}
+
+permutations(["a", "b", "c"]); // 6 permutations (3!)
+```
+
+Problems like the Traveling Salesman, when solved by brute force, are `O(n!)`.
+
+## Space complexity
+
+Space complexity follows the same rules, but instead of counting operations, we count the extra memory allocated.
+
+### O(1): Constant space
+
+Only a fixed number of variables, no matter the input size.
+
+```ts
+function sum(list: number[]) {
+  let total = 0; // a single variable
+
+  for (const item of list) {
+    total += item;
+  }
+
+  return total;
+}
+```
+
+### O(n): Linear space
+
+The extra memory grows with the input, e.g. creating a new array, a `Set` or a `Map`.
+
+```ts
+function double(list: number[]) {
+  return list.map((item) => item * 2); // a new array with n items
+}
+```
+
+Recursion also uses memory: every call waiting for a result stays in the call stack.
+The function below is `O(n)` in space, even without creating any array.
+
+```ts
+function sum(list: number[], index = 0): number {
+  if (index === list.length) {
+    return 0;
+  }
+
+  return list[index] + sum(list, index + 1); // n calls in the call stack
+}
+
+sum(new Array(1_000_000).fill(1)); // RangeError: Maximum call stack size exceeded
+```
+
+### O(n²): Quadratic space
+
+A common example is creating a matrix (grid) of `n` by `n`.
+
+```ts
+function createGrid(n: number) {
+  return Array.from({ length: n }, () => new Array(n).fill(0)); // n * n items
+}
+```
+
+## Common JavaScript operations
+
+<Table
+  data={{
+    headers: ["Operation", "Time complexity"],
+    rows: [
+      ["array[index]", "O(1)"],
+      ["push / pop", "O(1)"],
+      ["shift / unshift", "O(n)"],
+      ["includes / indexOf / find", "O(n)"],
+      ["map / filter / reduce / forEach", "O(n)"],
+      ["slice / spread / concat", "O(n)"],
+      ["splice", "O(n)"],
+      ["sort", "O(n log n)"],
+      ["Set.has / Set.add / Set.delete", "O(1) on average"],
+      ["Map.get / Map.set / Map.delete", "O(1) on average"],
+      ["object[key]", "O(1) on average"],
+    ],
+  }}
+/>
+
+Avoid calling `O(n)` methods like `includes`, `indexOf` or `find` inside loops. Most of the time,
+replacing them with a `Set` or a `Map` turns an `O(n²)` algorithm into an `O(n)` one.
