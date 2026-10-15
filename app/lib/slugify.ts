@@ -1,9 +1,9 @@
-// Shared by the MDX headings (anchor ids) and the MCP search results (links to
-// a post section), so both always produce the same anchors.
 export function slugify(str: string) {
   return str
     .toString()
     .toLowerCase()
+    .normalize("NFD") // Split accented letters
+    .replace(/[\u0300-\u036f]/g, "") // Remove accents
     .trim() // Remove whitespace from both ends of a string
     .replace(/\s+/g, "-") // Replace spaces with -
     .replace(/&/g, "-and-") // Replace & with 'and'

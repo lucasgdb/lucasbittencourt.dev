@@ -1,42 +1,44 @@
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitch } from "./language-switch";
+import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 
-const navItems = {
-  "/": {
-    name: "home",
-  },
-  "/blog": {
-    name: "blog",
-  },
-  "/mcp": {
-    name: "mcp",
-  },
-};
+const navItems = ["home", "blog", "mcp"] as const;
+const navPaths = { home: "/", blog: "/blog", mcp: "/mcp" };
 
-export function Navbar() {
+export function Navbar({
+  locale,
+  notFound = false,
+}: {
+  locale: Locale;
+  notFound?: boolean;
+}) {
+  const dict = getDictionary(locale);
+
   return (
-    <header className="-ml-[8px] mb-16 tracking-tight">
-      <div className="lg:sticky lg:top-20">
+    <header className="site-header sticky top-0 z-40 mt-6 py-2 tracking-tight bg-background/80 backdrop-blur-md">
+      <div className="max-w-xl mx-4 min-[38rem]:mx-auto px-2 md:px-0">
         <nav
-          className="flex flex-row items-start relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative"
+          className="-ml-2 flex flex-row items-start relative"
           id="nav"
-          aria-label="Main"
+          aria-label={dict.nav.label}
         >
           <div className="flex flex-row space-x-0 pr-10">
-            {Object.entries(navItems).map(([path, { name }]) => {
+            {navItems.map((item) => {
               return (
                 <Link
-                  key={path}
-                  href={path}
+                  key={item}
+                  href={localizePath(navPaths[item], locale)}
                   className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-400 flex align-middle relative py-1 px-2 m-1"
                 >
-                  {name}
+                  {dict.nav[item]}
                 </Link>
               );
             })}
           </div>
-          <div className="ml-auto">
-            <ThemeToggle />
+          <div className="ml-auto flex items-center">
+            <LanguageSwitch locale={locale} notFound={notFound} />
+            <ThemeToggle label={dict.themeToggle} />
           </div>
         </nav>
       </div>

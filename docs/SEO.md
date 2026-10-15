@@ -16,6 +16,16 @@ None of this guarantees rankings, rich results or AI citations. It removes techn
 
 Post frontmatter accepts an optional `updatedAt: "YYYY-MM-DD"`. Set it only when a post changes meaningfully. It feeds the visible "Updated" date, `dateModified` in JSON-LD, `article:modified_time` and the sitemap `lastmod`.
 
+## Languages (English and Brazilian Portuguese)
+
+- **URLs**: English keeps the original URLs (`/`, `/blog/<slug>`, `/mcp`); Portuguese is under `/pt-br` with the same slugs (`/pt-br/blog/<slug>`). Existing links and rankings are untouched.
+- **Routing**: one root layout per language (`app/(en)/layout.tsx`, `app/pt-br/layout.tsx`) for the right `<html lang>`, with every page statically rendered (no proxy). Pages are thin wrappers around `app/_views/*`. URLs that match nothing use `app/global-not-found.tsx` (bilingual; requires `experimental.globalNotFound`).
+- **No automatic redirect** by browser language: Google crawls without `Accept-Language` and could miss a version. The PT/EN switch in the header is a real, crawlable link to the same page in the other language.
+- **hreflang**: every page and every sitemap entry lists `en`, `pt-BR` and `x-default` (English). Each version has its own canonical URL.
+- **Metadata**: `og:locale` (+ `og:locale:alternate`), translated titles and descriptions, JSON-LD `inLanguage`, and posts linked to their translation (`workTranslation` / `translationOfWork`).
+- **Feeds**: `/rss` (English) and `/pt-br/rss`. `llms.txt` lists both languages. MCP tools accept `language: "pt-BR"`.
+- **Content**: UI texts in `app/lib/i18n.ts`; translated posts in `app/blog/posts/pt-br/<same slug>.mdx`; MCP page in `app/mcp/content.pt-br.mdx`. Tests fail if a post has no translation, if code blocks or dates differ from the original, or if a table of contents link points to a missing heading.
+
 ## Crawler policy (`/robots.txt`)
 
 robots.txt is a crawling policy, not access control. Well-behaved crawlers follow it, others don't.

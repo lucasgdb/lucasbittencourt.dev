@@ -93,8 +93,7 @@ export function CustomMDX(props) {
   return (
     <MDXRemote
       {...props}
-      // next-mdx-remote v6 strips JS expressions by default, which drops JSX
-      // attributes like width={576}. Posts are trusted local files.
+      // v6 strips JS expressions (e.g. width={576}); posts are trusted files
       options={{ blockJS: false, ...props.options }}
       components={{ ...components, ...(props.components || {}) }}
     />

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { formatDate, getSortedBlogPosts } from "app/blog/utils";
+import { localizePath, type Locale } from "app/lib/i18n";
 import { Fragment } from "react";
 
-export function BlogPosts() {
-  const allBlogs = getSortedBlogPosts();
+export function BlogPosts({ locale }: { locale: Locale }) {
+  const allBlogs = getSortedBlogPosts(locale);
 
   return (
     <div className="grid grid-cols-[auto_1fr] gap-3">
@@ -14,13 +15,13 @@ export function BlogPosts() {
               dateTime={post.metadata.publishedAt}
               className="text-neutral-600 dark:text-neutral-400 tabular-nums"
             >
-              {formatDate(post.metadata.publishedAt, false)}
+              {formatDate(post.metadata.publishedAt, false, locale)}
             </time>
           </div>
 
           <Link
             className="flex flex-col space-y-1 mb-4"
-            href={`/blog/${post.slug}`}
+            href={localizePath(`/blog/${post.slug}`, locale)}
           >
             <p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
               {post.metadata.title}

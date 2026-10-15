@@ -25,9 +25,8 @@ function currentTheme(): Theme {
   return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-// Switching themes changes the colors of the whole page at once. Elements with
-// a color transition (e.g. links, for hover) would animate while the rest
-// changes instantly, so transitions are disabled during the switch.
+// Hover transitions would animate some colors while the rest of the page
+// switches instantly.
 function withoutTransitions(change: () => void) {
   const style = document.createElement("style");
   style.textContent =
@@ -36,7 +35,7 @@ function withoutTransitions(change: () => void) {
 
   change();
 
-  // Force the browser to apply the new colors before transitions come back
+  // Apply the new colors before transitions come back
   void getComputedStyle(document.body).color;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => style.remove());
@@ -51,7 +50,6 @@ function applyTheme(theme: Theme | null) {
     root.removeAttribute("data-theme");
   }
 
-  // Browser UI color for an explicit choice (see app/lib/theme.ts)
   let meta = document.getElementById(themeColorOverrideId) as HTMLMetaElement | null;
   if (!theme) {
     meta?.remove();
@@ -105,14 +103,11 @@ function MoonIcon({ className }: { className: string }) {
   );
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ label }: { label: string }) {
   useLayoutEffect(() => {
-    // The inline script already applied the stored theme. This re-applies it
-    // after React's development remount clears <html> attributes (no-op in
-    // production).
+    // Re-applies the theme after React's dev remount clears <html> attributes
     applyTheme(storedTheme());
 
-    // Same choice in every open tab
     function onStorage(event: StorageEvent) {
       if (event.key === themeStorageKey) {
         withoutTransitions(() => applyTheme(storedTheme()));
@@ -127,19 +122,16 @@ export function ThemeToggle() {
     try {
       localStorage.setItem(themeStorageKey, next);
     } catch {
-      // Private mode or blocked storage: the change still applies to this page
     }
     withoutTransitions(() => applyTheme(next));
   }
 
-  // Both icons are rendered and CSS shows the right one, so the server HTML
-  // matches the client (no hydration mismatch, no flash).
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label="Toggle dark mode"
-      title="Toggle dark mode"
+      aria-label={label}
+      title={label}
       className="flex items-center justify-center size-8 m-1 rounded-md cursor-pointer text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/60 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-800/60 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-500"
     >
       <MoonIcon className="block dark:hidden" />

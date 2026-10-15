@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // The MCP route reads the posts from disk at request time, so they must be
-  // bundled with its serverless function.
+  experimental: {
+    // With one root layout per language, only global-not-found renders 404s
+    globalNotFound: true,
+  },
+  // Read from disk at request time
   outputFileTracingIncludes: {
     "/api/mcp": ["./app/blog/posts/**/*.mdx"],
   },

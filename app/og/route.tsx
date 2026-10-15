@@ -2,10 +2,9 @@ import fs from "fs";
 import path from "path";
 import { ImageResponse } from "next/og";
 
-// Same image for every page: the logo centered. Generated once at build time.
 export const dynamic = "force-static";
 
-const logoSize = 500; // logo.png's real size: drawn 1:1, without resampling
+const logoSize = 500; // logo.png's size: drawn 1:1, no resampling
 const logo = `data:image/png;base64,${fs
   .readFileSync(path.join(process.cwd(), "public", "logo.png"))
   .toString("base64")}`;

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { defaultLocale, localeConfig, type Locale } from "../lib/i18n.ts";
 
 type Metadata = {
   title: string;
@@ -58,13 +59,17 @@ function getMDXData(dir: string): Post[] {
   });
 }
 
-export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), "app", "blog", "posts"));
+function postsDir(locale: Locale) {
+  const dir = path.join(process.cwd(), "app", "blog", "posts");
+  return locale === defaultLocale ? dir : path.join(dir, locale);
 }
 
-// Newest first
-export function getSortedBlogPosts() {
-  return getBlogPosts().sort((a, b) =>
+export function getBlogPosts(locale: Locale = defaultLocale) {
+  return getMDXData(postsDir(locale));
+}
+
+export function getSortedBlogPosts(locale: Locale = defaultLocale) {
+  return getBlogPosts(locale).sort((a, b) =>
     b.metadata.publishedAt.localeCompare(a.metadata.publishedAt)
   );
 }
@@ -73,37 +78,44 @@ export function getLastModified(post: Post) {
   return post.metadata.updatedAt ?? post.metadata.publishedAt;
 }
 
-function getTimeAgo(date: Date) {
+const relativeUnits: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 365 * 24 * 60 * 60],
+  ["month", 30 * 24 * 60 * 60],
+  ["week", 7 * 24 * 60 * 60],
+  ["day", 24 * 60 * 60],
+  ["hour", 60 * 60],
+  ["minute", 60],
+  ["second", 1],
+];
+
+function getTimeAgo(date: Date, locale: Locale) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  const format = new Intl.RelativeTimeFormat(localeConfig[locale].intl, {
+    numeric: "auto",
+  });
 
-  const intervals = {
-    year: 365 * 24 * 60 * 60,
-    month: 30 * 24 * 60 * 60,
-    week: 7 * 24 * 60 * 60,
-    day: 24 * 60 * 60,
-    hour: 60 * 60,
-    minute: 60,
-    second: 1,
-  };
-
-  for (const [key, value] of Object.entries(intervals)) {
+  for (const [unit, value] of relativeUnits) {
     const interval = Math.floor(seconds / value);
     if (interval >= 1) {
-      return `${interval} ${key}${interval > 1 ? "s" : ""} ago`;
+      return format.format(-interval, unit);
     }
   }
 
-  return "Just now";
+  return format.format(0, "second");
 }
 
-export function formatDate(date: string, includeRelative = false) {
+export function formatDate(
+  date: string,
+  includeRelative = false,
+  locale: Locale = defaultLocale
+) {
   if (!date.includes("T")) {
     date = `${date}T00:00:00`;
   }
 
   const targetDate = new Date(date);
 
-  const fullDate = targetDate.toLocaleString("en-us", {
+  const fullDate = targetDate.toLocaleString(localeConfig[locale].intl, {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -113,7 +125,5 @@ export function formatDate(date: string, includeRelative = false) {
     return fullDate;
   }
 
-  const timeAgo = getTimeAgo(targetDate);
-
-  return `${fullDate} (${timeAgo})`;
+  return `${fullDate} (${getTimeAgo(targetDate, locale)})`;
 }

@@ -1,0 +1,971 @@
+---
+title: "JavaScript moderno"
+publishedAt: "2023-02-03"
+updatedAt: "2026-10-14"
+summary: "Aprenda conceitos de JavaScript moderno como optional chaining, operadores rest - spread - nullish coalescing, métodos imutáveis de array, Object.groupBy, métodos de Set, iterator helpers, structuredClone e muito mais."
+image: "https://i.imgur.com/gKN5mZO.png"
+---
+
+## Sumário:
+
+- [Valores falsy, truthy e nullish](#valores-falsy-truthy-e-nullish)
+  - [Valores falsy](#valores-falsy)
+  - [Valores truthy](#valores-truthy)
+  - [Valores nullish](#valores-nullish)
+- [Separadores numéricos](#separadores-numericos)
+- [Template literals](#template-literals)
+- [Nomes de propriedades abreviados](#nomes-de-propriedades-abreviados)
+- [Operador lógico AND](#operador-logico-and)
+- [Operador lógico OR](#operador-logico-or)
+- [Operador Nullish Coalescing](#operador-nullish-coalescing)
+- [Operadores de atribuição lógica](#operadores-de-atribuicao-logica)
+  - [Atribuição AND (&&=)](#atribuicao-and-and-and-)
+  - [Atribuição OR (||=)](#atribuicao-or-)
+  - [Atribuição Nullish Coalescing (??=)](#atribuicao-nullish-coalescing-)
+- [Optional Chaining](#optional-chaining)
+- [Atribuição via desestruturação](#atribuicao-via-desestruturacao)
+- [Operador spread](#operador-spread)
+- [Operador rest](#operador-rest)
+- [Parâmetros rest](#parametros-rest)
+- [Parâmetros padrão de funções](#parametros-padrao-de-funcoes)
+- [Arrow functions](#arrow-functions)
+- [async/await](#asyncawait)
+  - [top-level await](#top-level-await)
+  - [Executando promises em paralelo](#executando-promises-em-paralelo)
+  - [Promise.withResolvers](#promisewithresolvers)
+- [try...catch...finally](#trycatchfinally)
+  - [Error cause](#error-cause)
+- [Array.prototype.at](#arrayprototypeat)
+- [findLast e findLastIndex](#findlast-e-findlastindex)
+- [Métodos imutáveis de array](#metodos-imutaveis-de-array)
+- [Object.groupBy e Map.groupBy](#objectgroupby-e-mapgroupby)
+- [Métodos de Set](#metodos-de-set)
+- [Iterator helpers](#iterator-helpers)
+- [structuredClone](#structuredclone)
+- [Object.hasOwn](#objecthasown)
+- [Campos privados de classe](#campos-privados-de-classe)
+
+## Valores falsy, truthy e nullish
+
+O JavaScript converte valores implicitamente quando eles estão em um contexto booleano (como em operações condicionais).
+
+### Valores falsy
+
+Valores falsy, quando convertidos implicitamente, equivalem a `false`:
+
+- `false`
+- `""` (string vazia, incluindo `''` e template literals vazios)
+- `0`, `-0`, `0n`
+- `null`
+- `undefined`
+- `NaN`
+
+### Valores truthy
+
+Valores truthy, quando convertidos implicitamente, equivalem a `true`:
+
+- `true`
+- Qualquer string não vazia (incluindo `"0"` e `"false"`)
+- Qualquer número diferente de `0` (incluindo números negativos e de ponto flutuante)
+- `Infinity`, `-Infinity`
+- `[]` (Array, vazio ou não)
+- `{}` (Object, vazio ou não)
+
+### Valores nullish
+
+Valores nullish são sempre falsy e existem dois valores possíveis:
+
+- `null`
+- `undefined`
+
+## Separadores numéricos
+
+Os separadores numéricos melhoram a legibilidade de números literais adicionando um separador visual entre os grupos, usando um underscore ( \_ )
+
+```ts
+const oneMillion = 1_000_000; // 1000000
+const oneBillion = 1_000_000_000; // 1000000000
+const oneMillionFiftyCents = 1_000_000.5; // 1000000.5
+```
+
+## Template literals
+
+Template literals (ou template strings) são um syntactic sugar para montar strings.
+
+#### Não faça isso:
+
+```ts
+const fullname = "My name is " + username + " " + lastname;
+```
+
+#### Faça isso:
+
+```ts
+const fullname = `My name is ${username} ${lastname}`;
+```
+
+> É uma boa prática usar template literals para concatenação e + para operações matemáticas.
+
+## Nomes de propriedades abreviados
+
+Podemos usar uma sintaxe mais curta para os nomes de propriedades em object literals, simplificando a criação de objetos.
+
+#### Não faça isso:
+
+```ts
+const person = {
+  username: username,
+  lastname: lastname,
+  getFullname: getFullname,
+};
+```
+
+#### Faça isso:
+
+```ts
+const person = {
+  username,
+  lastname,
+  getFullname,
+};
+```
+
+#### Não faça isso:
+
+```ts
+const person = {
+  user.name,
+};
+```
+
+Desse jeito, vai ser lançado um Uncaught SyntaxError: Unexpected token '.'
+
+#### Faça isso:
+
+```ts
+const person = {
+  name: user.name,
+};
+```
+
+#### Bônus:
+
+```ts
+const person = {
+  fullname: "Lucas Bittencourt",
+  getFullname() {
+    return this.fullname;
+  },
+};
+```
+
+Saiba mais sobre isso [aqui](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Functions/Method_definitions#description)
+
+## Operador lógico AND
+
+O operador lógico AND ( **&&** ) retorna o valor da direita se o valor da esquerda for [truthy](#valores-truthy).
+Caso contrário, retorna o valor da esquerda.
+
+```ts
+console.log(false && "Lucas Bittencourt"); // false
+console.log(undefined && "Lucas Bittencourt"); // undefined
+console.log(null && "Lucas Bittencourt"); // null
+console.log(NaN && "Lucas Bittencourt"); // NaN
+
+console.log(true && "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(1 && "Lucas Bittencourt"); // Lucas Bittencourt
+
+console.log(1 && true && "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(1 && false && "Lucas Bittencourt"); // false
+```
+
+#### JSX:
+
+```tsx
+{
+  hasMinimumAge && <SomeComponent />;
+}
+```
+
+Cuidado com números no JSX: `{items.length && <List />}` renderiza `0` quando a lista está vazia.
+Use `{items.length > 0 && <List />}` no lugar.
+
+## Operador lógico OR
+
+O operador lógico OR ( **||** ) retorna o valor da direita se o valor da esquerda for [falsy](#valores-falsy).
+Caso contrário, retorna o valor da esquerda.
+
+```ts
+console.log(false || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(undefined || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(null || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(NaN || "Lucas Bittencourt"); // Lucas Bittencourt
+
+console.log(true || "Lucas Bittencourt"); // true
+console.log(1 || "Lucas Bittencourt"); // 1
+
+console.log(0 || false || "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(0 || true || "Lucas Bittencourt"); // true
+console.log(1 || true || "Lucas Bittencourt"); // 1
+```
+
+## Operador Nullish Coalescing
+
+O operador Nullish Coalescing ( **??** ) retorna o valor da direita se o valor da esquerda for [nullish](#valores-nullish).
+
+```ts
+console.log("" ?? "Lucas Bittencourt"); // ""
+console.log(0 ?? "Lucas Bittencourt"); // 0
+console.log(true ?? "Lucas Bittencourt"); // true
+
+console.log(null ?? "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(undefined ?? "Lucas Bittencourt"); // Lucas Bittencourt
+
+console.log(undefined ?? null ?? "Lucas Bittencourt"); // Lucas Bittencourt
+console.log(undefined ?? false ?? "Lucas Bittencourt"); // false
+```
+
+Prefira `??` em vez de `||` para valores padrão quando `0`, `""` ou `false` forem valores válidos:
+
+```ts
+const timeout = options.timeout || 5_000; // 0 becomes 5000 (bug)
+const timeout = options.timeout ?? 5_000; // 0 stays 0
+```
+
+## Operadores de atribuição lógica
+
+Podemos atribuir valores condicionalmente usando operadores lógicos.
+
+### Atribuição AND (&&=)
+
+Só avalia o operando da direita e o atribui à esquerda se o operando da esquerda for [truthy](#valores-truthy).
+
+#### Não faça isso:
+
+```ts
+if (user.name) {
+  user.name = user.name.trim();
+}
+```
+
+#### Faça isso:
+
+```ts
+user.name &&= user.name.trim();
+```
+
+### Atribuição OR (||=)
+
+Só avalia o operando da direita e o atribui à esquerda se o operando da esquerda for [falsy](#valores-falsy).
+
+#### Não faça isso:
+
+```ts
+if (!options.title) {
+  options.title = "Untitled";
+}
+```
+
+#### Faça isso:
+
+```ts
+options.title ||= "Untitled";
+```
+
+### Atribuição Nullish Coalescing (??=)
+
+Só avalia o operando da direita e o atribui à esquerda se o operando da esquerda for [nullish](#valores-nullish).
+
+#### Não faça isso:
+
+```ts
+let cache = null;
+
+function getCache() {
+  if (cache === null || cache === undefined) {
+    cache = new Map();
+  }
+
+  return cache;
+}
+```
+
+#### Faça isso:
+
+```ts
+let cache = null;
+
+function getCache() {
+  cache ??= new Map();
+  return cache;
+}
+```
+
+A diferença entre `||=` e `??=`:
+
+```ts
+const options = { retries: 0 };
+
+options.retries ||= 3; // 3, because 0 is falsy
+options.retries ??= 3; // 0, because 0 is not nullish
+```
+
+## Optional Chaining
+
+Optional Chaining é uma forma segura de acessar propriedades de objetos que podem ser nullish.
+
+#### Não faça isso:
+
+```ts
+console.log(object.nullishReference.name);
+```
+
+Isso pode causar um erro em tempo de execução: Uncaught TypeError: Cannot read properties of undefined (reading 'name')
+
+#### Faça isso:
+
+```ts
+console.log(object.nullishReference?.name);
+```
+
+Também podemos usar optional chaining em condicionais.
+
+```ts
+if (object.nullishReference?.name) {
+  console.log("Hello, world");
+}
+```
+
+Também podemos usar optional chaining em arrays.
+
+```ts
+console.log(userList?.[0]?.name);
+```
+
+Também podemos usar optional chaining em funções.
+
+```ts
+getUserData?.();
+getUserData?.()?.name;
+```
+
+Podemos combiná-lo com o [operador Nullish Coalescing](#operador-nullish-coalescing) para fornecer um valor padrão.
+
+```ts
+const city = user.address?.city ?? "Unknown";
+```
+
+## Atribuição via desestruturação
+
+A sintaxe de [atribuição via desestruturação](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) é uma expressão JavaScript que possibilita extrair valores de arrays,
+ou propriedades de objetos, para variáveis distintas.
+
+#### Não faça isso:
+
+```ts
+const username = user.username;
+const lastname = user.lastname;
+```
+
+#### Faça isso:
+
+```ts
+const { username, lastname } = user;
+```
+
+Podemos desestruturar o retorno de funções:
+
+```ts
+const { username, lastname } = getUser();
+```
+
+Podemos definir um valor padrão:
+
+```ts
+const { username = "Lucas", lastname } = user;
+```
+
+Podemos desestruturar objetos aninhados:
+
+```ts
+const {
+  username,
+  lastname,
+  information: { email, age },
+} = user;
+```
+
+Podemos renomear propriedades do objeto ao desestruturar:
+
+```ts
+const { username: name } = user;
+```
+
+Podemos criar outro objeto usando o [operador rest](#operador-rest) ao desestruturar:
+
+```ts
+const { username, lastname, ...userInfo } = user;
+```
+
+Podemos desestruturar parâmetros de funções:
+
+```ts
+function getUsername({ name, lastname }) {
+  return `${name} ${lastname}`;
+}
+```
+
+#### Não faça isso:
+
+```ts
+const user1 = userList[0];
+const user2 = userList[1];
+```
+
+#### Faça isso:
+
+```ts
+const [user1, user2] = userList;
+```
+
+Podemos pular elementos do array ao desestruturar:
+
+```ts
+const [user1, user2, , user4] = userList;
+```
+
+Podemos desestruturar arrays multidimensionais:
+
+```ts
+const [[a, , c], , [, h, i]] = myArray;
+```
+
+Podemos definir um valor padrão:
+
+```ts
+const [a = 1, b, c] = numberList;
+```
+
+Podemos desestruturar objetos dentro de arrays:
+
+```ts
+const [{ username, lastname }, user2] = userList;
+```
+
+Podemos desestruturar arrays como se fossem objetos:
+
+```ts
+const {
+  0: user1,
+  1: user2,
+  2: { username, lastname },
+} = userList;
+```
+
+Podemos criar outro array usando o [operador rest](#operador-rest) ao desestruturar:
+
+```ts
+const [user1, user2, ...moreUsers] = userList;
+```
+
+Podemos desestruturar parâmetros de funções:
+
+```ts
+function sumNumbers([a, b, c]) {
+  return a + b + c;
+}
+```
+
+Podemos trocar o valor de variáveis sem uma variável temporária:
+
+```ts
+[a, b] = [b, a];
+```
+
+## Operador spread
+
+O operador spread "expande" um array ou objeto em seus elementos.
+
+```ts
+const newUser = { ...user, age: 25 };
+
+const newUserList = [...userList, newUser];
+```
+
+Podemos espalhar elementos de objetos aninhados:
+
+```ts
+const newUser = {
+  ...user,
+  information: {
+    ...user.information,
+    username: "Lucas",
+  },
+  age: 25,
+};
+```
+
+Podemos espalhar elementos de um array como argumentos de uma função:
+
+```ts
+const numbers = [5, 1, 8];
+
+Math.max(...numbers); // 8
+```
+
+O spread cria apenas uma **cópia rasa** (shallow copy): objetos aninhados continuam compartilhados com o objeto original.
+Para criar uma cópia profunda (deep copy), use [structuredClone](#structuredclone).
+
+## Operador rest
+
+O operador rest coleta múltiplos elementos e os "condensa" em um único elemento.
+
+```ts
+const { username, lastname, ...otherInfo } = user;
+
+const [a, b, c, ...otherNumbers] = numberList;
+```
+
+## Parâmetros rest
+
+Os [parâmetros rest](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Functions/rest_parameters) oferecem
+uma forma de aceitar um número indefinido de argumentos como um array (funções variádicas).
+
+```ts
+function sum(...numbers) {
+  return numbers.reduce((total, number) => total + number, 0);
+}
+
+sum(1, 2, 3); // 6
+```
+
+Prefira parâmetros rest em vez do antigo objeto `arguments`, que não é um array de verdade e não existe em arrow functions.
+
+## Parâmetros padrão de funções
+
+Podemos definir parâmetros padrão de funções para argumentos opcionais.
+
+```ts
+function getUsername(username = "Lucas Bittencourt") {
+  return username;
+}
+```
+
+Podemos definir um objeto como parâmetro padrão:
+
+```ts
+function getUsername(user = { username: "Lucas Bittencourt" }) {
+  return user.username;
+}
+```
+
+Podemos combinar isso com desestruturação para criar opções nomeadas:
+
+```ts
+function createUser({ name, role = "user", active = true } = {}) {
+  return { name, role, active };
+}
+
+createUser({ name: "Lucas" }); // { name: "Lucas", role: "user", active: true }
+```
+
+## Arrow functions
+
+[Arrow functions](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Functions/Arrow_functions) são funções compactas.
+
+```ts
+const getUser = (username, lastname) => {
+  return {
+    username,
+    lastname,
+  };
+};
+```
+
+Quando uma arrow function tem apenas uma expressão, podemos omitir a palavra-chave `return` e as chaves.
+
+```ts
+const getUsername = (username) => username.trim();
+```
+
+Ao retornar um objeto literal, precisamos garantir que ele esteja envolvido em parênteses:
+
+```ts
+const getUserInfo = (name) => ({
+  name: name.trim(),
+});
+```
+
+Também podemos retornar um array literal:
+
+```ts
+const getNumbers = () => [1, 2, 3];
+```
+
+Podemos ter uma arrow function assíncrona:
+
+```ts
+const getUser = async (id) => {
+  const response = await fetch(`/api/users/${id}`);
+  return response.json();
+};
+```
+
+Arrow functions não têm o seu próprio `this`: elas usam o `this` do lugar onde foram criadas.
+É por isso que são ótimas para callbacks, mas não devem ser usadas como métodos de objetos.
+
+## async/await
+
+O async/await do JavaScript é um syntactic sugar para promises.
+
+#### Não faça isso:
+
+```ts
+function fetchUser() {
+  getUser().then((user) => console.log(user));
+}
+```
+
+#### Faça isso:
+
+```ts
+async function fetchUser() {
+  const user = await getUser();
+  console.log(user);
+}
+```
+
+### top-level await
+
+Em ES modules (por exemplo, arquivos `.mjs`, `"type": "module"` ou `<script type="module">`), podemos usar `await`
+no nível mais alto do módulo, sem uma função async.
+
+```ts
+const config = await fetch("/config.json").then((response) => response.json());
+```
+
+### Executando promises em paralelo
+
+Aguardar promises independentes uma por uma faz com que elas rodem em sequência.
+
+#### Não faça isso:
+
+```ts
+// the second request only starts after the first one finishes
+const user = await getUser();
+const posts = await getPosts();
+```
+
+#### Faça isso:
+
+```ts
+// both requests run at the same time
+const [user, posts] = await Promise.all([getUser(), getPosts()]);
+```
+
+- `Promise.all`: rejeita assim que uma promise rejeita
+- `Promise.allSettled`: espera todas elas e retorna o status de cada uma
+- `Promise.race`: é resolvida (settled) com a primeira promise que for resolvida (settled)
+- `Promise.any`: é cumprida (fulfilled) com a primeira promise que for cumprida (fulfilled)
+
+```ts
+const results = await Promise.allSettled([getUser(), getPosts()]);
+
+for (const result of results) {
+  if (result.status === "fulfilled") {
+    console.log(result.value);
+  } else {
+    console.error(result.reason);
+  }
+}
+```
+
+### Promise.withResolvers
+
+Cria uma promise e a retorna junto com as suas funções `resolve` e `reject`,
+útil para transformar APIs baseadas em callback em promises.
+
+#### Não faça isso:
+
+```ts
+let resolve, reject;
+
+const promise = new Promise((res, rej) => {
+  resolve = res;
+  reject = rej;
+});
+```
+
+#### Faça isso:
+
+```ts
+const { promise, resolve, reject } = Promise.withResolvers();
+
+socket.once("ready", resolve);
+socket.once("error", reject);
+
+await promise;
+```
+
+## try...catch...finally
+
+A instrução try...catch é composta por um bloco try e um bloco catch, um bloco finally, ou ambos.
+O código no bloco try é executado primeiro e, se ele lançar uma exceção, o código no bloco catch será executado.
+O código no bloco finally sempre será executado antes de o fluxo de controle sair de toda a estrutura.
+
+#### Não faça isso:
+
+```ts
+function fetchUser() {
+  getUser()
+    .then((user) => console.log(user))
+    .catch((error) => console.error(error))
+    .finally(() => console.info("Finished!"));
+}
+```
+
+#### Faça isso:
+
+```ts
+async function fetchUser() {
+  try {
+    const user = await getUser();
+    console.info(user);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    console.log("Finished!");
+  }
+}
+```
+
+Se você não precisa do erro, pode omiti-lo:
+
+```ts
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+```
+
+### Error cause
+
+Quando você captura um erro e lança um novo, use a opção `cause` para manter o erro original.
+
+```ts
+async function getUser(id) {
+  try {
+    return await database.users.find(id);
+  } catch (error) {
+    throw new Error(`Failed to get user ${id}`, { cause: error });
+  }
+}
+```
+
+## Array.prototype.at
+
+`at()` retorna o item no índice informado e aceita índices negativos para contar a partir do final.
+
+#### Não faça isso:
+
+```ts
+const lastUser = userList[userList.length - 1];
+```
+
+#### Faça isso:
+
+```ts
+const lastUser = userList.at(-1);
+```
+
+## findLast e findLastIndex
+
+Como `find` e `findIndex`, mas buscando a partir do final do array.
+
+```ts
+const numbers = [1, 2, 3, 4, 5];
+
+numbers.findLast((number) => number % 2 === 0); // 4
+numbers.findLastIndex((number) => number % 2 === 0); // 3
+```
+
+## Métodos imutáveis de array
+
+`sort`, `reverse` e `splice` **mutam** o array original, o que causa bugs, por exemplo, com o state do React.
+As versões imutáveis deles retornam um novo array e mantêm o original intacto:
+
+- `toSorted()` em vez de `sort()`
+- `toReversed()` em vez de `reverse()`
+- `toSpliced()` em vez de `splice()`
+- `with(index, value)` em vez de `array[index] = value`
+
+#### Não faça isso:
+
+```ts
+const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name));
+```
+
+#### Faça isso:
+
+```ts
+const sortedUsers = users.toSorted((a, b) => a.name.localeCompare(b.name));
+```
+
+```ts
+const numbers = [3, 1, 2];
+
+numbers.toSorted(); // [1, 2, 3]
+numbers.toReversed(); // [2, 1, 3]
+numbers.toSpliced(0, 1); // [1, 2]
+numbers.with(0, 10); // [10, 1, 2]
+
+console.log(numbers); // [3, 1, 2], unchanged
+```
+
+## Object.groupBy e Map.groupBy
+
+Agrupa os itens de um array (ou de qualquer iterável) pelo valor retornado por um callback.
+
+#### Não faça isso:
+
+```ts
+const usersByRole = users.reduce((groups, user) => {
+  groups[user.role] ??= [];
+  groups[user.role].push(user);
+  return groups;
+}, {});
+```
+
+#### Faça isso:
+
+```ts
+const usersByRole = Object.groupBy(users, (user) => user.role);
+// { admin: [...], user: [...] }
+```
+
+Use `Map.groupBy` quando as chaves não forem strings, como objetos ou datas:
+
+```ts
+const usersByTeam = Map.groupBy(users, (user) => user.team);
+
+usersByTeam.get(team); // users of that team
+```
+
+## Métodos de Set
+
+Os Sets agora têm métodos para combiná-los e compará-los:
+
+```ts
+const frontend = new Set(["Lucas", "Ana", "John"]);
+const backend = new Set(["Lucas", "Mary"]);
+
+frontend.union(backend); // Set { "Lucas", "Ana", "John", "Mary" }
+frontend.intersection(backend); // Set { "Lucas" }
+frontend.difference(backend); // Set { "Ana", "John" }
+frontend.symmetricDifference(backend); // Set { "Ana", "John", "Mary" }
+
+new Set(["Lucas"]).isSubsetOf(frontend); // true
+frontend.isSupersetOf(new Set(["Ana"])); // true
+frontend.isDisjointFrom(new Set(["Peter"])); // true
+```
+
+Lembre-se: `set.has()` é muito mais rápido do que `array.includes()` em listas grandes.
+
+## Iterator helpers
+
+Os iterators agora têm métodos como `map`, `filter`, `take`, `drop`, `flatMap`, `reduce`, `some`, `every`, `find` e `toArray`.
+Diferente dos métodos de array, eles são **lazy**: cada item passa pela cadeia inteira, um de cada vez,
+sem criar arrays intermediários, e o processamento para assim que possível.
+
+```ts
+function* naturalNumbers() {
+  let number = 1;
+
+  while (true) {
+    yield number++;
+  }
+}
+
+const firstEvenSquares = naturalNumbers()
+  .filter((number) => number % 2 === 0)
+  .map((number) => number ** 2)
+  .take(3)
+  .toArray();
+
+// [4, 16, 36], even with an infinite generator
+```
+
+Eles também funcionam com os iterators de `Map` e `Set`:
+
+```ts
+const adminNames = usersById
+  .values()
+  .filter((user) => user.role === "admin")
+  .map((user) => user.name)
+  .toArray();
+```
+
+## structuredClone
+
+`structuredClone` cria uma **cópia profunda** (deep copy) de um valor. Está disponível nos navegadores, Node.js, Deno e Bun.
+
+#### Não faça isso:
+
+```ts
+const copy = JSON.parse(JSON.stringify(user));
+```
+
+Isso perde objetos `Date` (eles viram strings), `Map`, `Set`, valores `undefined` e falha com referências circulares.
+
+#### Faça isso:
+
+```ts
+const copy = structuredClone(user);
+```
+
+Funções e nós do DOM não podem ser clonados (é lançado um `DataCloneError`), e instâncias de classes perdem o seu prototype (viram objetos simples).
+
+## Object.hasOwn
+
+Verifica se um objeto tem uma propriedade própria (não herdada).
+
+#### Não faça isso:
+
+```ts
+Object.prototype.hasOwnProperty.call(user, "name");
+```
+
+#### Faça isso:
+
+```ts
+Object.hasOwn(user, "name");
+```
+
+## Campos privados de classe
+
+Campos e métodos de classe que começam com `#` são realmente privados: não podem ser acessados fora da classe.
+
+```ts
+class Counter {
+  #count = 0;
+
+  increment() {
+    this.#count++;
+    return this.#count;
+  }
+
+  static create() {
+    return new Counter();
+  }
+}
+
+const counter = Counter.create();
+
+counter.increment(); // 1
+counter.#count; // SyntaxError: Private field '#count' must be declared in an enclosing class
+```
+
+Diferente da palavra-chave `private` do TypeScript, que só existe em tempo de compilação, os campos `#` são privados em tempo de execução.

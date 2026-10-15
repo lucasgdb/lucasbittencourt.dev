@@ -1,0 +1,416 @@
+---
+title: "Notação Big-O"
+publishedAt: "2024-10-10"
+summary: "Entenda o que é a notação Big-O, a diferença entre complexidade de tempo e de espaço, as complexidades mais comuns de O(1) a O(n!) e como analisar a complexidade do seu próprio código."
+---
+
+## Sumário:
+
+- [O que é a notação Big-O?](#o-que-e-a-notacao-big-o)
+- [Complexidade de tempo vs. complexidade de espaço](#complexidade-de-tempo-vs-complexidade-de-espaco)
+- [Como descobrir o Big-O do seu código](#como-descobrir-o-big-o-do-seu-codigo)
+- [Complexidade de tempo](#complexidade-de-tempo)
+  - [O(1): Tempo constante](#o1-tempo-constante)
+  - [O(log n): Tempo logarítmico](#olog-n-tempo-logaritmico)
+  - [O(n): Tempo linear](#on-tempo-linear)
+  - [O(n log n): Tempo linearítmico](#on-log-n-tempo-linearitmico)
+  - [O(n \* m): Duas entradas diferentes](#on-m-duas-entradas-diferentes)
+  - [O(n²): Tempo quadrático](#on-tempo-quadratico)
+  - [O(2ⁿ): Tempo exponencial](#o2-tempo-exponencial)
+  - [O(n!): Tempo fatorial](#on-tempo-fatorial)
+- [Complexidade de espaço](#complexidade-de-espaco)
+- [Operações comuns em JavaScript](#operacoes-comuns-em-javascript)
+
+## O que é a notação Big-O?
+
+A notação Big-O descreve como o custo de um algoritmo cresce à medida que o tamanho da sua entrada (`n`) cresce.
+Ela não mede segundos nem bytes, ela mede a **taxa de crescimento**. É por isso que um algoritmo que é
+rápido com 10 itens pode se tornar inutilizável com 1 milhão de itens.
+
+O Big-O normalmente descreve o **pior caso**. Se você procura um item em um array, pode ser que o encontre
+na primeira posição, mas no pior caso você vai precisar verificar todos os itens, então a busca é `O(n)`.
+
+Na notação Big-O, só nos importamos com o maior termo, então `O(log n) + O(n)` se simplifica para `O(n)`.
+Quando `n` é grande o suficiente, o maior termo domina todo o resto.
+
+Quantas operações cada complexidade precisa à medida que `n` cresce:
+
+<Table
+  data={{
+    headers: ["Big-O", "n = 10", "n = 100", "n = 1,000"],
+    rows: [
+      ["O(1)", "1", "1", "1"],
+      ["O(log n)", "~3", "~7", "~10"],
+      ["O(n)", "10", "100", "1,000"],
+      ["O(n log n)", "~33", "~664", "~9,966"],
+      ["O(n²)", "100", "10,000", "1,000,000"],
+      ["O(2ⁿ)", "1,024", "~1.27 × 10³⁰", "~1.07 × 10³⁰¹"],
+      ["O(n!)", "3,628,800", "~9.33 × 10¹⁵⁷", "~4.02 × 10²⁵⁶⁷"],
+    ],
+  }}
+/>
+
+## Complexidade de tempo vs. complexidade de espaço
+
+- **Complexidade de tempo**: como o número de operações cresce à medida que a entrada cresce.
+- **Complexidade de espaço**: como a memória extra usada pelo algoritmo cresce à medida que a entrada cresce.
+
+Normalmente, não contamos a própria entrada como espaço, apenas a memória extra que o algoritmo aloca
+(também conhecida como espaço auxiliar).
+
+Muitas vezes você troca um pelo outro: usa mais memória (por exemplo, um `Set` ou um cache) para deixar um algoritmo mais rápido.
+
+## Como descobrir o Big-O do seu código
+
+1. **Descarte as constantes**: dois loops sequenciais sobre a mesma lista são `O(2n)`, que se simplifica para `O(n)`.
+2. **Descarte os termos não dominantes**: `O(n² + n)` se simplifica para `O(n²)`.
+3. **Passos sequenciais se somam**: um loop sobre `a` seguido de um loop sobre `b` é `O(a + b)`.
+4. **Passos aninhados se multiplicam**: um loop sobre `b` dentro de um loop sobre `a` é `O(a * b)`.
+5. **Entradas diferentes, variáveis diferentes**: se uma função recebe duas listas, não chame as duas de `n`.
+
+Exemplo:
+
+```ts
+function printReport(list: number[]) {
+  // O(n)
+  for (const item of list) {
+    console.log(item);
+  }
+
+  // O(n)
+  const total = list.reduce((sum, item) => sum + item, 0);
+
+  // O(n²)
+  for (const a of list) {
+    for (const b of list) {
+      console.log(a * b);
+    }
+  }
+
+  return total;
+}
+
+// O(n + n + n²) = O(2n + n²) = O(n²)
+```
+
+## Complexidade de tempo
+
+### O(1): Tempo constante
+
+O número de operações não depende do tamanho da entrada.
+
+Exemplo:
+
+```ts
+const list = [10, 20, 30, 40];
+const users = new Map([[1, { name: "Lucas" }]]);
+
+list[2]; // accessing an index
+list.push(50); // adding to the end of an array
+users.get(1); // Map/Set lookups (on average)
+```
+
+### O(log n): Tempo logarítmico
+
+Cada passo corta o problema pela metade. Dobrar a entrada adiciona apenas mais um passo.
+O exemplo clássico é a busca binária, que só funciona em uma lista **ordenada**.
+
+Exemplo:
+
+```ts
+function binarySearch(list: number[], target: number) {
+  let start = 0;
+  let end = list.length - 1;
+
+  while (start <= end) {
+    const middle = Math.floor((start + end) / 2);
+
+    if (list[middle] === target) {
+      return middle;
+    }
+
+    if (list[middle] < target) {
+      start = middle + 1; // discard the left half
+    } else {
+      end = middle - 1; // discard the right half
+    }
+  }
+
+  return -1;
+}
+
+binarySearch([1, 3, 5, 7, 9, 11], 9); // 4
+```
+
+Com 1.000.000 de itens, a busca binária precisa de no máximo ~20 passos.
+
+### O(n): Tempo linear
+
+O número de operações cresce na mesma proporção que a entrada.
+
+Exemplo:
+
+```ts
+function sum(list: number[]) {
+  let total = 0;
+
+  for (const item of list) {
+    total += item;
+  }
+
+  return total;
+}
+```
+
+Métodos como `map`, `filter`, `find`, `includes` e `indexOf` também são `O(n)`, porque podem precisar visitar todos os itens.
+
+### O(n log n): Tempo linearítmico
+
+É a complexidade dos algoritmos de ordenação eficientes, como Merge Sort, Heap Sort e o caso médio do Quick Sort.
+Também é a complexidade do `Array.prototype.sort` nas engines JavaScript modernas.
+
+Exemplo:
+
+```ts
+function mergeSort(list: number[]): number[] {
+  if (list.length <= 1) {
+    return list;
+  }
+
+  const middle = Math.floor(list.length / 2);
+
+  // splitting the list in half: log n levels
+  const left = mergeSort(list.slice(0, middle));
+  const right = mergeSort(list.slice(middle));
+
+  // merging both halves: n operations per level
+  const result: number[] = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) {
+      result.push(left[i++]);
+    } else {
+      result.push(right[j++]);
+    }
+  }
+
+  return [...result, ...left.slice(i), ...right.slice(j)];
+}
+```
+
+Se o seu algoritmo precisa de uma lista ordenada, lembre-se de que ordenar já custa `O(n log n)`.
+
+### O(n \* m): Duas entradas diferentes
+
+Quando você percorre uma entrada dentro de um loop sobre **outra** entrada, a complexidade depende dos dois tamanhos.
+
+#### Não faça isso:
+
+```ts
+// O(n * m): for each user, we loop over all admins
+function getAdminUsers(users: User[], admins: User[]) {
+  return users.filter((user) => admins.some((admin) => admin.id === user.id));
+}
+```
+
+#### Faça isso:
+
+```ts
+// O(n + m): creating the Set is O(m) and each lookup is O(1)
+function getAdminUsers(users: User[], admins: User[]) {
+  const adminIds = new Set(admins.map((admin) => admin.id));
+
+  return users.filter((user) => adminIds.has(user.id));
+}
+```
+
+### O(n²): Tempo quadrático
+
+É o mesmo que `O(n * m)`, mas os dois loops percorrem a **mesma** entrada.
+Com 10.000 itens, já são 100.000.000 de operações.
+
+#### Não faça isso:
+
+```ts
+// O(n²): for each item, we loop over the list again
+function hasDuplicates(list: number[]) {
+  for (let i = 0; i < list.length; i++) {
+    for (let j = i + 1; j < list.length; j++) {
+      if (list[i] === list[j]) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+```
+
+#### Faça isso:
+
+```ts
+// O(n): Set lookups are O(1)
+function hasDuplicates(list: number[]) {
+  const seen = new Set<number>();
+
+  for (const item of list) {
+    if (seen.has(item)) {
+      return true;
+    }
+
+    seen.add(item);
+  }
+
+  return false;
+}
+```
+
+Repare no trade-off: a segunda versão é mais rápida, mas usa `O(n)` de memória extra para o `Set`.
+
+### O(2ⁿ): Tempo exponencial
+
+O número de operações dobra a cada novo item na entrada. Isso costuma acontecer em funções recursivas
+que chamam a si mesmas mais de uma vez sem salvar os resultados anteriores.
+
+#### Não faça isso:
+
+```ts
+// O(2ⁿ): fibonacci(n - 1) and fibonacci(n - 2) recalculate the same values many times
+function fibonacci(n: number): number {
+  if (n <= 1) {
+    return n;
+  }
+
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fibonacci(45); // takes several seconds
+```
+
+#### Faça isso:
+
+```ts
+// O(n): each value is calculated only once (memoization)
+function fibonacci(n: number, cache = new Map<number, number>()): number {
+  if (n <= 1) {
+    return n;
+  }
+
+  if (cache.has(n)) {
+    return cache.get(n)!;
+  }
+
+  const result = fibonacci(n - 1, cache) + fibonacci(n - 2, cache);
+  cache.set(n, result);
+
+  return result;
+}
+
+fibonacci(45); // instant
+```
+
+### O(n!): Tempo fatorial
+
+O pior desta lista. Aparece quando você precisa gerar todas as ordens possíveis (permutações) da entrada.
+Com apenas 10 itens, existem 3.628.800 permutações.
+
+Exemplo:
+
+```ts
+function permutations(list: string[]): string[][] {
+  if (list.length <= 1) {
+    return [list];
+  }
+
+  return list.flatMap((item, index) => {
+    const rest = [...list.slice(0, index), ...list.slice(index + 1)];
+
+    return permutations(rest).map((permutation) => [item, ...permutation]);
+  });
+}
+
+permutations(["a", "b", "c"]); // 6 permutations (3!)
+```
+
+Problemas como o do Caixeiro-Viajante, quando resolvidos por força bruta, são `O(n!)`.
+
+## Complexidade de espaço
+
+A complexidade de espaço segue as mesmas regras, mas em vez de contar operações, contamos a memória extra alocada.
+
+### O(1): Espaço constante
+
+Apenas um número fixo de variáveis, independentemente do tamanho da entrada.
+
+```ts
+function sum(list: number[]) {
+  let total = 0; // a single variable
+
+  for (const item of list) {
+    total += item;
+  }
+
+  return total;
+}
+```
+
+### O(n): Espaço linear
+
+A memória extra cresce junto com a entrada, por exemplo, ao criar um novo array, um `Set` ou um `Map`.
+
+```ts
+function double(list: number[]) {
+  return list.map((item) => item * 2); // a new array with n items
+}
+```
+
+A recursão também usa memória: cada chamada esperando por um resultado fica na call stack.
+A função abaixo é `O(n)` em espaço, mesmo sem criar nenhum array.
+
+```ts
+function sum(list: number[], index = 0): number {
+  if (index === list.length) {
+    return 0;
+  }
+
+  return list[index] + sum(list, index + 1); // n calls in the call stack
+}
+
+sum(new Array(1_000_000).fill(1)); // RangeError: Maximum call stack size exceeded
+```
+
+### O(n²): Espaço quadrático
+
+Um exemplo comum é criar uma matriz (grid) de `n` por `n`.
+
+```ts
+function createGrid(n: number) {
+  return Array.from({ length: n }, () => new Array(n).fill(0)); // n * n items
+}
+```
+
+## Operações comuns em JavaScript
+
+<Table
+  data={{
+    headers: ["Operação", "Complexidade de tempo"],
+    rows: [
+      ["array[index]", "O(1)"],
+      ["push / pop", "O(1)"],
+      ["shift / unshift", "O(n)"],
+      ["includes / indexOf / find", "O(n)"],
+      ["map / filter / reduce / forEach", "O(n)"],
+      ["slice / spread / concat", "O(n)"],
+      ["splice", "O(n)"],
+      ["sort", "O(n log n)"],
+      ["Set.has / Set.add / Set.delete", "O(1) em média"],
+      ["Map.get / Map.set / Map.delete", "O(1) em média"],
+      ["object[key]", "O(1) em média"],
+    ],
+  }}
+/>
+
+Evite chamar métodos `O(n)` como `includes`, `indexOf` ou `find` dentro de loops. Na maioria das vezes,
+substituí-los por um `Set` ou um `Map` transforma um algoritmo `O(n²)` em um `O(n)`.

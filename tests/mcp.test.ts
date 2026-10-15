@@ -19,7 +19,6 @@ import { baseUrl, mcpEndpoint, person } from "../app/lib/site.ts";
 
 const posts = getSortedBlogPosts();
 
-// The official MCP client, talking to the real HTTP handler of the route.
 const client = new Client({ name: "test", version: "1.0.0" });
 
 before(async () => {
@@ -147,9 +146,14 @@ test("every search result links to an anchor that exists on the page", () => {
   }
 });
 
-test("chunks skip the table of contents", () => {
-  for (const post of posts) {
-    assert.ok(chunkPost(post).every((chunk) => !/table of contents/i.test(chunk.heading)));
+test("chunks skip the table of contents, in every language", () => {
+  for (const locale of ["en", "pt-br"] as const) {
+    for (const post of getSortedBlogPosts(locale)) {
+      assert.ok(
+        chunkPost(post).every((chunk) => !/table of contents|sumário/i.test(chunk.heading)),
+        `${locale}/${post.slug}`
+      );
+    }
   }
 });
 
@@ -175,7 +179,6 @@ test("HTTP: CORS preflight, method handling and headers", async () => {
   assert.equal(preflight.headers.get("access-control-allow-origin"), "*");
   assert.match(preflight.headers.get("access-control-allow-headers") ?? "", /Mcp-Protocol-Version/);
 
-  // Stateless server: no standalone SSE stream
   const get = await handleMcpRequest(new Request(mcpEndpoint, { method: "GET" }));
   assert.equal(get.status, 405);
   assert.equal(get.headers.get("x-robots-tag"), "noindex");
@@ -189,4 +192,28 @@ test("HTTP: CORS preflight, method handling and headers", async () => {
     })
   );
   assert.ok(invalid.status >= 400 && invalid.status < 500);
+});
+
+test("tools answer in Portuguese with language: pt-BR", async () => {
+  const { posts: ptPosts } = structured<{ posts: { url: string; title: string }[] }>(
+    await client.callTool({ name: "list_posts", arguments: { language: "pt-BR" } })
+  );
+  assert.ok(ptPosts.every((post) => post.url.startsWith(`${baseUrl}/pt-br/blog/`)));
+
+  const profile = structured<{ jobTitle: string; website: string }>(
+    await client.callTool({ name: "get_profile", arguments: { language: "pt-BR" } })
+  );
+  assert.equal(profile.jobTitle, "Engenheiro de Software Full-stack");
+  assert.equal(profile.website, `${baseUrl}/pt-br`);
+
+  const { results } = structured<{ results: { url: string }[] }>(
+    await client.callTool({
+      name: "search_blog",
+      arguments: { query: "Qual a diferença entre process.nextTick e promises?", language: "pt-BR" },
+    })
+  );
+  assert.match(results[0].url, /^https:\/\/lucasbittencourt\.dev\/pt-br\/blog\/nodejs-event-loop#microtasks-/);
+
+  const invalid = await client.callTool({ name: "list_posts", arguments: { language: "fr" } });
+  assert.equal(invalid.isError, true);
 });

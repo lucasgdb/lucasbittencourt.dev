@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-/*
- * Theme: an explicit choice from the theme toggle (data-theme on <html>) wins;
- * without one, follow the operating system. Works without JavaScript too.
- */
+/* data-theme (theme toggle) wins over the OS preference */
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
@@ -15,10 +12,6 @@
   }
 }
 
-/*
- * Semantic colors (bg-background, text-foreground) and the Geist fonts loaded
- * in app/layout.tsx (font-sans is the default, font-mono is used by code).
- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -26,19 +19,15 @@
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-/* White on blue-600: readable selected text in both themes (5.2:1) */
 ::selection {
   background-color: #2563eb;
   color: #ffffff;
 }
 
-/*
- * Light: soft off-white and near-black text instead of pure white and pure
- * black, which is tiring to read (contrast ~15:1 instead of 21:1).
- */
 :root {
   --background: #fafafa;
   --foreground: #262626;
+  --header-border: var(--color-neutral-200);
   color-scheme: light;
 
   --sh-class: #2d5e9d;
@@ -51,13 +40,10 @@
   --sh-property: #b84a0d;
   --sh-entity: #b84a0d;
 
-  /*
-   * Dark: near-black and off-white instead of pure black and white, which
-   * glares (halation) and tires the eyes in long reads (~17:1 instead of 21:1).
-   */
   @variant dark {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --header-border: var(--color-neutral-800);
     color-scheme: dark;
 
     --sh-class: #4c97f8;
@@ -71,9 +57,31 @@
   }
 }
 
+html[lang="pt-BR"] [data-locale="en"],
+html:not([lang="pt-BR"]) [data-locale="pt-br"] {
+  display: none;
+}
+
 html {
   min-width: 360px;
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+/* The header's bottom line fades in as it sticks (its 24px top margin) */
+.site-header {
+  animation: site-header-border linear both;
+  animation-timeline: scroll();
+  animation-range: 0 24px;
+}
+
+@keyframes site-header-border {
+  from {
+    box-shadow: 0 1px 0 transparent;
+  }
+  to {
+    box-shadow: 0 1px 0 var(--header-border);
+  }
 }
 
 .prose .anchor {
@@ -94,7 +102,7 @@ html {
   @apply underline transition-colors decoration-neutral-500 underline-offset-2 decoration-[0.1em];
 }
 
-/* Color on the element (not ::after): the dark: variant can't follow a pseudo-element */
+/* Set on the element: dark: can't follow ::after */
 .prose .anchor {
   @apply text-neutral-300 dark:text-neutral-700;
 }
@@ -210,7 +218,7 @@ table {
 }
 
 .progress-bar {
-  @apply h-1 w-full fixed top-0 left-0 bg-neutral-800 dark:bg-neutral-200 origin-left;
+  @apply h-1 w-full fixed top-0 left-0 z-50 bg-neutral-800 dark:bg-neutral-200 origin-left;
   animation: progress-bar linear;
   animation-timeline: scroll();
   scale: 0 1;

@@ -1,23 +1,20 @@
-// MCP server for the site: exposes the profile and the blog posts to any MCP
-// client (Claude, Cursor, VS Code, ...). Uses the same data as the pages,
-// JSON-LD and llms.txt. Served by app/api/mcp/route.ts, documented at /mcp.
-//
-// Kept free of Next.js imports so it can be tested with `node --test`.
+// No Next.js imports, so `node --test` can import it.
 
 import { McpServer, createMcpHandler } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getLastModified, getSortedBlogPosts, type Post } from "../blog/utils.ts";
 import { slugify } from "./slugify.ts";
-import { postUrl } from "./seo.ts";
-import { baseUrl, mcpEndpoint, person, site } from "./site.ts";
+import { defaultLocale, getDictionary, type Locale } from "./i18n.ts";
+import { pageUrl, postUrl } from "./seo.ts";
+import { mcpEndpoint, person } from "./site.ts";
 
 export const serverInfo = { name: "lucasbittencourt.dev", version: "1.0.0" };
 
 export const serverInstructions = `Read-only access to the portfolio and technical blog of ${person.name}, a ${person.jobTitle.toLowerCase()}.
 Use get_profile for who ${person.name} is, list_posts and get_post for the articles, and search_blog to find the passages that answer a question.
+The content is available in English and Brazilian Portuguese: pass language "pt-BR" to answer in Portuguese.
 Every result includes canonical URLs: cite them when you use the content.`;
 
-// Tools metadata, shared with the /mcp page so the docs never drift from the server.
 export const mcpTools = [
   {
     name: "get_profile",
@@ -53,47 +50,42 @@ function tool(name: ToolName) {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Data
-
-export function getProfile() {
+export function getProfile(locale: Locale = defaultLocale) {
+  const dict = getDictionary(locale);
   return {
     name: person.name,
-    jobTitle: person.jobTitle,
-    summary: site.description,
+    jobTitle: dict.jobTitle,
+    summary: dict.siteDescription,
     technologies: [...person.technologies],
-    website: baseUrl,
-    blog: `${baseUrl}/blog`,
+    website: pageUrl("/", locale),
+    blog: pageUrl("/blog", locale),
     profiles: { ...person.profiles },
     sourceCode: person.sourceCode,
     mcpEndpoint,
   };
 }
 
-function postSummary(post: Post) {
+function postSummary(post: Post, locale: Locale) {
   return {
     slug: post.slug,
     title: post.metadata.title,
     summary: post.metadata.summary,
     publishedAt: post.metadata.publishedAt,
     updatedAt: getLastModified(post),
-    url: postUrl(post.slug),
+    url: postUrl(post.slug, locale),
   };
 }
 
-export function listPosts(posts = getSortedBlogPosts()) {
-  return posts.map(postSummary);
+export function listPosts(locale: Locale = defaultLocale) {
+  return getSortedBlogPosts(locale).map((post) => postSummary(post, locale));
 }
 
-export function getPost(slug: string, posts = getSortedBlogPosts()) {
-  const post = posts.find((post) => post.slug === slug);
-  return post ? { ...postSummary(post), content: post.content } : undefined;
+export function getPost(slug: string, locale: Locale = defaultLocale) {
+  const post = getSortedBlogPosts(locale).find((post) => post.slug === slug);
+  return post
+    ? { ...postSummary(post, locale), content: post.content }
+    : undefined;
 }
-
-// ---------------------------------------------------------------------------
-// Search: a tiny retrieval step (the "R" of RAG). Posts are split into
-// sections (chunking) and ranked with BM25, a classic keyword relevance
-// function. No embeddings or external services: it runs in-process.
 
 type Chunk = {
   post: Post;
@@ -103,12 +95,14 @@ type Chunk = {
 };
 
 const stopWords = new Set(
-  "a about all an and any are as at be but by can could do does for from how i if in into is it its me my not of on or our should so than that the then there this to use used using was we what when where which who why will with you your".split(
-    " "
-  )
+  [
+    "a about all an and any are as at be but by can could do does for from how i if in into is it its me my not of on or our should so than that the then there this to use used using was we what when where which who why will with you your",
+    "ao aos as com como da das de do dos e ela ele em entre esse essa este esta eu isso mais mas na nas no nos nao o os ou para pela pelo por qual quais quando que se sem ser seu sua sobre sao tem um uma voce",
+  ]
+    .join(" ")
+    .split(" ")
 );
 
-// Light stemming so "blocking", "blocks" and "block" match each other.
 function stem(token: string) {
   if (token.length > 5 && token.endsWith("ies")) return `${token.slice(0, -3)}y`;
   if (token.length > 5 && token.endsWith("ing")) return token.slice(0, -3);
@@ -122,15 +116,19 @@ function stem(token: string) {
 export function tokenize(text: string) {
   return text
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // "função" matches "funcao"
     .split(/[^\p{L}\p{N}]+/u)
     .filter((token) => token.length > 1 && !stopWords.has(token))
     .map(stem);
 }
 
-// Markdown escapes (e.g. "O(n \* m)") render without the backslash.
+// "O(n \* m)" renders as "O(n * m)"
 function cleanHeading(heading: string) {
   return heading.replace(/\\(.)/g, "$1").trim();
 }
+
+const tableOfContents = new Set(["table-of-contents", "sumario"]);
 
 export function chunkPost(post: Post): Chunk[] {
   const chunks: Chunk[] = [];
@@ -139,8 +137,7 @@ export function chunkPost(post: Post): Chunk[] {
 
   const flush = () => {
     const text = lines.join("\n").trim();
-    if (text && !/^table of contents/i.test(heading)) {
-      // Title and heading count 3x: a match there is a strong signal.
+    if (text && !tableOfContents.has(slugify(heading))) {
       const boosted = `${post.metadata.title} ${heading} `.repeat(3);
       chunks.push({ post, heading, text, tokens: tokenize(boosted + text) });
     }
@@ -170,8 +167,12 @@ function excerpt(text: string, maxLength = 600) {
   return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
 }
 
-export function searchBlog(query: string, limit = 5, posts = getSortedBlogPosts()) {
-  const chunks = posts.flatMap(chunkPost);
+export function searchBlog(
+  query: string,
+  limit = 5,
+  locale: Locale = defaultLocale
+) {
+  const chunks = getSortedBlogPosts(locale).flatMap(chunkPost);
   const queryTokens = [...new Set(tokenize(query))];
   if (queryTokens.length === 0 || chunks.length === 0) {
     return [];
@@ -209,15 +210,12 @@ export function searchBlog(query: string, limit = 5, posts = getSortedBlogPosts(
       post: chunk.post.metadata.title,
       section: chunk.heading || chunk.post.metadata.title,
       url: chunk.heading
-        ? `${postUrl(chunk.post.slug)}#${slugify(chunk.heading)}`
-        : postUrl(chunk.post.slug),
+        ? `${postUrl(chunk.post.slug, locale)}#${slugify(chunk.heading)}`
+        : postUrl(chunk.post.slug, locale),
       score: Number(score.toFixed(3)),
       excerpt: excerpt(chunk.text),
     }));
 }
-
-// ---------------------------------------------------------------------------
-// Server
 
 const postSummarySchema = z.object({
   slug: z.string(),
@@ -235,6 +233,15 @@ function json<T extends Record<string, unknown>>(structuredContent: T) {
     ],
     structuredContent,
   };
+}
+
+const languageSchema = z
+  .enum(["en", "pt-BR"])
+  .default("en")
+  .describe('Language of the content: "en" (English) or "pt-BR" (Brazilian Portuguese)');
+
+function toLocale(language: "en" | "pt-BR"): Locale {
+  return language === "pt-BR" ? "pt-br" : "en";
 }
 
 export function createMcpServer() {
@@ -257,17 +264,19 @@ export function createMcpServer() {
         sourceCode: z.string(),
         mcpEndpoint: z.string(),
       }),
+      inputSchema: z.object({ language: languageSchema }),
     },
-    async () => json(getProfile())
+    async ({ language }) => json(getProfile(toLocale(language)))
   );
 
   server.registerTool(
     "list_posts",
     {
       ...tool("list_posts"),
+      inputSchema: z.object({ language: languageSchema }),
       outputSchema: z.object({ posts: z.array(postSummarySchema) }),
     },
-    async () => json({ posts: listPosts() })
+    async ({ language }) => json({ posts: listPosts(toLocale(language)) })
   );
 
   server.registerTool(
@@ -278,13 +287,15 @@ export function createMcpServer() {
         slug: z
           .string()
           .describe('The post slug, as returned by list_posts (e.g. "nodejs-event-loop")'),
+        language: languageSchema,
       }),
       outputSchema: postSummarySchema.extend({ content: z.string() }),
     },
-    async ({ slug }) => {
-      const post = getPost(slug);
+    async ({ slug, language }) => {
+      const locale = toLocale(language);
+      const post = getPost(slug, locale);
       if (!post) {
-        const slugs = listPosts().map((post) => post.slug).join(", ");
+        const slugs = listPosts(locale).map((post) => post.slug).join(", ");
         return {
           content: [
             { type: "text" as const, text: `No post with slug "${slug}". Available: ${slugs}` },
@@ -309,6 +320,7 @@ export function createMcpServer() {
           .max(10)
           .default(5)
           .describe("Maximum number of passages (1-10)"),
+        language: languageSchema,
       }),
       outputSchema: z.object({
         results: z.array(
@@ -322,21 +334,16 @@ export function createMcpServer() {
         ),
       }),
     },
-    async ({ query, limit }) => json({ results: searchBlog(query, limit) })
+    async ({ query, limit, language }) =>
+      json({ results: searchBlog(query, limit, toLocale(language)) })
   );
 
   return server;
 }
 
-// ---------------------------------------------------------------------------
-// HTTP (Streamable HTTP transport, stateless: one server per request)
-
 const handler = createMcpHandler(createMcpServer);
 
-// Public, read-only data without cookies or credentials, so any origin may call
-// it (e.g. browser-based clients such as the MCP Inspector). Host/Origin
-// allow-lists protect *localhost* servers from DNS rebinding and aren't needed
-// for a public endpoint.
+// Public read-only data: any origin may call it (e.g. the MCP Inspector).
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",

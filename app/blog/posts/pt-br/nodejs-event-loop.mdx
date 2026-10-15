@@ -1,0 +1,429 @@
+---
+title: "Event loop do NodeJS"
+publishedAt: "2024-09-10"
+updatedAt: "2026-10-14"
+summary: "Entenda como o Node.js funciona de verdade: a main thread, o thread pool da libuv, as fases do event loop, microtasks, como evitar bloquear o event loop e quando usar worker_threads, child_process, cluster ou containers para escalar."
+image: "https://i.imgur.com/iJAKaOo.png"
+---
+
+## Sumário:
+
+- [O Node.js é single-threaded?](#o-nodejs-e-single-threaded)
+- [Tarefas CPU-bound vs. I/O-bound](#tarefas-cpu-bound-vs-io-bound)
+- [Event loop do Node.js](#event-loop-do-nodejs)
+  - [Fases do event loop](#fases-do-event-loop)
+  - [Microtasks: process.nextTick e Promises](#microtasks-processnexttick-e-promises)
+  - [setTimeout vs. setImmediate](#settimeout-vs-setimmediate)
+- [Não bloqueie o event loop](#nao-bloqueie-o-event-loop)
+  - [Medindo o atraso do event loop](#medindo-o-atraso-do-event-loop)
+  - [Dividindo trabalho pesado](#dividindo-trabalho-pesado)
+- [worker_threads no Node.js](#worker_threads-no-nodejs)
+- [child_process no Node.js](#child_process-no-nodejs)
+- [cluster no Node.js](#cluster-no-nodejs)
+- [Escalando em produção: PM2 e containers](#escalando-em-producao-pm2-e-containers)
+- [Quando usar Node.js e quando evitá-lo](#quando-usar-nodejs-e-quando-evita-lo)
+
+## O Node.js é single-threaded?
+
+Sim e não. **O seu código JavaScript roda em uma única thread**, a main thread, que executa o event loop.
+Mas o Node.js em si não é single-threaded:
+
+- **Thread pool da libuv**: um pool de 4 threads por padrão (configurável com a variável de ambiente `UV_THREADPOOL_SIZE`)
+  que cuida das operações que o sistema operacional não consegue fazer de forma assíncrona, como sistema de arquivos (`fs`), `dns.lookup`,
+  algumas funções de `crypto` (`pbkdf2`, `scrypt`, `randomBytes`) e compressão com `zlib`.
+- **Sistema operacional**: I/O de rede (HTTP, TCP, conexões com banco de dados) não usa o thread pool. A libuv delega isso para
+  as APIs assíncronas do sistema operacional (`epoll` no Linux, `kqueue` no macOS, `IOCP` no Windows).
+- **V8**: usa threads em background para garbage collection e compilação.
+
+Ou seja, o Node.js consegue lidar com milhares de operações de I/O concorrentes com uma única thread de JavaScript, porque a main thread
+só executa os callbacks quando o trabalho termina. Quando você precisa rodar JavaScript em paralelo, pode usar
+`worker_threads`, `child_process`, `cluster` ou rodar várias instâncias da sua aplicação.
+
+## Tarefas CPU-bound vs. I/O-bound
+
+O Node.js executa o seu código na call stack da main thread. Quando uma tarefa CPU-bound é executada,
+ela **bloqueia a main thread**: nenhuma outra requisição, timer ou callback roda até ela terminar.
+Então, uma única tarefa CPU-bound pesada pode impactar a performance da aplicação inteira.
+
+Exemplos de operações de CPU:
+
+- Cálculos matemáticos
+- Processamento de imagem, vídeo e áudio
+- Compilação ou parsing de código (incluindo `JSON.parse` / `JSON.stringify` de payloads enormes)
+- Inteligência Artificial (por exemplo, rodar modelos localmente)
+- Expressões regulares (principalmente as vulneráveis, veja [ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS))
+- Operações criptográficas (por exemplo, hash de senhas)
+
+Quando a tarefa é I/O-bound, o Node.js lida com ela de forma assíncrona, sem bloquear a main thread:
+o trabalho acontece no sistema operacional ou no thread pool da libuv, e o callback roda quando o resultado está pronto.
+
+Exemplos de operações de I/O:
+
+- Operações de rede (`fetch`, HTTP, WebSockets)
+- Operações de banco de dados
+- Operações de sistema de arquivos
+- Operações com streams
+- Operações de e-mail
+- Timers e execuções agendadas (embora não sejam estritamente I/O-bound, são não bloqueantes e tratadas de forma assíncrona)
+
+Tome cuidado com as versões síncronas das APIs do Node.js (funções terminadas em `Sync`): elas bloqueiam a main thread
+mesmo em operações de I/O.
+
+#### Não faça isso:
+
+```ts
+import { readFileSync } from "node:fs";
+import { createServer } from "node:http";
+
+createServer((_req, res) => {
+  // blocks the main thread on every request
+  const file = readFileSync("./report.json", "utf-8");
+  res.end(file);
+}).listen(8000);
+```
+
+#### Faça isso:
+
+```ts
+import { readFile } from "node:fs/promises";
+import { createServer } from "node:http";
+
+createServer(async (_req, res) => {
+  // the main thread keeps handling other requests while the file is read
+  const file = await readFile("./report.json", "utf-8");
+  res.end(file);
+}).listen(8000);
+```
+
+## Event loop do Node.js
+
+O event loop orquestra as operações assíncronas (I/O não bloqueante) e gerencia o fluxo de eventos na aplicação.
+Ele permite que a aplicação continue executando outro código enquanto as operações de I/O estão em andamento,
+evitando bloqueios e melhorando a performance.
+
+Quando uma operação assíncrona termina, o callback dela é colocado em uma fila. Quando a call stack está vazia,
+o event loop pega o próximo callback e o executa.
+
+<Image
+  src="/event-loop.gif"
+  width={576}
+  height={324}
+  alt="Gif explicando o event loop"
+  unoptimized
+/>
+
+### Fases do event loop
+
+O event loop do Node.js (implementado pela [libuv](https://libuv.org/)) é composto por 6 fases, e cada fase tem sua própria fila de callbacks:
+
+- **Timers**: executa os callbacks agendados por `setTimeout` e `setInterval`
+- **Pending callbacks**: executa alguns callbacks do sistema adiados para a próxima iteração do loop (por exemplo, erros de TCP)
+- **Idle & prepare**: usada apenas internamente
+- **Poll**: busca novos eventos de I/O e executa os callbacks deles (é aqui que roda a maior parte do seu código)
+- **Check**: executa os callbacks agendados por `setImmediate`
+- **Close callbacks**: executa os callbacks de fechamento (por exemplo, `socket.on("close", ...)`)
+
+Quando não há mais nada a fazer (nenhum timer, nenhum I/O pendente, nenhum servidor ativo), o event loop termina e o processo é encerrado.
+
+[Visão detalhada sobre o event loop aqui](https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick)
+
+### Microtasks: process.nextTick e Promises
+
+Além das fases acima (também conhecidas como macrotasks), existem duas filas de microtasks que não fazem parte da libuv:
+
+- **Fila do nextTick**: callbacks agendados com `process.nextTick`
+- **Fila de Promises**: callbacks de Promises (`.then`, `.catch`, `await`) e `queueMicrotask`
+
+As microtasks têm prioridade maior: elas rodam assim que a operação atual termina,
+**depois de cada callback** e antes de o event loop seguir em frente. É por isso que uma cadeia infinita de
+Promises ou de `process.nextTick` pode travar o event loop tanto quanto uma tarefa CPU-bound pesada.
+
+Exemplo (`order.cjs`):
+
+```js
+console.log("1. sync");
+
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+Promise.resolve().then(() => console.log("promise"));
+process.nextTick(() => console.log("nextTick"));
+
+console.log("2. sync");
+```
+
+Saída:
+
+```bash
+1. sync
+2. sync
+nextTick
+promise
+# timeout and immediate, in any order (see below)
+```
+
+No CommonJS, a fila do nextTick roda antes da fila de Promises. Porém, se você rodar o mesmo código como ES module
+(`.mjs`, `.ts` com `import` ou `"type": "module"`), vai ver `promise` **antes** de `nextTick`,
+porque o próprio ES module é avaliado de forma assíncrona, dentro de uma Promise.
+Em código novo, prefira `queueMicrotask` (um padrão da web) em vez de `process.nextTick`.
+
+### setTimeout vs. setImmediate
+
+No módulo principal, a ordem entre `setTimeout(callback, 0)` e `setImmediate` **não é garantida**:
+ela depende de quão rápido o processo inicia. Mas dentro de um callback de I/O, `setImmediate` sempre roda primeiro,
+porque a fase check vem logo depois da fase poll.
+
+Exemplo:
+
+```js
+const { readFile } = require("node:fs");
+
+readFile(__filename, () => {
+  setTimeout(() => console.log("timeout"), 0);
+  setImmediate(() => console.log("immediate"));
+});
+
+// always: immediate, timeout
+```
+
+## Não bloqueie o event loop
+
+A regra de ouro do Node.js: a main thread deve apenas orquestrar o trabalho, não fazer trabalho pesado.
+Se uma única requisição consome 200ms de CPU, todas as outras requisições esperam 200ms.
+
+### Medindo o atraso do event loop
+
+Você pode medir o quanto o event loop está atrasando com `monitorEventLoopDelay`.
+Exportar essa métrica para a sua ferramenta de monitoramento (por exemplo, OpenTelemetry, Prometheus) é uma boa prática.
+
+```ts
+import { monitorEventLoopDelay } from "node:perf_hooks";
+
+const histogram = monitorEventLoopDelay({ resolution: 20 });
+histogram.enable();
+
+setInterval(() => {
+  // values are in nanoseconds
+  const p99 = histogram.percentile(99) / 1e6;
+  console.log(`Event loop delay p99: ${p99.toFixed(2)}ms`);
+  histogram.reset();
+}, 5_000).unref();
+```
+
+### Dividindo trabalho pesado
+
+Se você tem um loop longo que não pode ser movido para outra thread, pode dividi-lo em pedaços (chunks) e devolver o controle ao event loop
+entre eles com o `setImmediate` de `node:timers/promises`, para que outros callbacks tenham a chance de rodar.
+
+#### Não faça isso:
+
+```ts
+function processAll(items: Item[]) {
+  // 1 million items blocks the main thread until the end
+  for (const item of items) {
+    processItem(item);
+  }
+}
+```
+
+#### Faça isso:
+
+```ts
+import { setImmediate } from "node:timers/promises";
+
+async function processAll(items: Item[], chunkSize = 1_000) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    for (const item of items.slice(i, i + chunkSize)) {
+      processItem(item);
+    }
+
+    // lets the event loop handle other requests before the next chunk
+    await setImmediate();
+  }
+}
+```
+
+Isso não deixa o trabalho mais rápido, apenas mantém a aplicação responsiva. Para trabalhos realmente pesados, use `worker_threads`.
+
+## worker_threads no Node.js
+
+As worker threads rodam JavaScript **em paralelo**, no mesmo processo. Cada worker tem sua própria instância do V8 e seu próprio
+event loop, e eles se comunicam por mensagens. Essa é a forma recomendada de rodar código JavaScript CPU-bound
+sem bloquear a main thread.
+
+Exemplo:
+
+```ts
+import { Worker, isMainThread, parentPort, workerData } from "node:worker_threads";
+
+// CPU-bound task: calculating the fibonacci sequence
+function fibonacci(n: number): number {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+function runInWorker(n: number) {
+  return new Promise<number>((resolve, reject) => {
+    // runs this same file in a new thread
+    const worker = new Worker(import.meta.filename, { workerData: n });
+
+    worker.once("message", resolve);
+    worker.once("error", reject);
+  });
+}
+
+if (isMainThread) {
+  console.log("Main thread is free to handle other tasks");
+
+  const result = await runInWorker(45);
+  console.log(`Result from worker: ${result}`);
+} else {
+  // worker thread: has its own event loop
+  parentPort?.postMessage(fibonacci(workerData));
+}
+```
+
+Criar um worker tem um custo (tempo de inicialização e memória própria), então não crie um por requisição.
+Em aplicações reais, use um pool de workers, como o [Piscina](https://github.com/piscinajs/piscina).
+
+## child_process no Node.js
+
+Você pode usar `child_process` para criar processos separados, cada um com sua própria memória.
+Hoje em dia, ele é usado principalmente para **rodar outros programas** (por exemplo, `ffmpeg`, `git`, scripts Python),
+enquanto `worker_threads` é a opção preferida para JavaScript CPU-bound.
+
+Exemplo:
+
+```ts
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+
+// converting a video with ffmpeg without blocking the main thread
+const { stdout } = await execFileAsync("ffmpeg", ["-i", "input.mp4", "output.webm"]);
+```
+
+Prefira `execFile` ou `spawn` em vez de `exec`: o `exec` roda o comando dentro de um shell,
+então passar input do usuário para ele pode levar a command injection.
+
+Você também pode usar `fork` para rodar outro arquivo Node.js, com um canal de mensagens nativo entre os processos:
+
+```ts
+import { fork } from "node:child_process";
+
+const child = fork("./child.ts");
+
+child.on("message", (result) => {
+  console.log(`Result from child process: ${result}`);
+});
+
+child.send("start");
+```
+
+child.ts:
+
+```ts
+function fibonacci(n: number): number {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+process.on("message", (message) => {
+  if (message === "start") {
+    process.send?.(fibonacci(45));
+    process.exit(0);
+  }
+});
+```
+
+Versões recentes do Node.js rodam arquivos `.ts` nativamente (type stripping), então você não precisa de `ts-node` nem de um passo de build para esses exemplos.
+
+## cluster no Node.js
+
+Você pode usar o `cluster` do Node.js para aproveitar sistemas multi-core criando várias instâncias (processos)
+da mesma aplicação. Diferente do `child_process`, ele foi feito para escalar servidores: todos os workers compartilham a mesma porta,
+e o processo primário distribui as conexões entre eles.
+
+Exemplo:
+
+```ts
+import cluster from "node:cluster";
+import { createServer } from "node:http";
+import { availableParallelism } from "node:os";
+
+if (cluster.isPrimary) {
+  console.log(`Primary PID ${process.pid} is running`);
+
+  // availableParallelism is the recommended replacement for cpus().length
+  for (let i = 0; i < availableParallelism(); i++) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", (worker) => {
+    console.log(`Worker PID ${worker.process.pid} died, starting a new one`);
+    cluster.fork();
+  });
+} else {
+  const server = createServer((_req, res) => {
+    res.end(`Hello World from PID ${process.pid}\n`);
+  });
+
+  server.listen(8000, () => {
+    console.log(`Worker PID ${process.pid} started`);
+  });
+
+  process.on("SIGTERM", () => {
+    console.log(`Worker PID ${process.pid} is shutting down...`);
+
+    // stops accepting new connections and waits for the current ones
+    server.close(() => process.exit(0));
+  });
+}
+```
+
+## Escalando em produção: PM2 e containers
+
+### PM2
+
+Se você faz deploy em uma máquina virtual, o [PM2](https://pm2.keymetrics.io/) é um gerenciador de processos que mantém sua aplicação
+no ar 24/7. Ele oferece gerenciamento de processos, monitoramento, gerenciamento de logs e um modo cluster nativo,
+então você não precisa escrever o código do `cluster` por conta própria.
+
+```bash
+npm install pm2 -g
+```
+
+```bash
+pm2 start app.js --name app_name -i max
+```
+
+- `--name app_name` define o nome da aplicação
+- `-i max` inicia uma instância por núcleo de CPU disponível
+
+[Leia mais aqui](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+### Containers
+
+Se você faz deploy com Docker e Kubernetes (ou em uma plataforma como Railway, Fly.io, AWS ECS ou Cloud Run),
+a abordagem comum é **um processo Node.js por container**: a plataforma o reinicia quando ele cai e
+o escala horizontalmente adicionando mais containers (réplicas), em vez de usar `cluster` ou PM2 dentro do container.
+
+Nos dois casos, sempre trate o sinal `SIGTERM` para finalizar as requisições em andamento antes de desligar (graceful shutdown).
+
+## Quando usar Node.js e quando evitá-lo
+
+O Node.js é muito performático para lidar com operações I/O-bound, mas pode ter dificuldades com tarefas CPU-bound,
+já que elas bloqueiam o event loop e degradam a performance da aplicação inteira.
+
+O Node.js é altamente recomendado para cargas de trabalho com muito I/O, como:
+
+- Servidores de API e BFFs (Backend for Frontend)
+- Aplicações em tempo real (chats, WebSockets, notificações)
+- Serviços de streaming de dados
+- Aplicações que chamam outros serviços e APIs de IA, em que a maior parte do tempo é gasta esperando a rede
+- Aplicações full-stack compartilhando TypeScript entre o frontend e o backend
+
+Se a sua aplicação tem algumas tarefas CPU-bound, você pode movê-las para `worker_threads` (com um pool)
+ou para uma fila de jobs em background processada por workers separados.
+Se o trabalho intensivo de CPU é o núcleo da sua aplicação (por exemplo, encoding de vídeo, processamento pesado de dados, machine learning),
+considere um serviço dedicado implementado em uma linguagem mais adequada para isso, como Go, Rust ou Python.

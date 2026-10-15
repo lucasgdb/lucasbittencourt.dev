@@ -1,46 +1,74 @@
-// Pure builders for structured data, sitemap, robots.txt, RSS and llms.txt.
-// Kept free of Next.js runtime imports so they can be tested with `node --test`.
+// No Next.js runtime imports, so `node --test` can import it.
 
 import type { MetadataRoute } from "next";
 import { getLastModified as lastModified, type Post } from "../blog/utils.ts";
+import {
+  defaultLocale,
+  getDictionary,
+  localeConfig,
+  localizePath,
+  locales,
+  otherLocale,
+  type Locale,
+} from "./i18n.ts";
 import {
   allowAiTraining,
   baseUrl,
   isIndexable,
   mcpEndpoint,
-  mcpPage,
+  mcpUpdatedAt,
   person,
   site,
 } from "./site.ts";
 
 const personId = `${baseUrl}/#person`;
 const websiteId = `${baseUrl}/#website`;
-const blogId = `${baseUrl}/blog#blog`;
 
-export function postUrl(slug: string) {
-  return `${baseUrl}/blog/${slug}`;
+export function pageUrl(path: string, locale: Locale = defaultLocale) {
+  const localized = localizePath(path, locale);
+  return localized === "/" ? baseUrl : `${baseUrl}${localized}`;
 }
 
-// The same Open Graph image (the logo) for every page without its own image.
-export const ogImageUrl = `${baseUrl}/og`;
+export function postUrl(slug: string, locale: Locale = defaultLocale) {
+  return pageUrl(`/blog/${slug}`, locale);
+}
 
-// Next.js replaces (doesn't merge) `alternates` from parent layouts, so every
-// page sets its canonical URL together with the RSS feed link.
-export function pageAlternates(path: string) {
+export function rssUrl(locale: Locale = defaultLocale) {
+  return pageUrl("/rss", locale);
+}
+
+function blogId(locale: Locale) {
+  return `${pageUrl("/blog", locale)}#blog`;
+}
+
+export function languageAlternates(path: string) {
   return {
-    canonical: path,
-    types: { "application/rss+xml": `${baseUrl}/rss` },
+    ...Object.fromEntries(
+      locales.map((locale) => [localeConfig[locale].htmlLang, pageUrl(path, locale)])
+    ),
+    "x-default": pageUrl(path, defaultLocale),
   };
 }
 
+// Next.js replaces `alternates` and `openGraph` from parent layouts instead of
+// merging them, so every page sets them in full.
+export function pageAlternates(path: string, locale: Locale = defaultLocale) {
+  return {
+    canonical: localizePath(path, locale),
+    languages: languageAlternates(path),
+    types: { "application/rss+xml": rssUrl(locale) },
+  };
+}
+
+export const ogImageUrl = `${baseUrl}/og`;
+
 export const ogImageSize = { width: 1200, height: 630 };
 
-
-// Next.js replaces `openGraph` from parent layouts too, so pages spread this.
-export function baseOpenGraph() {
+export function baseOpenGraph(locale: Locale = defaultLocale) {
   return {
     siteName: site.name,
-    locale: site.locale,
+    locale: localeConfig[locale].ogLocale,
+    alternateLocale: [localeConfig[otherLocale(locale)].ogLocale],
     type: "website" as const,
     images: [{ url: ogImageUrl, ...ogImageSize, alt: person.name }],
   };
@@ -50,8 +78,7 @@ export function postImageUrl(post: Post) {
   return post.metadata.image ?? ogImageUrl;
 }
 
-// JSON.stringify doesn't escape "<", so a value containing "</script>" could
-// close the script tag. Escaping it keeps the JSON valid and the HTML safe.
+// JSON.stringify doesn't escape "<": "</script>" in a value would end the tag.
 export function serializeJsonLd(data: unknown) {
   return JSON.stringify(data)
     .replace(/</g, "\\u003c")
@@ -59,74 +86,88 @@ export function serializeJsonLd(data: unknown) {
     .replace(/\u2029/g, "\\u2029");
 }
 
-export function personJsonLd() {
+export function personJsonLd(locale: Locale = defaultLocale) {
   return {
     "@type": "Person",
     "@id": personId,
     name: person.name,
     url: baseUrl,
-    jobTitle: person.jobTitle,
+    jobTitle: getDictionary(locale).jobTitle,
     knowsAbout: person.technologies,
+    knowsLanguage: locales.map((l) => localeConfig[l].htmlLang),
     sameAs: Object.values(person.profiles),
   };
 }
 
-export function websiteJsonLd() {
+export function websiteJsonLd(locale: Locale = defaultLocale) {
   return {
     "@type": "WebSite",
     "@id": websiteId,
     name: person.name,
     alternateName: site.name,
     url: baseUrl,
-    description: site.description,
-    inLanguage: site.language,
+    description: getDictionary(locale).siteDescription,
+    inLanguage: locales.map((l) => localeConfig[l].htmlLang),
     author: { "@id": personId },
   };
 }
 
-export function homeJsonLd() {
+export function homeJsonLd(locale: Locale = defaultLocale) {
+  const url = pageUrl("/", locale);
+  const dict = getDictionary(locale);
+
   return {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "ProfilePage",
-        "@id": `${baseUrl}/#profilepage`,
-        url: baseUrl,
-        name: `${person.name} – ${person.jobTitle}`,
+        "@id": `${url}/#profilepage`,
+        url,
+        name: `${person.name} – ${dict.jobTitle}`,
         isPartOf: { "@id": websiteId },
         mainEntity: { "@id": personId },
-        inLanguage: site.language,
+        inLanguage: localeConfig[locale].htmlLang,
       },
-      personJsonLd(),
-      websiteJsonLd(),
+      personJsonLd(locale),
+      websiteJsonLd(locale),
     ],
   };
 }
 
-export function blogJsonLd(posts: Post[]) {
+export function blogJsonLd(posts: Post[], locale: Locale = defaultLocale) {
+  const dict = getDictionary(locale);
+
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "@id": blogId,
-    url: `${baseUrl}/blog`,
-    name: `${person.name}'s blog`,
-    description: site.blogDescription,
-    inLanguage: site.language,
+    "@id": blogId(locale),
+    url: pageUrl("/blog", locale),
+    name: dict.blog.name(person.name),
+    description: dict.blogDescription,
+    inLanguage: localeConfig[locale].htmlLang,
     author: { "@id": personId },
     isPartOf: { "@id": websiteId },
     blogPost: posts.map((post) => ({
       "@type": "BlogPosting",
-      "@id": `${postUrl(post.slug)}#article`,
+      "@id": `${postUrl(post.slug, locale)}#article`,
       headline: post.metadata.title,
-      url: postUrl(post.slug),
+      url: postUrl(post.slug, locale),
       datePublished: post.metadata.publishedAt,
       dateModified: lastModified(post),
     })),
   };
 }
 
-export function postJsonLd(post: Post) {
-  const url = postUrl(post.slug);
+export function postJsonLd(
+  post: Post,
+  locale: Locale = defaultLocale,
+  translated = false
+) {
+  const url = postUrl(post.slug, locale);
+  const dict = getDictionary(locale);
+  const translation = {
+    "@id": `${postUrl(post.slug, otherLocale(locale))}#article`,
+  };
 
   return {
     "@context": "https://schema.org",
@@ -141,7 +182,7 @@ export function postJsonLd(post: Post) {
         url,
         mainEntityOfPage: url,
         image: postImageUrl(post),
-        inLanguage: site.language,
+        inLanguage: localeConfig[locale].htmlLang,
         author: {
           "@type": "Person",
           "@id": personId,
@@ -149,17 +190,26 @@ export function postJsonLd(post: Post) {
           url: baseUrl,
         },
         publisher: { "@id": personId },
-        isPartOf: { "@id": blogId },
+        isPartOf: { "@id": blogId(locale) },
+        ...(translated &&
+          (locale === defaultLocale
+            ? { workTranslation: translation }
+            : { translationOfWork: translation })),
       },
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: dict.breadcrumbs.home,
+            item: pageUrl("/", locale),
+          },
           {
             "@type": "ListItem",
             position: 2,
-            name: "Blog",
-            item: `${baseUrl}/blog`,
+            name: dict.breadcrumbs.blog,
+            item: pageUrl("/blog", locale),
           },
           { "@type": "ListItem", position: 3, name: post.metadata.title },
         ],
@@ -168,8 +218,9 @@ export function postJsonLd(post: Post) {
   };
 }
 
-export function mcpPageJsonLd() {
-  const url = `${baseUrl}/mcp`;
+export function mcpPageJsonLd(locale: Locale = defaultLocale) {
+  const url = pageUrl("/mcp", locale);
+  const dict = getDictionary(locale);
 
   return {
     "@context": "https://schema.org",
@@ -177,12 +228,12 @@ export function mcpPageJsonLd() {
       {
         "@type": "TechArticle",
         "@id": `${url}#article`,
-        headline: mcpPage.title,
-        description: mcpPage.description,
+        headline: dict.mcp.title,
+        description: dict.mcp.description,
         url,
         mainEntityOfPage: url,
-        dateModified: mcpPage.updatedAt,
-        inLanguage: site.language,
+        dateModified: mcpUpdatedAt,
+        inLanguage: localeConfig[locale].htmlLang,
         author: { "@id": personId },
         publisher: { "@id": personId },
         isPartOf: { "@id": websiteId },
@@ -192,35 +243,54 @@ export function mcpPageJsonLd() {
           "Tool calling",
           "Retrieval-augmented generation",
         ],
+        ...{
+          [locale === defaultLocale ? "workTranslation" : "translationOfWork"]: {
+            "@id": `${pageUrl("/mcp", otherLocale(locale))}#article`,
+          },
+        },
       },
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
-          { "@type": "ListItem", position: 2, name: mcpPage.title },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: dict.breadcrumbs.home,
+            item: pageUrl("/", locale),
+          },
+          { "@type": "ListItem", position: 2, name: dict.mcp.title },
         ],
       },
     ],
   };
 }
 
-export function buildSitemap(posts: Post[]): MetadataRoute.Sitemap {
-  const latest = posts.map(lastModified).sort().at(-1);
+export function buildSitemap(
+  postsByLocale: Record<Locale, Post[]>
+): MetadataRoute.Sitemap {
+  const entries: MetadataRoute.Sitemap = [];
 
-  return [
-    { url: baseUrl, lastModified: latest },
-    { url: `${baseUrl}/blog`, lastModified: latest },
-    { url: `${baseUrl}/mcp`, lastModified: mcpPage.updatedAt },
-    ...posts.map((post) => ({
-      url: postUrl(post.slug),
-      lastModified: lastModified(post),
-    })),
-  ];
+  for (const locale of locales) {
+    const posts = postsByLocale[locale];
+    const latest = posts.map(lastModified).sort().at(-1);
+    const page = (path: string, lastModified?: string) => ({
+      url: pageUrl(path, locale),
+      lastModified,
+      alternates: { languages: languageAlternates(path) },
+    });
+
+    entries.push(
+      page("/", latest),
+      page("/blog", latest),
+      page("/mcp", mcpUpdatedAt),
+      ...posts.map((post) => page(`/blog/${post.slug}`, lastModified(post)))
+    );
+  }
+
+  return entries;
 }
 
-// Crawlers used to collect training data for AI models. Search and
-// user-triggered fetchers (Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User,
-// PerplexityBot, Claude-SearchBot, ...) are covered by the "*" group.
+// Training crawlers. Search crawlers (Googlebot, OAI-SearchBot, ...) use "*".
 export const aiTrainingCrawlers = [
   "GPTBot",
   "Google-Extended",
@@ -239,7 +309,6 @@ export function buildRobots(
 
   return {
     rules: [
-      // The MCP endpoint (/api/mcp) is for MCP clients, not for indexing.
       { userAgent: "*", allow: "/", disallow: "/api/" },
       allowTraining
         ? { userAgent: aiTrainingCrawlers, allow: "/" }
@@ -258,15 +327,16 @@ export function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-export function buildRss(posts: Post[]) {
+export function buildRss(posts: Post[], locale: Locale = defaultLocale) {
+  const dict = getDictionary(locale);
   const lastBuildDate = posts.map(lastModified).sort().at(-1);
 
   const items = posts
     .map(
       (post) => `    <item>
       <title>${escapeXml(post.metadata.title)}</title>
-      <link>${postUrl(post.slug)}</link>
-      <guid isPermaLink="true">${postUrl(post.slug)}</guid>
+      <link>${postUrl(post.slug, locale)}</link>
+      <guid isPermaLink="true">${postUrl(post.slug, locale)}</guid>
       <description>${escapeXml(post.metadata.summary ?? "")}</description>
       <dc:creator>${escapeXml(person.name)}</dc:creator>
       <pubDate>${new Date(post.metadata.publishedAt).toUTCString()}</pubDate>
@@ -277,11 +347,11 @@ export function buildRss(posts: Post[]) {
   return `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>${escapeXml(`${person.name}'s blog`)}</title>
-    <link>${baseUrl}/blog</link>
-    <description>${escapeXml(site.blogDescription)}</description>
-    <language>${site.language}</language>
-    <atom:link href="${baseUrl}/rss" rel="self" type="application/rss+xml" />${
+    <title>${escapeXml(dict.blog.name(person.name))}</title>
+    <link>${pageUrl("/blog", locale)}</link>
+    <description>${escapeXml(dict.blogDescription)}</description>
+    <language>${localeConfig[locale].htmlLang}</language>
+    <atom:link href="${rssUrl(locale)}" rel="self" type="application/rss+xml" />${
       lastBuildDate
         ? `\n    <lastBuildDate>${new Date(lastBuildDate).toUTCString()}</lastBuildDate>`
         : ""
@@ -292,18 +362,18 @@ ${items}
 `;
 }
 
-// https://llmstxt.org — an experimental proposal, not a search ranking signal.
-export function buildLlmsTxt(posts: Post[]) {
-  const postLinks = posts
-    .map(
-      (post) =>
-        `- [${post.metadata.title}](${postUrl(post.slug)}): ${post.metadata.summary}`
-    )
-    .join("\n");
+export function buildLlmsTxt(postsByLocale: Record<Locale, Post[]>) {
+  const postLinks = (locale: Locale) =>
+    postsByLocale[locale]
+      .map(
+        (post) =>
+          `- [${post.metadata.title}](${postUrl(post.slug, locale)}): ${post.metadata.summary}`
+      )
+      .join("\n");
 
   return `# ${person.name}
 
-> ${person.name} is a ${person.jobTitle.toLowerCase()} working with ${person.technologies.join(", ")}. This website is the portfolio and technical blog of ${person.name}.
+> ${person.name} is a ${person.jobTitle.toLowerCase()} working with ${person.technologies.join(", ")}. This website is the portfolio and technical blog of ${person.name}, in English and Brazilian Portuguese.
 
 ## About
 
@@ -313,17 +383,25 @@ export function buildLlmsTxt(posts: Post[]) {
 
 ## Blog posts
 
-${postLinks}
+${postLinks("en")}
 
 ## MCP server
 
-- [MCP server](${baseUrl}/mcp): how to connect an AI assistant to this website with the Model Context Protocol, and the AI concepts behind it
-- MCP endpoint (Streamable HTTP, read-only, no authentication): ${mcpEndpoint}
+- [MCP server](${pageUrl("/mcp")}): how to connect an AI assistant to this website with the Model Context Protocol, and the AI concepts behind it
+- MCP endpoint (Streamable HTTP, read-only, no authentication): ${mcpEndpoint}. Tools accept a \`language\` argument ("en" or "pt-BR").
+
+## Português (Brasil)
+
+The same content translated to Brazilian Portuguese:
+
+- [Início](${pageUrl("/", "pt-br")}): quem é ${person.name}
+- [Servidor MCP](${pageUrl("/mcp", "pt-br")})
+${postLinks("pt-br")}
 
 ## Optional
 
-- [Blog index](${baseUrl}/blog): all posts
-- [RSS feed](${baseUrl}/rss)
+- [Blog index](${pageUrl("/blog")}): all posts ([em português](${pageUrl("/blog", "pt-br")}))
+- [RSS feed](${rssUrl()}) ([em português](${rssUrl("pt-br")}))
 - [Website source code](${person.sourceCode})
 `;
 }

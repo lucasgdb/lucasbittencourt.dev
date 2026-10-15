@@ -6,6 +6,12 @@ import { JsonLd } from "app/components/json-ld";
 import { WatcherBar } from "app/components/watcher-bar";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import {
+  getDictionary,
+  localizePath,
+  otherLocale,
+  type Locale,
+} from "app/lib/i18n";
+import {
   baseOpenGraph,
   ogImageSize,
   pageAlternates,
@@ -14,27 +20,16 @@ import {
 } from "app/lib/seo";
 import { person } from "app/lib/site";
 
-// Only the posts generated at build time exist; anything else is a 404.
-export const dynamicParams = false;
-
-export async function generateStaticParams() {
-  const posts = getBlogPosts();
-
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+function findPost(slug: string, locale: Locale) {
+  return getBlogPosts(locale).find((post) => post.slug === slug);
 }
 
-type BlogProps = {
-  params: Promise<{ slug: string }>;
-};
+export function postStaticParams(locale: Locale) {
+  return getBlogPosts(locale).map((post) => ({ slug: post.slug }));
+}
 
-export async function generateMetadata({
-  params,
-}: BlogProps): Promise<Metadata | undefined> {
-  const { slug } = await params;
-
-  const post = getBlogPosts().find((post) => post.slug === slug);
+export function postMetadata(slug: string, locale: Locale): Metadata | undefined {
+  const post = findPost(slug, locale);
   if (!post) {
     return;
   }
@@ -46,16 +41,16 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: pageAlternates(path),
+    alternates: pageAlternates(path, locale),
     openGraph: {
-      ...baseOpenGraph(),
+      ...baseOpenGraph(locale),
       title,
       description,
       type: "article",
       publishedTime: publishedAt,
       modifiedTime: updatedAt ?? publishedAt,
       authors: [person.name],
-      url: path,
+      url: localizePath(path, locale),
       images: [
         post.metadata.image
           ? { url: image, alt: title }
@@ -71,32 +66,36 @@ export async function generateMetadata({
   };
 }
 
-export default async function Blog({ params }: BlogProps) {
-  const { slug } = await params;
-
-  const post = getBlogPosts().find((post) => post.slug === slug);
+export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
+  const post = findPost(slug, locale);
   if (!post) {
-    return notFound();
+    notFound();
   }
 
+  const dict = getDictionary(locale);
   const { publishedAt, updatedAt } = post.metadata;
+  const translated = Boolean(findPost(slug, otherLocale(locale)));
 
   return (
     <section>
       <WatcherBar />
-      <JsonLd data={postJsonLd(post)} />
+      <JsonLd data={postJsonLd(post, locale, translated)} />
       <h1 className="title font-semibold text-2xl tracking-tighter">
         {post.metadata.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          By <Link href="/">{person.name}</Link> ·{" "}
-          <time dateTime={publishedAt}>{formatDate(publishedAt, true)}</time>
+          {dict.post.by} <Link href={localizePath("/", locale)}>{person.name}</Link> ·{" "}
+          <time dateTime={publishedAt}>
+            {formatDate(publishedAt, true, locale)}
+          </time>
           {updatedAt && updatedAt !== publishedAt && (
             <>
               {" "}
-              · Updated{" "}
-              <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+              · {dict.post.updated}{" "}
+              <time dateTime={updatedAt}>
+                {formatDate(updatedAt, false, locale)}
+              </time>
             </>
           )}
         </p>

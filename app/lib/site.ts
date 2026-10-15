@@ -1,28 +1,13 @@
-// Single source of truth for the site identity. Used by the visible pages,
-// metadata, JSON-LD, sitemap, robots.txt, RSS and llms.txt.
-
 export const baseUrl = "https://lucasbittencourt.dev";
 
-// Path of the MCP server (app/api/mcp/route.ts). The /mcp page documents it.
 export const mcpPath = "/api/mcp";
 export const mcpEndpoint = `${baseUrl}${mcpPath}`;
 
-export const mcpPage = {
-  title: "MCP server",
-  description:
-    "Connect your AI assistant to this website with the Model Context Protocol, and learn the AI concepts behind it: LLMs, tool calling, MCP and RAG.",
-  // Update when app/mcp/content.mdx changes meaningfully (sitemap, JSON-LD).
-  updatedAt: "2026-10-14",
-};
+// Update when app/mcp/content*.mdx changes
+export const mcpUpdatedAt = "2026-10-15";
 
 export const site = {
   name: "lucasbittencourt.dev",
-  locale: "en_US",
-  language: "en",
-  description:
-    "Portfolio and blog of Lucas Bittencourt, a full-stack software engineer working with React.js, Node.js, PostgreSQL, Docker and TypeScript.",
-  blogDescription:
-    "Articles by Lucas Bittencourt about JavaScript, TypeScript, React, Node.js and software engineering fundamentals.",
 };
 
 export const person = {
@@ -36,12 +21,9 @@ export const person = {
   sourceCode: "https://github.com/lucasgdb/lucasbittencourt.dev",
 };
 
-// Whether AI crawlers that collect content for model training (GPTBot,
-// Google-Extended, ClaudeBot, ...) may crawl the site. Search crawlers are
-// always allowed. See docs/SEO.md.
+// AI training crawlers (GPTBot, Google-Extended, ...). See docs/SEO.md.
 export const allowAiTraining = true;
 
-// Preview and development deployments on Vercel must never be indexed.
 export function isIndexable(vercelEnv = process.env.VERCEL_ENV) {
   return !vercelEnv || vercelEnv === "production";
 }

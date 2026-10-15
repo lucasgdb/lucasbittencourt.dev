@@ -1,0 +1,187 @@
+Este site também é um **servidor MCP**. Qualquer assistente de IA que suporte o Model Context Protocol
+(Claude, Cursor, VS Code e outros) pode se conectar a ele, ler meu perfil e os posts do blog, e fazer buscas neles
+para responder perguntas com links para a fonte.
+
+## Sumário:
+
+- [Conectar a este servidor](#conectar-a-este-servidor)
+- [Ferramentas disponíveis](#ferramentas-disponiveis)
+- [Conceitos de IA por trás disso](#conceitos-de-ia-por-tras-disso)
+  - [Large Language Models (LLMs)](#large-language-models-llms)
+  - [Tokens e a janela de contexto](#tokens-e-a-janela-de-contexto)
+  - [Tool calling](#tool-calling)
+  - [Model Context Protocol (MCP)](#model-context-protocol-mcp)
+  - [Retrieval-Augmented Generation (RAG)](#retrieval-augmented-generation-rag)
+  - [Agentes](#agentes)
+- [O que acontece em uma tool call](#o-que-acontece-em-uma-tool-call)
+- [Segurança e boas práticas](#seguranca-e-boas-praticas)
+- [MCP vs. SEO](#mcp-vs-seo)
+
+## Conectar a este servidor
+
+Endpoint (Streamable HTTP, sem autenticação):
+
+<McpEndpoint />
+
+### Claude Code
+
+<McpCommand />
+
+### Claude (claude.ai e Claude Desktop)
+
+Vá em **Settings → Connectors → Add custom connector** (Configurações → Conectores → Adicionar conector personalizado) e cole a URL do endpoint.
+
+### Cursor
+
+Adicione em `~/.cursor/mcp.json` (global) ou `.cursor/mcp.json` (projeto):
+
+<McpConfig format="cursor" />
+
+### VS Code
+
+Adicione em `.vscode/mcp.json`:
+
+<McpConfig format="vscode" />
+
+### MCP Inspector
+
+Para ver as requisições e respostas brutas, rode o inspector oficial e conecte-se ao endpoint
+usando o transporte **Streamable HTTP**:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Depois, pergunte ao seu assistente algo como _"O que o Lucas escreve sobre o event loop do Node.js?"_.
+Ele vai chamar as ferramentas abaixo e responder com links para os posts.
+
+## Ferramentas disponíveis
+
+<McpTools />
+
+Todas as ferramentas são **somente leitura**: elas não alteram nada e não chamam serviços externos.
+
+## Conceitos de IA por trás disso
+
+### Large Language Models (LLMs)
+
+Um LLM é um modelo treinado com uma quantidade enorme de texto para prever o próximo trecho de texto. Isso é suficiente para escrever,
+resumir, traduzir e raciocinar sobre código, mas ele tem duas limitações:
+
+- Ele só conhece o que estava nos dados de treinamento, até uma data de **knowledge cutoff** (data de corte do conhecimento).
+- Quando não sabe algo, ele pode gerar uma resposta plausível, mas errada (uma **alucinação**).
+
+A maioria das técnicas abaixo existe para dar ao modelo um **contexto atualizado e confiável** no momento em que ele responde.
+
+### Tokens e a janela de contexto
+
+Modelos não leem caracteres nem palavras, eles leem **tokens** (pedaços de palavras, cerca de 4 caracteres de texto em inglês cada).
+Tudo o que o modelo vê em uma conversa (instruções, mensagens, documentos, resultados de ferramentas) precisa caber na sua
+**janela de contexto**, que é limitada e tem um custo.
+
+Por isso é melhor dar ao modelo os **trechos relevantes** do que colar um site inteiro na conversa.
+
+### Tool calling
+
+Tool calling (ou function calling) permite que o modelo peça à aplicação para executar uma função. A aplicação descreve
+as ferramentas disponíveis (nome, descrição e um JSON Schema para os argumentos), e o modelo responde com uma chamada estruturada
+em vez de texto:
+
+```json
+{ "name": "search_blog", "arguments": { "query": "process.nextTick vs promises" } }
+```
+
+A aplicação executa a função, envia o resultado de volta ao modelo, e o modelo o usa para escrever a resposta.
+**O modelo nunca executa código sozinho**: é a aplicação que decide o que executar.
+
+### Model Context Protocol (MCP)
+
+[MCP](https://modelcontextprotocol.io) é um protocolo aberto, criado pela Anthropic, que padroniza como aplicações de IA se conectam a
+ferramentas e dados. Antes dele, cada assistente precisava de uma integração personalizada para cada serviço. Com o MCP,
+um serviço implementa **um único server**, e ele funciona com todos os clients compatíveis.
+
+- **Host**: a aplicação de IA (ex.: Claude Code, Cursor)
+- **Client**: a conexão que o host mantém com cada server
+- **Server**: expõe capacidades, como este site
+
+Um server pode expor três tipos de capacidades:
+
+- **Tools**: funções que o modelo decide chamar (ex.: `search_blog`)
+- **Resources**: dados que a aplicação pode ler e anexar ao contexto (ex.: arquivos)
+- **Prompts**: templates de prompt reutilizáveis que o usuário pode escolher
+
+As mensagens usam [JSON-RPC 2.0](https://www.jsonrpc.org/specification), por um de dois transportes:
+
+- **stdio**: o host inicia o server como um processo local (comum para ferramentas locais, ex.: acesso ao sistema de arquivos)
+- **Streamable HTTP**: o server é uma URL remota (como este)
+
+### Retrieval-Augmented Generation (RAG)
+
+RAG significa **recuperar** (retrieval) informações relevantes e adicioná-las ao contexto do modelo antes que ele **gere** a resposta.
+A resposta passa então a ser **fundamentada** (grounded) em conteúdo real, e o modelo pode citar de onde ela veio.
+
+A ferramenta `search_blog` é um pequeno retriever:
+
+1. **Chunking**: cada post é dividido em seções (pelos headings).
+2. **Ranking**: as seções recebem uma pontuação com [BM25](https://en.wikipedia.org/wiki/Okapi_BM25), um algoritmo clássico de relevância por palavras-chave
+   (da mesma família usada por buscadores), dando peso extra a correspondências em títulos e headings.
+3. **Resultados fundamentados**: ela retorna os melhores trechos com um link para a seção exata do post.
+
+Muitos sistemas de RAG usam **embeddings** no lugar: cada texto vira um vetor de números que representa seu significado,
+e a busca retorna os vetores mais próximos (busca semântica). Embeddings encontram sinônimos e paráfrases, mas exigem um
+modelo de embedding e um banco de dados vetorial. Para alguns poucos posts de blog, o ranking por palavras-chave é preciso, gratuito e roda em milissegundos.
+
+### Agentes
+
+Um agente é um modelo rodando em loop: ele decide qual ferramenta chamar, lê o resultado e repete até a tarefa estar concluída.
+Assistentes de programação como o Claude Code são agentes: eles leem arquivos, executam comandos e editam código passo a passo.
+
+O MCP é o que permite conectar novas ferramentas a agentes sem alterar o próprio agente.
+
+## O que acontece em uma tool call
+
+Quando você pergunta _"Qual a diferença entre process.nextTick e promises?"_, o client envia uma requisição JSON-RPC para o endpoint:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "search_blog",
+    "arguments": {
+      "query": "Qual a diferença entre process.nextTick e promises?",
+      "language": "pt-BR",
+      "limit": 1
+    }
+  }
+}
+```
+
+E o server responde com o trecho mais relevante:
+
+<McpExampleResult />
+
+(Resumido: a resposta também traz os mesmos dados como texto em `content`, para clients que não leem `structuredContent`.)
+
+O modelo lê o trecho, responde à sua pergunta e inclui um link para a seção.
+
+## Segurança e boas práticas
+
+- **Menor privilégio**: exponha apenas o que o modelo precisa. Este server é somente leitura e só serve conteúdo público.
+- **Valide as entradas**: nunca confie nos argumentos das ferramentas, eles são gerados por um modelo (e podem ser influenciados por prompt injection).
+- **Anote as ferramentas**: hints como `readOnlyHint` e `destructiveHint` ajudam os clients a decidir quando pedir confirmação ao usuário.
+- **Nada de segredos nas respostas**: tudo o que uma ferramenta retorna vai para o contexto do modelo.
+- **Autenticação**: para dados privados, proteja o server com OAuth (suportado pela especificação do MCP) em vez de API keys em URLs.
+- **Servers locais**: valide os headers `Host` e `Origin` para evitar ataques de DNS rebinding.
+
+## MCP vs. SEO
+
+Eles resolvem problemas diferentes:
+
+- **SEO e GEO** ajudam buscadores e buscas com IA (Google, ChatGPT Search, Perplexity) a **descobrir** e citar este site.
+  Para isso, este site usa URLs canônicas, dados estruturados (JSON-LD), um sitemap e um [llms.txt](/llms.txt).
+- **MCP** permite que um assistente **use** este site como ferramenta em nome de um usuário, durante uma conversa.
+
+Buscadores não rastreiam servers MCP. Mas ambos leem a **mesma fonte de verdade**: o perfil, os posts, as
+URLs canônicas e as datas vêm do mesmo código, então uma página, seu JSON-LD, o llms.txt e uma resposta via MCP nunca se contradizem.

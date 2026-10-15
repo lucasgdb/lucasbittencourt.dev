@@ -10,13 +10,14 @@ This is a porfolio site complete with a blog. Includes:
 - Tailwind v4
 - Vercel Speed Insights / Web Analytics
 - Geist font
+- English and Brazilian Portuguese (`/pt-br`), with hreflang, per-language sitemap entries and RSS feeds. See [docs/SEO.md](docs/SEO.md)
 - MCP server (`/api/mcp`) so AI assistants can read and search the blog. See [/mcp](https://lucasbittencourt.dev/mcp)
 
 ## Scripts
 
 - `pnpm dev`: development server
 - `pnpm build`: production build
-- `pnpm test`: SEO and MCP server tests
+- `pnpm test`: SEO, i18n and MCP server tests
 - `pnpm typecheck`: TypeScript check
 
 ## Link

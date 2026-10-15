@@ -1,6 +1,5 @@
 import { handleMcpRequest } from "app/lib/mcp";
 
-// MCP server (Streamable HTTP). See app/lib/mcp.ts and the /mcp page.
 export const dynamic = "force-dynamic";
 
 export {

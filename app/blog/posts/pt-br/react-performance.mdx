@@ -1,0 +1,452 @@
+---
+title: "Performance no React"
+publishedAt: "2022-08-11"
+updatedAt: "2026-10-14"
+summary: "Entenda como o React renderiza, memoização, igualdade referencial, o React Compiler, memo - useMemo - useCallback, por que a propriedade key importa, como evitar estados derivados e effects, transitions, code splitting e Server Components."
+image: "https://i.imgur.com/6TCYUgw.png"
+---
+
+## Sumário:
+
+- [Como o React renderiza](#como-o-react-renderiza)
+- [Memoização](#memoizacao)
+- [Igualdade referencial](#igualdade-referencial)
+- [React Compiler](#react-compiler)
+- [React Hook: useMemo](#react-hook-usememo)
+  - [Evitando recálculos pesados](#1-evitando-recalculos-pesados)
+  - [Mantendo a igualdade referencial](#2-mantendo-a-igualdade-referencial)
+- [React Hook: useCallback](#react-hook-usecallback)
+- [React: memo](#react-memo)
+- [Por que devemos usar a propriedade key em loops?](#por-que-devemos-usar-a-propriedade-key-em-loops)
+  - [Por que não devemos usar o index em loops?](#por-que-nao-devemos-usar-o-index-em-loops)
+  - [Resetando um componente com key](#resetando-um-componente-com-key)
+- [Evitando estados derivados](#evitando-estados-derivados)
+- [Mantendo a UI responsiva: useTransition e useDeferredValue](#mantendo-a-ui-responsiva-usetransition-e-usedeferredvalue)
+- [Code splitting com lazy e Suspense](#code-splitting-com-lazy-e-suspense)
+- [Renderizando listas longas](#renderizando-listas-longas)
+- [Server Components](#server-components)
+- [Meça antes de otimizar](#meca-antes-de-otimizar)
+
+## Como o React renderiza
+
+No React, um único componente pode ter componentes aninhados. Quando um componente renderiza, **todos os seus filhos são renderizados junto** por padrão.
+
+Um render acontece quando:
+
+- O state do componente muda
+- O componente pai renderiza
+- Um context que ele usa muda
+
+O processo de atualização pode ser dividido em 2 partes:
+
+1. **Render**: o React chama os seus componentes e monta uma nova árvore de elementos (o "virtual DOM"),
+   e então a compara com a **árvore anterior** usando um algoritmo de diffing chamado [reconciliation](https://react.dev/learn/preserving-and-resetting-state)
+2. **Commit**: o React aplica apenas as diferenças no DOM real
+
+Sem a reconciliation, atualizar o DOM real a cada render seria extremamente lento.
+Mas tenha em mente: mesmo quando nada muda no DOM, o render em si (chamar os seus componentes) ainda tem um custo.
+A maioria das otimizações de performance no React consiste em **pular renders desnecessários** ou deixá-los mais baratos.
+
+[Leia mais sobre render e commit aqui](https://react.dev/learn/render-and-commit)
+
+## Memoização
+
+É uma técnica que salva o valor de retorno de funções puras, evitando recálculos pesados.
+Funções puras são funções que não dependem de valores externos;
+portanto, sempre retornam o mesmo resultado para a mesma entrada.
+
+Também se espera que os componentes React sejam puros: dadas as mesmas props e o mesmo state, eles devem retornar o mesmo JSX.
+
+## Igualdade referencial
+
+Quando falamos em igualdade referencial, queremos dizer que precisamos garantir que os tipos por referência sejam iguais quando não mudaram.
+
+Em JavaScript, temos tipos primitivos e tipos por referência.
+
+- Dois tipos primitivos idênticos são sempre iguais em uma comparação rasa (por exemplo, `25 === 25`, `'Lucas' === 'Lucas'`, `true === true`).
+- Dois tipos por referência idênticos não são iguais em uma comparação rasa (por exemplo, `{ age: 25 } === { age: 25 }`, `['Lucas'] === ['Lucas']`).
+  Portanto, se você os cria durante o render, eles são diferentes a cada render.
+
+O React compara valores com `Object.is` (parecido com `===`), então precisamos que esses tipos por referência (objetos, arrays e funções)
+mantenham a mesma referência entre renders nos seguintes cenários:
+
+- O array de dependências de `useEffect`, `useMemo` e `useCallback`
+- Props de componentes memoizados
+
+## React Compiler
+
+O [React Compiler](https://react.dev/learn/react-compiler) (estável desde a v1.0, em 2025) é uma ferramenta de build que
+**memoiza automaticamente os seus componentes e hooks**. Ele analisa o seu código e aplica o equivalente a
+`useMemo`, `useCallback` e `memo` onde for necessário, com mais precisão do que fazer isso na mão.
+
+Com Next.js, habilite-o no `next.config.ts` depois de instalar o `babel-plugin-react-compiler`:
+
+```ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  reactCompiler: true,
+};
+
+export default nextConfig;
+```
+
+Com o compiler habilitado, você pode escrever código simples e deixar que ele cuide da memoização:
+
+```tsx
+function TodoList({ todos, filter }: TodoListProps) {
+  // memoized automatically, no useMemo needed
+  const visibleTodos = filterTodos(todos, filter);
+
+  // stable reference automatically, no useCallback needed
+  const handleClick = (id: string) => toggleTodo(id);
+
+  return <List items={visibleTodos} onClick={handleClick} />;
+}
+```
+
+O compiler só funciona com código que segue as [Rules of React](https://react.dev/reference/rules)
+(componentes puros, sem mutação de props ou state durante o render). O plugin de ESLint `eslint-plugin-react-hooks` aponta código que quebra essas regras.
+
+Mesmo com o compiler, é importante entender `useMemo`, `useCallback` e `memo`: você vai encontrá-los em
+codebases existentes, e eles continuam funcionando como escape hatches.
+
+## React Hook: useMemo
+
+Sintaxe:
+
+```ts
+const memoizedValue = useMemo(() => expensiveFunction(), dependencies);
+```
+
+Você usa `useMemo` para memoizar valores, ajudando a evitar recálculos pesados ou a manter a igualdade referencial.
+
+### 1. Evitando recálculos pesados
+
+#### Não faça isso:
+
+```ts
+// this runs on every render
+const filteredList = heavyFunction(myList);
+```
+
+#### Faça isso:
+
+```ts
+// this runs only when myList changes
+const filteredList = useMemo(() => heavyFunction(myList), [myList]);
+```
+
+### 2. Mantendo a igualdade referencial
+
+#### Não faça isso:
+
+```tsx
+const person = { name: props.name, age: props.age };
+
+// this runs on every render, because person is a new object every time
+useEffect(() => {
+  console.log(person);
+}, [person]);
+```
+
+#### Faça isso:
+
+```tsx
+const person = useMemo(
+  () => ({ name: props.name, age: props.age }),
+  [props.name, props.age]
+);
+
+// this runs only when person changes
+useEffect(() => {
+  console.log(person);
+}, [person]);
+```
+
+## React Hook: useCallback
+
+Sintaxe:
+
+```ts
+const memoizedFunction = useCallback(functionToMemoize, dependencies);
+```
+
+Você usa `useCallback` para memoizar funções, o que permite manter a igualdade referencial.
+
+#### Não faça isso:
+
+```tsx
+const doSideEffect = () => setTimeout(console.log, 1000);
+
+// this runs on every render, because doSideEffect is a new function every time
+useEffect(() => {
+  const timeout = doSideEffect();
+
+  return () => clearTimeout(timeout);
+}, [doSideEffect]);
+```
+
+#### Faça isso:
+
+```tsx
+const doSideEffect = useCallback(() => setTimeout(console.log, 1000), []);
+
+// this runs only once
+useEffect(() => {
+  const timeout = doSideEffect();
+
+  return () => clearTimeout(timeout);
+}, [doSideEffect]);
+```
+
+#### Com dependências:
+
+```tsx
+const doSideEffect = useCallback(
+  () => setTimeout(() => console.log(name), 1000),
+  [name]
+);
+
+// this runs only when name changes
+useEffect(() => {
+  const timeout = doSideEffect();
+
+  return () => clearTimeout(timeout);
+}, [doSideEffect]);
+```
+
+## React: memo
+
+Sintaxe:
+
+```ts
+const MemoizedComponent = memo(Component, arePropsEqual?);
+```
+
+Como sabemos, quando um componente renderiza, todos os seus filhos são renderizados por padrão.
+Para pular o render de um componente cujas props não mudaram, podemos memoizá-lo com a função `memo`.
+Por padrão, ela compara cada prop com `Object.is` (uma comparação rasa).
+
+```tsx
+function UserCard({ user, onSelect }: UserCardProps) {
+  return <button onClick={() => onSelect(user.id)}>{user.name}</button>;
+}
+
+const MemoizedUserCard = memo(UserCard);
+```
+
+O `memo` só funciona se as props mantiverem a mesma referência. Se o pai passa um novo objeto ou função a cada render
+(por exemplo, `onSelect={(id) => select(id)}`), o `MemoizedUserCard` renderiza mesmo assim. É por isso que o `memo` costuma ser combinado
+com `useMemo` e `useCallback` (ou com o React Compiler).
+
+Você pode passar uma função de comparação customizada. Ela deve retornar `true` quando as props forem **iguais** (para pular o render):
+
+```tsx
+function arePropsEqual(prevProps: UserCardProps, nextProps: UserCardProps) {
+  return prevProps.user.id === nextProps.user.id;
+}
+
+const MemoizedUserCard = memo(UserCard, arePropsEqual);
+```
+
+## Por que devemos usar a propriedade key em loops?
+
+Sintaxe:
+
+```tsx
+{
+  list.map((item) => <p key={item.id}>{item.text}</p>);
+}
+```
+
+O atributo key ajuda o React a identificar quais itens mudaram, foram adicionados ou foram removidos entre renders.
+Com keys estáveis, o React consegue mover os elementos existentes em vez de recriá-los.
+A key deve ser um identificador único e estável, como um ID vindo dos seus dados.
+
+### Por que não devemos usar o index em loops?
+
+Sintaxe:
+
+```tsx
+{
+  list.map((item, index) => <p key={index}>{item.text}</p>);
+}
+```
+
+Quando um item é adicionado, removido ou reordenado, os índices mudam, então o React associa os elementos errados:
+
+- **Performance**: o React atualiza o conteúdo de vários elementos em vez de apenas movê-los.
+- **Bugs**: o state de um componente (por exemplo, o valor de um input ou um checkbox) fica com o índice, não com o item,
+  então ele aparece no item errado depois de uma reordenação ou remoção.
+
+Usar o index só é aceitável quando a lista é estática (nunca é reordenada, filtrada ou alterada).
+Evite também `key={Math.random()}`: isso cria uma nova key a cada render, então o React recria todos os elementos toda vez.
+
+### Resetando um componente com key
+
+Você também pode usar `key` fora de loops. Quando a key muda, o React destrói o componente e cria um novo,
+resetando todo o seu state.
+
+```tsx
+// the form state resets when another user is selected
+<ProfileForm key={user.id} user={user} />
+```
+
+## Evitando estados derivados
+
+Estados derivados são estados criados a partir de outro state ou de props. Eles precisam de effects para se manterem sincronizados, o que causa
+renders extras e bugs.
+
+#### Não faça!
+
+```tsx
+const [repos, setRepos] = useState<Repo[]>([]);
+const [search, setSearch] = useState("");
+const [filteredRepos, setFilteredRepos] = useState<Repo[]>([]);
+
+// renders twice: once with the old filteredRepos, then again after the effect
+useEffect(() => {
+  setFilteredRepos(repos.filter((repo) => repo.name.includes(search)));
+}, [search, repos]);
+```
+
+#### Faça!
+
+```tsx
+const [repos, setRepos] = useState<Repo[]>([]);
+const [search, setSearch] = useState("");
+
+// calculated during the render
+const filteredRepos = repos.filter((repo) => repo.name.includes(search));
+```
+
+Não precisamos de um state adicional derivado de outro state. Podemos simplesmente criar uma nova variável durante o render
+(e usar `useMemo` se o cálculo for pesado e você não usar o React Compiler).
+
+[You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
+
+## Mantendo a UI responsiva: useTransition e useDeferredValue
+
+Às vezes um render é pesado e não pode ser pulado (por exemplo, filtrar e renderizar uma lista grande a cada tecla digitada).
+Com o concurrent rendering, o React consegue marcar algumas atualizações como **não urgentes** e interrompê-las para lidar com as urgentes,
+como a digitação.
+
+O `useDeferredValue` permite adiar a parte da UI que depende de um valor:
+
+```tsx
+function SearchPage({ items }: SearchPageProps) {
+  const [query, setQuery] = useState("");
+
+  // the input updates immediately, the list updates when React has time
+  const deferredQuery = useDeferredValue(query);
+  const isStale = query !== deferredQuery;
+
+  return (
+    <>
+      <input value={query} onChange={(event) => setQuery(event.target.value)} />
+
+      <div style={{ opacity: isStale ? 0.5 : 1 }}>
+        <SlowList items={items} query={deferredQuery} />
+      </div>
+    </>
+  );
+}
+```
+
+O `SlowList` precisa ser memoizado (com `memo` ou com o React Compiler), caso contrário ele renderiza junto com o pai de qualquer forma.
+
+O `useTransition` marca uma atualização de state como não urgente e te dá uma flag `isPending`:
+
+```tsx
+function Tabs() {
+  const [tab, setTab] = useState("home");
+  const [isPending, startTransition] = useTransition();
+
+  function selectTab(nextTab: string) {
+    startTransition(() => {
+      setTab(nextTab);
+    });
+  }
+
+  return (
+    <>
+      <TabButtons onSelect={selectTab} isPending={isPending} />
+      {tab === "home" && <Home />}
+      {tab === "reports" && <SlowReports />}
+    </>
+  );
+}
+```
+
+Prefira esses hooks a um debounce manual quando a parte lenta é o render. O debounce ainda é útil para reduzir requisições de rede.
+
+## Code splitting com lazy e Suspense
+
+Quanto menos JavaScript o navegador baixa, faz parsing e executa, mais rápido a página carrega.
+Com `lazy`, um componente só é carregado quando é renderizado pela primeira vez.
+
+```tsx
+import { lazy, Suspense } from "react";
+
+// loaded only when the chart is shown
+const Chart = lazy(() => import("./chart"));
+
+function Dashboard({ showChart }: DashboardProps) {
+  return (
+    showChart && (
+      <Suspense fallback={<p>Loading chart...</p>}>
+        <Chart />
+      </Suspense>
+    )
+  );
+}
+```
+
+O Next.js já divide o seu código por rota e oferece o `next/dynamic` para o mesmo propósito.
+
+## Renderizando listas longas
+
+Renderizar milhares de elementos no DOM é lento, não importa o quão bem você os memoize.
+Use **virtualização**: renderize apenas os itens visíveis na tela, com bibliotecas como o
+[TanStack Virtual](https://tanstack.com/virtual).
+
+Para casos mais simples, a propriedade CSS `content-visibility: auto` permite que o navegador pule o trabalho de renderização dos elementos fora da tela.
+
+## Server Components
+
+Com [Server Components](https://react.dev/reference/rsc/server-components) (por exemplo, o App Router do Next.js),
+os componentes rodam apenas no servidor, e o JavaScript deles **nunca é enviado para o navegador**.
+
+- Busque dados diretamente no servidor, perto do banco de dados, sem waterfalls no client.
+- Mantenha bibliotecas pesadas (por exemplo, parsers de markdown, syntax highlighters, bibliotecas de datas) no servidor.
+- Use `"use client"` apenas nos componentes que precisam de interatividade (state, effects, event handlers),
+  e mantenha-os o menor possível e o mais fundo possível na árvore.
+
+Trecho de código:
+
+```tsx
+// Server Component: no JavaScript shipped for this component
+export default async function PostPage({ params }: PostPageProps) {
+  const { slug } = await params;
+  const post = await getPost(slug);
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <PostContent content={post.content} />
+
+      {/* only this small component is sent to the browser */}
+      <LikeButton postId={post.id} />
+    </article>
+  );
+}
+```
+
+## Meça antes de otimizar
+
+Não chute, meça. A maioria dos componentes já é rápida o suficiente, e otimizações desnecessárias deixam o código mais difícil de ler.
+
+- Use a aba **Profiler** do [React Developer Tools](https://react.dev/learn/react-developer-tools) para ver quais componentes renderizam, por quê e quanto tempo levam.
+- Use o painel **Performance** do DevTools do navegador para encontrar long tasks.
+- Acompanhe as [Core Web Vitals](https://web.dev/articles/vitals) (LCP, INP, CLS) de usuários reais, por exemplo, com o Vercel Speed Insights.
