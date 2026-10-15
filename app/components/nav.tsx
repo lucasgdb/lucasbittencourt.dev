@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 const navItems = {
   "/": {
@@ -27,12 +28,15 @@ export function Navbar() {
                 <Link
                   key={path}
                   href={path}
-                  className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1"
+                  className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1"
                 >
                   {name}
                 </Link>
               );
             })}
+          </div>
+          <div className="ml-auto">
+            <ThemeToggle />
           </div>
         </nav>
       </div>

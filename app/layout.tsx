@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "./components/footer";
 import { baseUrl, isIndexable, person, site } from "./lib/site";
 import { baseOpenGraph } from "./lib/seo";
+import { themeColors, themeScript } from "./lib/theme";
 
 const defaultTitle = `${person.name} – ${person.jobTitle}`;
 
@@ -58,10 +59,11 @@ export const metadata: Metadata = {
   },
 };
 
+
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: themeColors.light },
+    { media: "(prefers-color-scheme: dark)", color: themeColors.dark },
   ],
 };
 
@@ -76,13 +78,23 @@ export default function RootLayout({
     <html
       lang={site.language}
       data-scroll-behavior="smooth"
+      // The inline theme script sets data-theme before React hydrates
+      suppressHydrationWarning
       className={cx(
-        "text-black bg-white dark:text-white dark:bg-black",
+        "bg-background text-foreground",
         GeistSans.variable,
         GeistMono.variable
       )}
     >
-      <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto">
+      <head>
+        {/* Applies the stored theme before the first paint (no flash) */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      {/*
+        The column is max-w-xl (36rem). Once the screen fits it plus the 1rem
+        side margins (38rem), it's centered: tablets and desktops alike.
+      */}
+      <body className="antialiased max-w-xl mx-4 mt-8 min-[38rem]:mx-auto">
         <div className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
           <Navbar />
           <main>{children}</main>

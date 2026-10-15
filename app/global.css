@@ -1,31 +1,68 @@
 @import "tailwindcss";
 
+/*
+ * Theme: an explicit choice from the theme toggle (data-theme on <html>) wins;
+ * without one, follow the operating system. Works without JavaScript too.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/*
+ * Semantic colors (bg-background, text-foreground) and the Geist fonts loaded
+ * in app/layout.tsx (font-sans is the default, font-mono is used by code).
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
 ::selection {
   background-color: #47a3f3;
   color: #fefefe;
 }
 
+/*
+ * Light: soft off-white and near-black text instead of pure white and pure
+ * black, which is tiring to read (contrast ~15:1 instead of 21:1).
+ */
 :root {
+  --background: #fafafa;
+  --foreground: #262626;
+  color-scheme: light;
+
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
-  --sh-sign: #8996a3;
+  --sh-sign: #737f8c;
   --sh-string: #007f7a;
-  --sh-keyword: #e02518;
-  --sh-comment: #a19595;
+  --sh-keyword: #d02317;
+  --sh-comment: #7c7272;
   --sh-jsxliterals: #6266d1;
-  --sh-property: #e25a1c;
-  --sh-entity: #e25a1c;
-}
+  --sh-property: #c4500f;
+  --sh-entity: #c4500f;
 
-@media (prefers-color-scheme: dark) {
-  :root {
+  @variant dark {
+    --background: #000000;
+    --foreground: #ffffff;
+    color-scheme: dark;
+
     --sh-class: #4c97f8;
     --sh-identifier: white;
+    --sh-sign: #8996a3;
     --sh-keyword: #f47067;
     --sh-string: #0fa295;
-  }
-  html {
-    color-scheme: dark;
+    --sh-comment: #a19595;
+    --sh-property: #e25a1c;
+    --sh-entity: #e25a1c;
   }
 }
 
@@ -49,7 +86,7 @@ html {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-colors decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
 }
 
 .prose .anchor:after {
@@ -62,7 +99,7 @@ html {
 }
 
 .prose pre {
-  @apply bg-neutral-50 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-900 py-2 px-3 text-sm;
+  @apply bg-neutral-100 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-900 py-2 px-3 text-sm;
 }
 
 .prose code {
@@ -164,7 +201,7 @@ table {
 }
 
 .progress-bar {
-  @apply h-1 w-full fixed top-0 left-0 bg-white origin-left;
+  @apply h-1 w-full fixed top-0 left-0 bg-neutral-800 dark:bg-white origin-left;
   animation: progress-bar linear;
   animation-timeline: scroll();
   scale: 0 1;
