@@ -59,7 +59,15 @@ test("posts are sorted newest first", () => {
 test("sitemap lists every page in both languages, with hreflang alternates", () => {
   const sitemap = buildSitemap(postsByLocale);
   const urls = sitemap.map((entry) => entry.url);
-  const paths = ["", "/blog", "/mcp", ...posts.map((post) => `/blog/${post.slug}`)];
+  const paths = [
+    "",
+    "/blog",
+    "/services",
+    "/mcp",
+    "/terms",
+    "/privacy",
+    ...posts.map((post) => `/blog/${post.slug}`),
+  ];
 
   assert.deepEqual(urls, [
     ...paths.map((path) => `${baseUrl}${path}`),

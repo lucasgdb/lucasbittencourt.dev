@@ -16,6 +16,8 @@ import {
   baseUrl,
   isIndexable,
   mcpEndpoint,
+  legalUpdatedAt,
+  servicesUpdatedAt,
   mcpUpdatedAt,
   person,
   site,
@@ -218,6 +220,45 @@ export function postJsonLd(
   };
 }
 
+export function servicesJsonLd(locale: Locale = defaultLocale) {
+  const url = pageUrl("/services", locale);
+  const dict = getDictionary(locale);
+  const inLanguage = localeConfig[locale].htmlLang;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "@id": `${url}#fde`,
+        name: "AI Forward Deployed Engineer",
+        serviceType: "AI Forward Deployed Engineer",
+        description: dict.services.fde,
+        url,
+        provider: { "@id": personId },
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${url}#ai-summarizer`,
+        name: "AI Summarizer",
+        applicationCategory: "BrowserApplication",
+        operatingSystem: "Google Chrome",
+        description: dict.services.summarizer,
+        url,
+        author: { "@id": personId },
+        inLanguage,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: dict.breadcrumbs.home, item: pageUrl("/", locale) },
+          { "@type": "ListItem", position: 2, name: dict.services.title },
+        ],
+      },
+    ],
+  };
+}
+
 export function mcpPageJsonLd(locale: Locale = defaultLocale) {
   const url = pageUrl("/mcp", locale);
   const dict = getDictionary(locale);
@@ -282,7 +323,10 @@ export function buildSitemap(
     entries.push(
       page("/", latest),
       page("/blog", latest),
+      page("/services", servicesUpdatedAt),
       page("/mcp", mcpUpdatedAt),
+      page("/terms", legalUpdatedAt),
+      page("/privacy", legalUpdatedAt),
       ...posts.map((post) => page(`/blog/${post.slug}`, lastModified(post)))
     );
   }
@@ -384,6 +428,10 @@ export function buildLlmsTxt(postsByLocale: Record<Locale, Post[]>) {
 ## Blog posts
 
 ${postLinks("en")}
+
+## Services and products
+
+- [Services and products](${pageUrl("/services")}): AI Forward Deployed Engineer services (hourly or per project) and AI Summarizer, a Chrome extension that summarizes only the selected part of a page ([em português](${pageUrl("/services", "pt-br")}))
 
 ## MCP server
 

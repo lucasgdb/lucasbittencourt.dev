@@ -1,6 +1,7 @@
-import { getDictionary, type Locale } from "app/lib/i18n";
+import Link from "next/link";
+import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 import { rssUrl } from "app/lib/seo";
-import { person } from "app/lib/site";
+import { business, person } from "app/lib/site";
 
 function ArrowIcon() {
   return (
@@ -18,6 +19,9 @@ function ArrowIcon() {
     </svg>
   );
 }
+
+const link =
+  "underline underline-offset-2 decoration-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-100";
 
 export default function Footer({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
@@ -70,9 +74,36 @@ export default function Footer({ locale }: { locale: Locale }) {
           </a>
         </li>
       </ul>
-      <p className="mt-8 text-neutral-600 dark:text-neutral-300">
-        © {new Date().getFullYear()} {person.name}. {dict.footer.license}
-      </p>
+      <div className="mt-8 flex flex-col gap-2 text-neutral-600 dark:text-neutral-300">
+        <p>
+          {dict.footer.contact}:{" "}
+          <a className={link} href={`mailto:${business.email}`}>
+            {business.email}
+          </a>{" "}
+          ·{" "}
+          <a
+            className={link}
+            href={business.whatsappUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            WhatsApp {business.whatsapp}
+          </a>
+        </p>
+        <p>
+          <Link className={link} href={localizePath("/terms", locale)}>
+            {dict.footer.terms}
+          </Link>{" "}
+          ·{" "}
+          <Link className={link} href={localizePath("/privacy", locale)}>
+            {dict.footer.privacy}
+          </Link>
+        </p>
+        <p>
+          © {new Date().getFullYear()} {business.legalName} · CNPJ {business.cnpj}.{" "}
+          {dict.footer.license}
+        </p>
+      </div>
     </footer>
   );
 }

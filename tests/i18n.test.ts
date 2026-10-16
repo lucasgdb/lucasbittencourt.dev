@@ -102,3 +102,15 @@ test("dates are formatted in each language", () => {
   assert.match(formatDate("2020-01-01", true, "en"), /\(\d+ years ago\)$/);
   assert.match(formatDate("2020-01-01", true, "pt-br"), /\(há \d+ anos\)$/);
 });
+
+test("the services page has the same sections in every language", () => {
+  const read = (locale: string) =>
+    fs.readFileSync(path.join("app", "services", `content.${locale}.mdx`), "utf-8");
+  const outline = (content: string) =>
+    [...content.matchAll(/^(#{2,3}) |^<(\w+) \/>/gm)].map((match) => match[1] ?? match[2]);
+
+  for (const locale of locales) {
+    assert.deepEqual(outline(read(locale)), outline(read("en")), locale);
+    assert.ok(read(locale).includes("<Contact />"), locale);
+  }
+});

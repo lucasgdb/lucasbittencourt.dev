@@ -10,6 +10,22 @@ export const site = {
   name: "lucasbittencourt.dev",
 };
 
+export const business = {
+  legalName: "Lucas Genesses Dias Bittencourt",
+  cnpj: "42.564.890/0001-04",
+  address:
+    "Rua Expedicionário Benedito Vitoriano Siqueira, 44, Jardim do Vale, Guaratinguetá/SP, CEP 12519-370",
+  email: "lucasgdbittencourt@gmail.com",
+  whatsapp: "+55 (12) 98834-4336",
+  whatsappUrl: "https://wa.me/5512988344336",
+};
+
+// Update when app/services/*.mdx changes
+export const servicesUpdatedAt = "2026-10-15";
+
+// Update when app/legal/*.mdx changes
+export const legalUpdatedAt = "2026-10-15";
+
 export const person = {
   name: "Lucas Bittencourt",
   jobTitle: "Full-stack Software Engineer",

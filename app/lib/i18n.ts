@@ -67,10 +67,37 @@ const en = {
     "Portfolio and blog of Lucas Bittencourt, a full-stack software engineer working with React.js, Node.js, PostgreSQL, Docker and TypeScript.",
   blogDescription:
     "Articles by Lucas Bittencourt about JavaScript, TypeScript, React, Node.js and software engineering fundamentals.",
-  nav: { label: "Main", home: "home", blog: "blog", mcp: "mcp" },
+  nav: { label: "Main", home: "home", blog: "blog", services: "services", mcp: "mcp" },
   themeToggle: "Toggle dark mode",
   languageSwitch: "Read in English",
-  footer: { source: "view source", license: "MIT Licensed" },
+  footer: {
+    source: "view source",
+    license: "MIT Licensed",
+    contact: "Contact",
+    terms: "Terms of use",
+    privacy: "Privacy policy",
+  },
+  services: {
+    title: "Services and products",
+    description:
+      "AI Forward Deployed Engineer services and AI Summarizer, a Chrome extension that summarizes only the part of the page you choose.",
+    fde: "Software engineer embedded with clients or internal product groups to build, customize, and deploy real-world AI and agentic systems. Hourly (price on request) or per project.",
+    summarizer:
+      "Chrome extension that uses AI to summarize only the part of the page the user selects, in Portuguese or English. Prepaid credits via Pix, no subscription.",
+  },
+  legal: {
+    updated: "Last updated",
+    terms: {
+      title: "Terms of use",
+      description:
+        "Terms of use of lucasbittencourt.dev: content, services, digital products, payments and refunds.",
+    },
+    privacy: {
+      title: "Privacy policy",
+      description:
+        "How lucasbittencourt.dev collects, uses and protects personal data, under the Brazilian General Data Protection Law (LGPD).",
+    },
+  },
   home: {
     bio: (jobTitle: string, technologies: readonly string[]) =>
       `${jobTitle} currently working with ${listFormat("en", technologies)}. Developing scalable and robust solutions.`,
@@ -119,10 +146,37 @@ const ptBr: Dictionary = {
     "Portfólio e blog de Lucas Bittencourt, engenheiro de software full-stack que trabalha com React.js, Node.js, PostgreSQL, Docker e TypeScript.",
   blogDescription:
     "Artigos de Lucas Bittencourt sobre JavaScript, TypeScript, React, Node.js e fundamentos de engenharia de software.",
-  nav: { label: "Principal", home: "início", blog: "blog", mcp: "mcp" },
+  nav: { label: "Principal", home: "início", blog: "blog", services: "serviços", mcp: "mcp" },
   themeToggle: "Alternar modo escuro",
   languageSwitch: "Ler em português",
-  footer: { source: "ver código-fonte", license: "Licença MIT" },
+  footer: {
+    source: "ver código-fonte",
+    license: "Licença MIT",
+    contact: "Contato",
+    terms: "Termos de uso",
+    privacy: "Política de privacidade",
+  },
+  services: {
+    title: "Serviços e produtos",
+    description:
+      "Serviços de AI Forward Deployed Engineer e o AI Summarizer, extensão para Chrome que resume com IA só o trecho da página que você escolhe.",
+    fde: "Engenheiro de software que trabalha junto ao cliente ou a times de produto internos para construir, customizar e colocar em produção sistemas reais de IA e de agentes. Por hora (sob consulta) ou por projeto.",
+    summarizer:
+      "Extensão para Chrome que resume com IA só o trecho da página escolhido pelo usuário, em português ou inglês. Créditos pré-pagos via Pix, sem assinatura.",
+  },
+  legal: {
+    updated: "Última atualização",
+    terms: {
+      title: "Termos de uso",
+      description:
+        "Termos de uso de lucasbittencourt.dev: conteúdo, serviços, produtos digitais, pagamentos e reembolsos.",
+    },
+    privacy: {
+      title: "Política de privacidade",
+      description:
+        "Como lucasbittencourt.dev coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).",
+    },
+  },
   home: {
     bio: (jobTitle, technologies) =>
       `${jobTitle}, atualmente trabalhando com ${listFormat("pt-br", technologies)}. Desenvolvendo soluções escaláveis e robustas.`,

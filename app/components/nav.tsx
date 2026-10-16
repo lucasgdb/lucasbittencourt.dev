@@ -3,8 +3,8 @@ import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitch } from "./language-switch";
 import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 
-const navItems = ["home", "blog", "mcp"] as const;
-const navPaths = { home: "/", blog: "/blog", mcp: "/mcp" };
+const navItems = ["home", "blog", "services", "mcp"] as const;
+const navPaths = { home: "/", blog: "/blog", services: "/services", mcp: "/mcp" };
 
 export function Navbar({
   locale,
@@ -23,13 +23,13 @@ export function Navbar({
           id="nav"
           aria-label={dict.nav.label}
         >
-          <div className="flex flex-row space-x-0 pr-10">
+          <div className="flex flex-row space-x-0">
             {navItems.map((item) => {
               return (
                 <Link
                   key={item}
                   href={localizePath(navPaths[item], locale)}
-                  className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-400 flex align-middle relative py-1 px-2 m-1"
+                  className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-400 flex align-middle relative py-1 px-2 max-[400px]:px-1 m-1"
                 >
                   {dict.nav[item]}
                 </Link>
