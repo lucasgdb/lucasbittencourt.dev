@@ -13,6 +13,7 @@ import {
   serializeJsonLd,
 } from "../app/lib/seo.ts";
 import { baseUrl, person } from "../app/lib/site.ts";
+import { getTools } from "../app/tools/registry.ts";
 
 const postsByLocale = {
   en: getSortedBlogPosts("en"),
@@ -66,6 +67,8 @@ test("sitemap lists every page in both languages, with hreflang alternates", () 
     "/mcp",
     "/terms",
     "/privacy",
+    "/tools",
+    ...getTools().flatMap((tool) => [`/tool/${tool.slug}`, `/tool/${tool.slug}/privacy`]),
     ...posts.map((post) => `/blog/${post.slug}`),
   ];
 

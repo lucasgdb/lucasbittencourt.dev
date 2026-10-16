@@ -2,6 +2,7 @@
 
 import type { MetadataRoute } from "next";
 import { getLastModified as lastModified, type Post } from "../blog/utils.ts";
+import { getTools } from "../tools/registry.ts";
 import {
   defaultLocale,
   getDictionary,
@@ -325,8 +326,13 @@ export function buildSitemap(
       page("/blog", latest),
       page("/services", servicesUpdatedAt),
       page("/mcp", mcpUpdatedAt),
-      page("/terms", legalUpdatedAt),
-      page("/privacy", legalUpdatedAt),
+      page("/terms", legalUpdatedAt.terms),
+      page("/privacy", legalUpdatedAt.privacy),
+      page("/tools", getTools().map((tool) => tool.updatedAt).sort().at(-1)),
+      ...getTools().flatMap((tool) => [
+        page(`/tool/${tool.slug}`, tool.updatedAt),
+        page(`/tool/${tool.slug}/privacy`, tool.privacyUpdatedAt),
+      ]),
       ...posts.map((post) => page(`/blog/${post.slug}`, lastModified(post)))
     );
   }
@@ -433,6 +439,15 @@ ${postLinks("en")}
 
 - [Services and products](${pageUrl("/services")}): AI Forward Deployed Engineer services (hourly or per project) and AI Summarizer, a Chrome extension that summarizes only the selected part of a page ([em português](${pageUrl("/services", "pt-br")}))
 
+## Tools
+
+${getTools()
+  .map(
+    (tool) =>
+      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})`
+  )
+  .join("\n")}
+
 ## MCP server
 
 - [MCP server](${pageUrl("/mcp")}): how to connect an AI assistant to this website with the Model Context Protocol, and the AI concepts behind it
@@ -444,6 +459,7 @@ The same content translated to Brazilian Portuguese:
 
 - [Início](${pageUrl("/", "pt-br")}): quem é ${person.name}
 - [Servidor MCP](${pageUrl("/mcp", "pt-br")})
+- [Ferramentas](${pageUrl("/tools", "pt-br")})
 ${postLinks("pt-br")}
 
 ## Optional

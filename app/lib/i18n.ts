@@ -67,7 +67,14 @@ const en = {
     "Portfolio and blog of Lucas Bittencourt, a full-stack software engineer working with React.js, Node.js, PostgreSQL, Docker and TypeScript.",
   blogDescription:
     "Articles by Lucas Bittencourt about JavaScript, TypeScript, React, Node.js and software engineering fundamentals.",
-  nav: { label: "Main", home: "home", blog: "blog", services: "services", mcp: "mcp" },
+  nav: {
+    label: "Main",
+    home: "home",
+    blog: "blog",
+    tools: "tools",
+    services: "services",
+    mcp: "mcp",
+  },
   themeToggle: "Toggle dark mode",
   languageSwitch: "Read in English",
   footer: {
@@ -113,6 +120,22 @@ const en = {
     name: (author: string) => `${author}'s blog`,
   },
   post: { by: "By", updated: "Updated" },
+  tools: {
+    title: "Tools",
+    heading: "Tools",
+    description:
+      "Tools and digital products by Lucas Bittencourt, such as AI Summarizer, a Chrome extension that summarizes only the part of a page you pick.",
+    links: "Links",
+    install: "Install from the Chrome Web Store",
+    comingSoon: "Chrome Web Store (coming soon)",
+    privacy: "Privacy policy",
+    terms: "Terms of use",
+    support: "Support",
+    all: "All tools",
+    privacyTitle: (tool: string) => `${tool} privacy policy`,
+    privacyDescription: (tool: string) =>
+      `How the ${tool} extension collects, uses and protects personal data, under the Brazilian General Data Protection Law (LGPD).`,
+  },
   breadcrumbs: { home: "Home", blog: "Blog" },
   notFound: {
     title: "Page not found",
@@ -146,7 +169,14 @@ const ptBr: Dictionary = {
     "Portfólio e blog de Lucas Bittencourt, engenheiro de software full-stack que trabalha com React.js, Node.js, PostgreSQL, Docker e TypeScript.",
   blogDescription:
     "Artigos de Lucas Bittencourt sobre JavaScript, TypeScript, React, Node.js e fundamentos de engenharia de software.",
-  nav: { label: "Principal", home: "início", blog: "blog", services: "serviços", mcp: "mcp" },
+  nav: {
+    label: "Principal",
+    home: "início",
+    blog: "blog",
+    tools: "ferramentas",
+    services: "serviços",
+    mcp: "mcp",
+  },
   themeToggle: "Alternar modo escuro",
   languageSwitch: "Ler em português",
   footer: {
@@ -192,6 +222,22 @@ const ptBr: Dictionary = {
     name: (author) => `Blog de ${author}`,
   },
   post: { by: "Por", updated: "Atualizado em" },
+  tools: {
+    title: "Ferramentas",
+    heading: "Ferramentas",
+    description:
+      "Ferramentas e produtos digitais de Lucas Bittencourt, como o AI Summarizer, uma extensão para o Chrome que resume só o trecho da página que você escolhe.",
+    links: "Links",
+    install: "Instalar pela Chrome Web Store",
+    comingSoon: "Chrome Web Store (em breve)",
+    privacy: "Política de privacidade",
+    terms: "Termos de uso",
+    support: "Suporte",
+    all: "Todas as ferramentas",
+    privacyTitle: (tool) => `Política de privacidade do ${tool}`,
+    privacyDescription: (tool) =>
+      `Como a extensão ${tool} coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).`,
+  },
   breadcrumbs: { home: "Início", blog: "Blog" },
   notFound: {
     title: "Página não encontrada",

@@ -34,7 +34,9 @@ export function LegalPage({ doc, locale }: { doc: LegalDocument; locale: Locale 
       </h1>
       <p className="mt-2 mb-8 text-sm text-neutral-600 dark:text-neutral-400">
         {dict.updated}:{" "}
-        <time dateTime={legalUpdatedAt}>{formatDate(legalUpdatedAt, false, locale)}</time>
+        <time dateTime={legalUpdatedAt[doc]}>
+          {formatDate(legalUpdatedAt[doc], false, locale)}
+        </time>
       </p>
       <article className="prose">
         <CustomMDX source={content} />
