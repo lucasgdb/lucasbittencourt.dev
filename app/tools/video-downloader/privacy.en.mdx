@@ -1,0 +1,132 @@
+This Privacy policy explains how **Lucas Genesses Dias Bittencourt** (trade name Lucas Bittencourt), a sole proprietorship registered in Brazil under CNPJ **42.564.890/0001-04**, processes personal data in the **Video Downloader** extension for Google Chrome and in the servers it uses, under the Brazilian General Data Protection Law (Law No. 13,709/2018, "LGPD").
+
+This is a translation. In case of any difference, the [Portuguese version](/pt-br/tool/video-downloader/privacy) prevails. The lucasbittencourt.dev website has a [Privacy policy](/privacy) of its own; this one covers only the extension.
+
+## 1. Controller and data protection officer
+
+The data controller is Lucas Genesses Dias Bittencourt (CNPJ 42.564.890/0001-04), who also acts as the data protection officer. Contact:
+
+- Address: Rua Expedicionário Benedito Vitoriano Siqueira, 44, Jardim do Vale, Guaratinguetá/SP, CEP 12519-370, Brazil
+- Email: [lucasgdbittencourt@gmail.com](mailto:lucasgdbittencourt@gmail.com)
+- WhatsApp: [+55 (12) 98834-4336](https://wa.me/5512988344336)
+
+## 2. What the extension does
+
+Video Downloader finds the videos on the page you're on (video files and HLS or DASH streams) and downloads them, or finds the video of a link you paste. **Detection and downloads happen entirely in your browser**: no information about the pages you visit, the videos found or the files downloaded is sent to my servers.
+
+The servers are used only if you choose to **sign in** and buy **Video Downloader Premium**, an optional lifetime license.
+
+## 3. Data we process
+
+### Detection and downloads (in your browser only)
+
+While the extension is open on a tab, it reads, in your browser:
+
+- from the page: the `<video>` elements and their addresses, links to video files, the page's title and its preview image (`og:image`);
+- if you allow access to sites: the addresses, types and sizes of the media requests the page makes (files, playlists and stream pieces). The extension doesn't block, change or read the content of other requests.
+
+These detections are kept in the browser's session storage, one list per tab, and are deleted when the tab navigates or closes. They aren't sent to anyone.
+
+To check a video and download it, **your browser contacts the video's own site directly**, like the player would: it reads the file's first bytes, the stream's playlists and pieces (with your cookies for that site, when the site requires them) and the thumbnail. That site receives these requests as it receives any visit, with your IP address. Streams are assembled in temporary files in the browser's own storage, deleted after the download, and the result is saved by Chrome's download manager.
+
+### "By link" searches
+
+When you paste a link and search, your browser requests, directly:
+
+- for an X (Twitter) post: the post's public data from X's embed service (`cdn.syndication.twimg.com`), with the post's identifier;
+- for a Reddit post: the post's public page on `www.reddit.com` and, to download it, Reddit's video servers (`v.redd.it` and `packaged-media.redd.it`);
+- for any other link: the address you pasted.
+
+These requests go from your browser straight to those sites, under their own terms and policies, without going through my servers.
+
+### Account (optional)
+
+Signing in is only needed to buy Premium. Sign-in is handled by the **account service** shared by my tools (lb-auth-api.lucasbittencourt.dev), so the same account works in Video Downloader, [AI Summarizer](/tool/ai-summarizer) and future tools. From Google we receive only your **name**, **email**, **profile picture** and **account identifier**, which the account service keeps to identify you. We have no access to your Gmail, your Drive or any other data in your Google account.
+
+Signing in creates a session in the account service, valid for this extension. The extension keeps the session code in your browser; the account service keeps only an encrypted version of it (a hash). The Video Downloader server receives only your account's internal identifier, never your name or email.
+
+### Premium purchase and license
+
+Video Downloader Premium is paid via Pix (Brazilian instant payment) and processed by **AbacatePay**. To create the charge, we send it only the **amount**, the **description** (the product's name) and an **internal purchase ID**. **We don't send your name, email or CPF.** As with any Pix payment, AbacatePay and the institutions involved receive from your bank the payer data required by the Pix rules.
+
+For each purchase we keep the product, the amount, the payment status, the Pix code and the creation, expiration and payment dates. For the license, we keep the product, its status (active or revoked), the purchase that granted it and the dates. Payment notifications from AbacatePay are recorded with their identifier and type. We have no access to your bank account data.
+
+### Data kept in your browser
+
+The extension keeps in your browser's local storage the interface language, the theme, the choice between side panel and popup and, if you sign in, the session (with name, email and picture). This data isn't sent to anyone, except the session code, which goes with each request to the account service and the Video Downloader server.
+
+### Technical logs
+
+The hosting infrastructure records technical data about requests to the servers, such as IP address, date and time and the address called, for security and operation. The servers log errors and events such as account creation and purchases (with the account ID), and never the pages you visit or the videos you download.
+
+### What we don't collect
+
+The extension doesn't collect your browsing history, the pages you visit, the videos found or downloaded, form data or passwords, and doesn't use cookies, analytics, telemetry or advertising tracking.
+
+## 4. Extension permissions
+
+- **activeTab** and **scripting**: read the videos of the tab the extension is open on.
+- **webRequest**: see the media requests of the sites you allowed, to find streams. No request is blocked or changed.
+- **Access to sites** (optional): requested only if you click "Allow access", for network detection, scanning after navigation and fetching stream pieces. The "By link" tab asks only for the sites it uses (X's embed service, Reddit, or the pasted link's own site).
+- **downloads**: save the files with Chrome's download manager and follow their progress. **downloads.open** (optional): "Play" a downloaded video in your computer's default player.
+- **storage**: keep the detections of each tab, the preferences and the session in your browser.
+- **sidePanel**: show the extension in the side panel.
+- **identity** (optional): open Google's sign-in window, requested on the first sign-in.
+- The **account service** and the **Video Downloader server** answer the extension without any extra permission.
+
+## 5. Purposes and legal bases
+
+The legal bases are those of article 7 of the LGPD:
+
+- **Account, purchase and license**: performance of a contract.
+- **Security and access logs**: legitimate interest and compliance with a legal obligation.
+- **Pix billing and tax documents**: performance of a contract and compliance with a legal obligation.
+
+## 6. Sharing
+
+We don't sell personal data, don't use it for advertising and don't pass it on to data brokers. Data is shared only with:
+
+- **Railway**: hosting of the servers (the account service and the Video Downloader server) and the database.
+- **Google**: sign-in with the Google account.
+- **AbacatePay**: processing of Pix payments.
+- **Public authorities**: when required by law or court order.
+
+The sites whose videos you download, X and Reddit receive your browser's requests directly, as described in section 3, under their own policies.
+
+## 7. Limited use
+
+The use of information received by the extension follows the [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), including the **Limited Use** requirements: data is used only to provide and improve the extension's single purpose (finding and downloading the videos you choose), isn't transferred for advertising or to determine creditworthiness, and isn't read by people, except with your consent, for security and abuse investigation, or when required by law.
+
+## 8. International transfer
+
+Railway (servers in the United States) and Google store or process account and purchase data outside Brazil, mainly in the United States. These transfers follow article 33 of the LGPD, with providers that adopt security and data protection measures.
+
+## 9. How long we keep data
+
+- **Detections**: in your browser only, until the tab navigates or closes.
+- **Temporary download files**: in your browser only, deleted after the download (or the next time the extension opens, if it was interrupted).
+- **Account**: until you ask for it to be deleted. The account is shared by my tools; you can ask to delete only the Video Downloader data or the whole account.
+- **Session**: valid for up to 30 days. It's deleted when you sign out, and expired sessions are deleted automatically. "Sign out of all devices" ends your sessions in every tool.
+- **Purchases and license**: while the account exists, and then for the periods required by tax law.
+- **Access logs**: for the 6 months required by article 15 of the Brazilian Internet Civil Framework (Marco Civil da Internet).
+- **Data in your browser**: until you sign out or uninstall the extension.
+
+After that, the data is deleted or anonymized.
+
+## 10. Your rights
+
+Under article 18 of the LGPD, you may ask for confirmation of processing, access, correction, anonymization, blocking or deletion, portability, information about sharing and withdrawal of consent.
+
+To delete your account or exercise other rights, write to the email above. You can also revoke the extension's access to your Google account at [myaccount.google.com/connections](https://myaccount.google.com/connections), revoke its site access in Chrome's extension settings, and file a complaint with the Brazilian Data Protection Authority (ANPD).
+
+## 11. Security
+
+All communication with the servers is encrypted (HTTPS), sessions are stored encrypted (hashed), the servers talk to each other over a private network with their own credentials, and access to data is restricted. The license is only registered after the payment is confirmed by AbacatePay itself, and payment notifications are checked with a signature. In the browser, everything the extension reads from pages is validated before being used, and the addresses of your own computer and private network are never fetched from a pasted link. No system is completely immune to incidents; if a relevant incident occurs, the affected data subjects and the ANPD will be notified, as required by law.
+
+## 12. Children and teenagers
+
+The account and the Premium purchase aren't intended for people under 18, and we don't knowingly collect data from children or teenagers.
+
+## 13. Changes
+
+This policy may be updated. The date of the last update is shown at the top of the page. See also the [Terms of use](/terms) and the [website's Privacy policy](/privacy).

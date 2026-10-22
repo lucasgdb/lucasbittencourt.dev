@@ -1,5 +1,6 @@
 import "../global.css";
 import type { Metadata, Viewport } from "next";
+import { Fragment } from "react";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
@@ -90,7 +91,7 @@ export function RootDocument({
         {node}
       </div>
     ) : (
-      node
+      <Fragment key={l}>{node}</Fragment>
     );
 
   return (
@@ -108,10 +109,10 @@ export function RootDocument({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {auto && <script dangerouslySetInnerHTML={{ __html: localeScript }} />}
       </head>
-      <body className="antialiased">
+      <body className="antialiased flex min-h-dvh flex-col">
         {shown.map((l) => only(l, <Navbar locale={l} notFound={auto} />))}
-        <div className="max-w-xl mx-4 mt-14 min-[38rem]:mx-auto flex flex-col min-w-0 px-2 md:px-0">
-          <main>{children}</main>
+        <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-xl mt-14 min-w-0 px-2 md:px-0">
+          <main className="flex-1">{children}</main>
           {shown.map((l) => only(l, <Footer locale={l} />))}
         </div>
         <Analytics />

@@ -55,18 +55,12 @@ export function otherLocale(locale: Locale): Locale {
   return locale === "en" ? "pt-br" : "en";
 }
 
-function listFormat(locale: Locale, items: readonly string[]) {
-  return new Intl.ListFormat(localeConfig[locale].intl, {
-    type: "conjunction",
-  }).format(items);
-}
-
 const en = {
-  jobTitle: "Full-stack Software Engineer",
+  jobTitle: "AI Software Engineer",
   siteDescription:
-    "Portfolio and blog of Lucas Bittencourt, a full-stack software engineer working with React.js, Node.js, PostgreSQL, Docker and TypeScript.",
+    "Portfolio and blog of Lucas Bittencourt, a software engineer focused on AI: AI and agent systems in production, AI Forward Deployed Engineer services and tools such as AI Summarizer.",
   blogDescription:
-    "Articles by Lucas Bittencourt about JavaScript, TypeScript, React, Node.js and software engineering fundamentals.",
+    "Articles by Lucas Bittencourt about software engineering and AI, and the tools and services built with them.",
   nav: {
     label: "Main",
     home: "home",
@@ -85,12 +79,10 @@ const en = {
     privacy: "Privacy policy",
   },
   services: {
-    title: "Services and products",
+    title: "Services",
     description:
-      "AI Forward Deployed Engineer services and AI Summarizer, a Chrome extension that summarizes only the part of the page you choose.",
+      "AI Forward Deployed Engineer services: building, customizing and deploying real-world AI and agentic systems with your team, hourly or per project.",
     fde: "Software engineer embedded with clients or internal product groups to build, customize, and deploy real-world AI and agentic systems. Hourly (price on request) or per project.",
-    summarizer:
-      "Chrome extension that uses AI to summarize only the part of the page the user selects, in Portuguese or English. Prepaid credits via Pix, no subscription.",
   },
   legal: {
     updated: "Last updated",
@@ -106,13 +98,9 @@ const en = {
     },
   },
   home: {
-    bio: (jobTitle: string, technologies: readonly string[]) =>
-      `${jobTitle} currently working with ${listFormat("en", technologies)}. Developing scalable and robust solutions.`,
-    writing: [
-      "I write about JavaScript, React, Node.js and software engineering fundamentals on ",
-      "my blog",
-      ".",
-    ],
+    intro:
+      "Software engineer focused on AI. I design, build and ship AI and agent systems to production, integrated with the systems and processes they serve.",
+    writing: ["I also write about software engineering and AI on ", "my blog", "."],
   },
   blog: {
     title: "Blog",
@@ -124,17 +112,22 @@ const en = {
     title: "Tools",
     heading: "Tools",
     description:
-      "Tools and digital products by Lucas Bittencourt, such as AI Summarizer, a Chrome extension that summarizes only the part of a page you pick.",
+      "Tools and digital products by Lucas Bittencourt: AI Summarizer, a Chrome extension that summarizes only the part of a page you pick, and Video Downloader, which finds and downloads the videos on a page.",
     links: "Links",
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
     privacy: "Privacy policy",
+    eula: "End user license agreement (EULA)",
     terms: "Terms of use",
     support: "Support",
     all: "All tools",
+    packs: { pack: "Pack", price: "Price", bonus: "Bonus", total: "Total", credits: "credits" },
     privacyTitle: (tool: string) => `${tool} privacy policy`,
     privacyDescription: (tool: string) =>
       `How the ${tool} extension collects, uses and protects personal data, under the Brazilian General Data Protection Law (LGPD).`,
+    eulaTitle: (tool: string) => `${tool} End user license agreement (EULA)`,
+    eulaDescription: (tool: string) =>
+      `The license to use the ${tool} extension: what it grants, its restrictions, intellectual property and responsibilities.`,
   },
   breadcrumbs: { home: "Home", blog: "Blog" },
   notFound: {
@@ -151,7 +144,7 @@ const en = {
     toolsTable: { tool: "Tool", returns: "What it returns" },
     tools: {
       get_profile:
-        "Who Lucas Bittencourt is: role, technologies, profiles and links.",
+        "Who Lucas Bittencourt is: role, areas of expertise, profiles and links.",
       list_posts: "All blog posts, newest first, with summary, dates and URL.",
       get_post: "The full content (Markdown/MDX) of a blog post by its slug.",
       search_blog:
@@ -164,11 +157,11 @@ const en = {
 export type Dictionary = typeof en;
 
 const ptBr: Dictionary = {
-  jobTitle: "Engenheiro de Software Full-stack",
+  jobTitle: "Engenheiro de Software de IA",
   siteDescription:
-    "Portfólio e blog de Lucas Bittencourt, engenheiro de software full-stack que trabalha com React.js, Node.js, PostgreSQL, Docker e TypeScript.",
+    "Portfólio e blog de Lucas Bittencourt, engenheiro de software focado em IA: sistemas de IA e de agentes em produção, serviços de AI Forward Deployed Engineer e ferramentas como o AI Summarizer.",
   blogDescription:
-    "Artigos de Lucas Bittencourt sobre JavaScript, TypeScript, React, Node.js e fundamentos de engenharia de software.",
+    "Artigos de Lucas Bittencourt sobre engenharia de software e IA, e sobre as ferramentas e serviços construídos com elas.",
   nav: {
     label: "Principal",
     home: "início",
@@ -187,12 +180,10 @@ const ptBr: Dictionary = {
     privacy: "Política de privacidade",
   },
   services: {
-    title: "Serviços e produtos",
+    title: "Serviços",
     description:
-      "Serviços de AI Forward Deployed Engineer e o AI Summarizer, extensão para Chrome que resume com IA só o trecho da página que você escolhe.",
+      "Serviços de AI Forward Deployed Engineer: construir, customizar e colocar em produção sistemas reais de IA e de agentes junto com o seu time, por hora ou por projeto.",
     fde: "Engenheiro de software que trabalha junto ao cliente ou a times de produto internos para construir, customizar e colocar em produção sistemas reais de IA e de agentes. Por hora (sob consulta) ou por projeto.",
-    summarizer:
-      "Extensão para Chrome que resume com IA só o trecho da página escolhido pelo usuário, em português ou inglês. Créditos pré-pagos via Pix, sem assinatura.",
   },
   legal: {
     updated: "Última atualização",
@@ -208,13 +199,9 @@ const ptBr: Dictionary = {
     },
   },
   home: {
-    bio: (jobTitle, technologies) =>
-      `${jobTitle}, atualmente trabalhando com ${listFormat("pt-br", technologies)}. Desenvolvendo soluções escaláveis e robustas.`,
-    writing: [
-      "Escrevo sobre JavaScript, React, Node.js e fundamentos de engenharia de software no ",
-      "meu blog",
-      ".",
-    ],
+    intro:
+      "Engenheiro de software focado em IA. Projeto, construo e coloco em produção sistemas de IA e de agentes, integrados aos sistemas e processos de cada negócio.",
+    writing: ["Também escrevo sobre engenharia de software e IA no ", "meu blog", "."],
   },
   blog: {
     title: "Blog",
@@ -226,17 +213,22 @@ const ptBr: Dictionary = {
     title: "Ferramentas",
     heading: "Ferramentas",
     description:
-      "Ferramentas e produtos digitais de Lucas Bittencourt, como o AI Summarizer, uma extensão para o Chrome que resume só o trecho da página que você escolhe.",
+      "Ferramentas e produtos digitais de Lucas Bittencourt: o AI Summarizer, uma extensão para o Chrome que resume só o trecho da página que você escolhe, e o Video Downloader, que encontra e baixa os vídeos de uma página.",
     links: "Links",
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",
     privacy: "Política de privacidade",
+    eula: "Contrato de licença de usuário final (EULA)",
     terms: "Termos de uso",
     support: "Suporte",
     all: "Todas as ferramentas",
+    packs: { pack: "Pacote", price: "Preço", bonus: "Bônus", total: "Total", credits: "créditos" },
     privacyTitle: (tool) => `Política de privacidade do ${tool}`,
     privacyDescription: (tool) =>
       `Como a extensão ${tool} coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).`,
+    eulaTitle: (tool) => `Contrato de licença de usuário final (EULA) do ${tool}`,
+    eulaDescription: (tool) =>
+      `A licença de uso da extensão ${tool}: o que ela concede, as restrições, a propriedade intelectual e as responsabilidades.`,
   },
   breadcrumbs: { home: "Início", blog: "Blog" },
   notFound: {
@@ -253,7 +245,7 @@ const ptBr: Dictionary = {
     toolsTable: { tool: "Ferramenta", returns: "O que retorna" },
     tools: {
       get_profile:
-        "Quem é Lucas Bittencourt: cargo, tecnologias, perfis e links.",
+        "Quem é Lucas Bittencourt: cargo, áreas de atuação, perfis e links.",
       list_posts:
         "Todos os posts do blog, do mais recente ao mais antigo, com resumo, datas e URL.",
       get_post: "O conteúdo completo (Markdown/MDX) de um post pelo slug.",

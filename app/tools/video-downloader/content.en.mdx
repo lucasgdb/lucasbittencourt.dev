@@ -1,0 +1,41 @@
+**Video Downloader** is a Google Chrome extension that finds the videos on the page you're on and downloads them. Everything happens inside your browser: the videos go straight from the site to your computer, without passing through any server of mine.
+
+## What it finds
+
+- **Video files** played by the page, such as MP4 and WebM, and links to them.
+- **Streams** in HLS (`.m3u8`) and DASH (`.mpd`), which the extension downloads in pieces and assembles into a single MP4 file (MKV when the codecs don't fit), without re-encoding.
+- **By link**: paste the address of a public X (Twitter) or Reddit post, or a direct link to a video file or playlist, and pick the quality.
+
+Pieces of streams, audio tracks and thumbnails aren't listed as videos: each video shows up once, with its resolution, duration, size and the reason for its classification.
+
+## How it works
+
+1. Open the page with the video, open the extension (side panel or popup) and play the video: most players only load it on play, and it shows up by itself.
+2. Allow access to sites when asked, so the extension can see the player's requests. It's optional and can be revoked in Chrome at any time.
+3. Choose the **quality** and the **audio track** when there's more than one, and click Download. You can pause, resume and cancel.
+
+## Features
+
+- Quality (resolution, frame rate, codec, bitrate) and audio track pickers, with the track's language.
+- Every downloaded file is checked before being saved; Chrome's download manager does the saving.
+- **Copy URL** with the exact address the page used.
+- Side panel or toolbar popup, interface in **English** and **Portuguese**, light and dark themes.
+
+## Limits
+
+- Videos protected by **DRM** or encryption and **live streams** aren't downloaded, on purpose.
+- YouTube's own player uses a proprietary protocol and isn't supported.
+- Only download videos you're allowed to download. Respecting copyright and each site's terms is up to you.
+
+## Premium
+
+Everything above is **free**, with no account and no limits. **Video Downloader Premium** is an optional **lifetime license** for <LifetimePrice />, paid once via **Pix** (Brazilian instant payment), with no subscription:
+
+- It's bought in the extension's Premium tab, after signing in with your Google account (the same account as in my other tools, such as [AI Summarizer](/tool/ai-summarizer)), so the license stays tied to your account and works in any browser you sign in to.
+- The license is registered as soon as the payment is confirmed. The Pix code is valid for 30 minutes.
+- **The Premium features are coming soon**: the license is registered now and will unlock them when they're released. Buying it doesn't change anything in the free features, which stay available to everyone.
+- Payments are processed by AbacatePay. Purchase conditions and the right of withdrawal are in the [Terms of use](/terms).
+
+## Privacy
+
+Detection and downloads run in your browser and nothing about them is sent to my servers. Only the account and the Premium purchase use them. The details are in the extension's privacy policy, in the links above.

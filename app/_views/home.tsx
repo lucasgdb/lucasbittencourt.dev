@@ -16,6 +16,7 @@ export function homeMetadata(locale: Locale): Metadata {
 export function HomePage({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
   const [before, link, after] = dict.home.writing;
+  const linkClass = "underline underline-offset-2";
 
   return (
     <section>
@@ -23,13 +24,10 @@ export function HomePage({ locale }: { locale: Locale }) {
       <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
         {person.name}
       </h1>
-      <p className="mb-4">{dict.home.bio(dict.jobTitle, person.technologies)}</p>
+      <p className="mb-4">{dict.home.intro}</p>
       <p className="mb-4">
         {before}
-        <Link
-          href={localizePath("/blog", locale)}
-          className="underline underline-offset-2"
-        >
+        <Link href={localizePath("/blog", locale)} className={linkClass}>
           {link}
         </Link>
         {after}

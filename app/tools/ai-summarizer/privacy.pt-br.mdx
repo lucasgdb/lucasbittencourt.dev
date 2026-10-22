@@ -1,4 +1,4 @@
-Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **AI Summarizer** para o Google Chrome e no servidor que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
+Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **AI Summarizer** para o Google Chrome e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
 
 O site lucasbittencourt.dev tem uma [Política de privacidade](/pt-br/privacy) própria. Esta aqui vale só para a extensão.
 
@@ -12,27 +12,39 @@ O controlador dos dados é Lucas Genesses Dias Bittencourt (CNPJ 42.564.890/0001
 
 ## 2. O que a extensão faz
 
-O AI Summarizer resume com inteligência artificial o conteúdo que você escolhe: um trecho da página, a página inteira ou um PDF. Os resumos ficam no seu histórico, podem ser traduzidos para outros idiomas e são pagos com créditos.
+O AI Summarizer resume com inteligência artificial o conteúdo que você escolhe: um trecho da página, a página inteira ou um PDF. Os resumos ficam no seu histórico, podem ser traduzidos para outros idiomas e são pagos com créditos. Ela também **preenche formulários**: você escolhe o formulário e diz como quer respondê-lo, e a IA preenche os campos para você revisar e enviar.
 
-A extensão **só lê uma página quando você pede**, ao clicar em "Selecionar conteúdo", "Usar a página inteira" ou "Ler PDF". Ela não lê nem envia nada das páginas que você só visita.
+A extensão **só lê uma página quando você pede**, ao clicar em "Selecionar conteúdo", "Usar a página inteira", "Ler PDF" ou "Selecionar formulário". Ela nunca envia um formulário por você. Ela não lê nem envia nada das páginas que você só visita.
 
 ## 3. Dados que tratamos
 
 ### Conta
 
-Para usar a extensão, você entra com a sua conta Google. Recebemos do Google apenas o **nome**, o **e-mail**, a **foto de perfil** e o **identificador da conta**, que usamos para criar e identificar a sua conta, o seu saldo de créditos e o seu histórico. Não temos acesso ao seu Gmail, ao seu Drive ou a qualquer outro dado da sua conta Google.
+Para usar a extensão, você entra com a sua conta Google. O login é feito pelo **serviço de contas** compartilhado pelas minhas ferramentas (lb-auth-api.lucasbittencourt.dev), então a mesma conta vale no AI Summarizer, no [Video Downloader](/pt-br/tool/video-downloader) e em ferramentas futuras. Recebemos do Google apenas o **nome**, o **e-mail**, a **foto de perfil** e o **identificador da conta**, que o serviço de contas guarda para identificar você. Não temos acesso ao seu Gmail, ao seu Drive ou a qualquer outro dado da sua conta Google.
 
-Ao entrar, o servidor cria uma sessão. A extensão guarda o código da sessão no seu navegador; o servidor guarda apenas uma versão cifrada (hash) dele.
+O servidor do AI Summarizer guarda só o que é desta extensão (o seu saldo de créditos, o histórico e as compras), ligado ao identificador interno da sua conta. Ele não recebe o seu nome nem o seu e-mail, e as outras ferramentas não recebem os seus dados do AI Summarizer.
+
+Ao entrar, o serviço de contas cria uma sessão válida para esta extensão. A extensão guarda o código da sessão no seu navegador; o serviço de contas guarda apenas uma versão cifrada (hash) dele. A cada pedido, o servidor do AI Summarizer pergunta ao serviço de contas de quem é a sessão.
 
 ### Conteúdo que você escolhe resumir
 
 Quando você pede um resumo, enviamos ao servidor:
 
-- o **texto** escolhido (o trecho selecionado, o texto da página ou o texto extraído do PDF);
+- o **texto** escolhido (o trecho selecionado, o texto da página ou o texto extraído do PDF), com a estrutura em Markdown (títulos, listas, tabelas e blocos de código; dos links, só o texto), até 60 mil caracteres;
 - o **título** e o **endereço (URL)** da página;
 - as **opções** do resumo: modelo, estilo, tamanho, esforço, idioma e as preferências que você escrever.
 
-Esse conteúdo é enviado para calcular o preço (cotação) e para gerar o resumo, que é feito por um provedor de inteligência artificial (veja a seção 6). **O texto da página não é armazenado** pelo servidor. No caso de um PDF, o arquivo é lido no seu navegador e só o texto extraído é enviado.
+Esse conteúdo é enviado para calcular o preço (cotação) e para gerar o resumo, que é feito por um provedor de inteligência artificial (veja a seção 6). **O texto da página não é armazenado** pelo servidor, apenas a quantidade de caracteres. No caso de um PDF, o arquivo é baixado e lido pelo seu navegador e só o texto extraído é enviado.
+
+### Formulários que você escolhe preencher
+
+Quando você pede para preencher um formulário, enviamos ao servidor:
+
+- o que você escreveu sobre **como respondê-lo** (pode incluir dados pessoais, se você escrever);
+- de cada campo: o **rótulo**, o texto de ajuda, as opções, o tipo e os limites, se é obrigatório e se já está respondido. **O que você já digitou nos campos não é enviado**;
+- o **título** e o **endereço (URL)** da página e as opções que você escolheu.
+
+**Campos de senha, de cartão de pagamento, de arquivo, de código de verificação e campos ocultos nunca são lidos.** Esse conteúdo é enviado para calcular o preço e gerar as respostas, pelos mesmos provedores de inteligência artificial dos resumos (veja a seção 6). A extensão escreve as respostas na página, e "Desfazer" devolve o que havia antes. **Nada do formulário é armazenado**: ele não vai para o histórico, e o que você escreveu não é guardado, nem no servidor nem no seu navegador. Só a cobrança fica registrada no extrato de créditos.
 
 ### Resumos, traduções e histórico
 
@@ -44,64 +56,73 @@ Guardamos o que a extensão gera para você, para que fique no seu histórico:
 
 ### Créditos
 
-Guardamos o seu saldo e o extrato de movimentações: bônus, resumos, traduções, devoluções e ajustes, com o valor, o saldo depois de cada uma e o título do resumo relacionado.
+Guardamos o seu saldo e o extrato de movimentações: créditos de boas-vindas, compras, resumos, traduções, preenchimentos de formulário, devoluções e ajustes, com o valor, o saldo depois de cada uma e o título do resumo relacionado.
+
+### Compras de créditos
+
+As compras são pagas via Pix e processadas pela **AbacatePay**. Para criar a cobrança, enviamos a ela apenas o **valor**, a **descrição** (quantidade de créditos e de bônus) e um **identificador interno** da compra. **Não enviamos o seu nome, e-mail ou CPF.** Como em qualquer Pix, a AbacatePay e as instituições envolvidas recebem do seu banco os dados do pagador previstos nas regras do Pix.
+
+Guardamos de cada compra o pacote, os créditos e o bônus, o valor, a situação do pagamento, o código Pix e as datas de criação, de vencimento e de pagamento. Não temos acesso a dados da sua conta bancária.
 
 ### Dados guardados no seu navegador
 
-A extensão guarda no armazenamento local do seu navegador a sessão (com nome, e-mail, foto e saldo), o idioma da interface, o tema e as suas últimas opções de resumo. Esses dados não são enviados a ninguém, exceto o código da sessão, que acompanha cada pedido ao servidor.
+A extensão guarda no armazenamento local do seu navegador a sessão (com nome, e-mail, foto e saldo), o idioma da interface, o tema e as suas últimas opções de resumo. Esses dados não são enviados a ninguém, exceto o código da sessão, que acompanha cada pedido ao servidor do AI Summarizer e ao serviço de contas.
 
-As informações da página mostradas na tela inicial (título, descrição, quantidade de palavras e idioma) são calculadas no seu navegador e não são enviadas. O ícone do site vem do cache do próprio Chrome, sem nenhum pedido ao site.
+As informações da página mostradas na tela inicial (título, descrição, quantidade de palavras e idioma) são calculadas no seu navegador e não são enviadas ao nosso servidor. Para mostrar o ícone do site, a extensão usa o cache do Chrome e pode consultar o endereço `/favicon.ico` do próprio site; esse pedido vai do seu navegador direto para o site, como numa visita normal, sem passar pelo nosso servidor.
 
 ### Registros técnicos
 
-O servidor registra dados técnicos das requisições, como endereço IP, data e hora e o endereço chamado, para segurança e funcionamento.
+A infraestrutura de hospedagem registra dados técnicos das requisições, como endereço IP, data e hora e o endereço chamado, para segurança e funcionamento. O servidor registra erros e eventos de uso (como o identificador da conta, o modelo usado e compras), mas não registra o texto das páginas.
 
 ### O que não coletamos
 
-A extensão não coleta o seu histórico de navegação, o conteúdo das páginas que você não pediu para resumir, dados de formulários ou senhas, e não usa cookies, ferramentas de análise ou rastreamento de publicidade.
+A extensão não coleta o seu histórico de navegação, o conteúdo das páginas que você não pediu para resumir ou preencher, o que você digita em formulários, senhas ou dados de cartão, e não usa cookies, ferramentas de análise ou rastreamento de publicidade.
 
 ## 4. Permissões da extensão
 
-- **activeTab** e **scripting**: ler a aba aberta, só quando você clica numa das ações de leitura.
+- **activeTab** e **scripting**: ler a aba aberta, só quando você clica numa das ações, e escrever as respostas nos campos quando você pede para preencher um formulário.
 - **Acesso aos sites** (opcional): pedido apenas se você clicar em "Permitir acesso", para ler a página mesmo depois de navegar. Mesmo com esse acesso, a extensão só lê uma página quando você pede.
 - **sidePanel**: mostrar a extensão no painel lateral.
 - **storage**: guardar a sessão e as preferências no seu navegador.
 - **identity**: abrir a janela de login do Google.
 - **favicon**: mostrar o ícone do site a partir do cache do Chrome.
-- **Acesso ao servidor da extensão**: enviar os pedidos de resumo, tradução, histórico e créditos.
+- **Acesso ao servidor da extensão**: enviar os pedidos de resumo, tradução, preenchimento de formulário, histórico e créditos.
+- O **serviço de contas** (login, seu nome e foto, sair da conta) responde à extensão sem nenhuma permissão extra.
 
 ## 5. Finalidades e bases legais
 
 As bases legais são as do artigo 7º da LGPD:
 
-- **Gerar resumos e traduções, manter o histórico, a conta e os créditos**: execução de contrato.
+- **Gerar resumos, traduções e respostas de formulários, manter o histórico, a conta e os créditos**: execução de contrato.
 - **Segurança e registros de acesso**: legítimo interesse e cumprimento de obrigação legal.
-- **Cobrança e documentos fiscais**, quando houver compra de créditos: cumprimento de obrigação legal e execução de contrato.
+- **Venda de créditos, cobrança via Pix e documentos fiscais**: execução de contrato e cumprimento de obrigação legal.
 
 ## 6. Compartilhamento
 
 Não vendemos dados pessoais, não os usamos para publicidade e não os repassamos a intermediários de dados. Os dados são compartilhados apenas com:
 
-- **OpenAI**: gera os resumos e as traduções a partir do conteúdo enviado. O conteúdo é enviado sem armazenamento no histórico da OpenAI, e os termos dela para a API não usam esses dados para treinar modelos.
-- **Railway**: hospedagem do servidor e do banco de dados.
+- **OpenAI**: gera os resumos, as traduções e as respostas de formulários a partir do conteúdo enviado, quando você usa um modelo da OpenAI (o padrão). O conteúdo é enviado sem armazenamento no histórico da OpenAI, e os termos dela para a API não usam esses dados para treinar modelos.
+- **DeepSeek**: gera o resumo ou as respostas do formulário apenas se você escolher um modelo da DeepSeek, quando ele estiver disponível na lista de modelos. Nesse caso, o conteúdo é tratado conforme os termos e a política de privacidade da DeepSeek.
+- **Railway**: hospedagem dos servidores (o da extensão e o serviço de contas) e do banco de dados.
 - **Google**: login com a conta Google.
-- **AbacatePay**: processamento dos pagamentos, quando a compra de créditos estiver disponível.
+- **AbacatePay**: processamento dos pagamentos via Pix.
 - **Autoridades públicas**: quando houver obrigação legal ou ordem judicial.
 
 ## 7. Uso limitado
 
-O uso das informações recebidas pela extensão segue a [Política de dados do usuário da Chrome Web Store](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), incluindo os requisitos de **Uso limitado**: os dados são usados apenas para oferecer e melhorar a funcionalidade única da extensão (resumir o conteúdo que você escolhe), não são transferidos para publicidade nem para avaliar crédito, e não são lidos por pessoas, exceto com o seu consentimento, para segurança e investigação de abuso, ou por obrigação legal.
+O uso das informações recebidas pela extensão segue a [Política de dados do usuário da Chrome Web Store](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), incluindo os requisitos de **Uso limitado**: os dados são usados apenas para oferecer e melhorar a funcionalidade única da extensão (resumir o conteúdo e preencher com IA os formulários que você escolhe), não são transferidos para publicidade nem para avaliar crédito, e não são lidos por pessoas, exceto com o seu consentimento, para segurança e investigação de abuso, ou por obrigação legal.
 
 ## 8. Transferência internacional
 
-A OpenAI, a Railway e o Google armazenam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Essas transferências ocorrem conforme o artigo 33 da LGPD, com prestadores que adotam medidas de segurança e proteção de dados.
+A OpenAI, a Railway (servidores nos Estados Unidos) e o Google armazenam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Se você escolher um modelo da DeepSeek, o conteúdo pode ser processado na China, conforme a política dela. Essas transferências ocorrem conforme o artigo 33 da LGPD, com prestadores que adotam medidas de segurança e proteção de dados.
 
 ## 9. Por quanto tempo guardamos os dados
 
 - **Resumos e traduções**: até você excluí-los. Ao excluir um resumo, o texto dele e o das traduções são apagados. Ao excluir só uma tradução, apenas ela é apagada.
 - **Créditos e registros de uso** (extrato, créditos gastos, quantidade de texto processada e datas): enquanto a conta existir, e depois pelos prazos exigidos pela legislação fiscal.
-- **Conta**: até você pedir a exclusão.
-- **Sessão**: até 30 dias, ou até você sair da conta.
+- **Conta**: até você pedir a exclusão. A conta é compartilhada pelas minhas ferramentas; você pode pedir para excluir só os dados do AI Summarizer ou a conta inteira.
+- **Sessão**: válida por até 30 dias. Ao sair da conta, ela é apagada, e sessões vencidas são apagadas automaticamente. "Sair de todos os dispositivos" encerra as suas sessões em todas as ferramentas.
+- **Compras**: pelos prazos exigidos pela legislação fiscal.
 - **Registros de acesso**: pelo prazo de 6 meses previsto no artigo 15 do Marco Civil da Internet.
 - **Dados no seu navegador**: até você sair da conta ou desinstalar a extensão.
 
@@ -115,7 +136,7 @@ Você pode excluir resumos e traduções direto no histórico da extensão. Para
 
 ## 11. Segurança
 
-Toda a comunicação com o servidor é criptografada (HTTPS), as sessões são guardadas cifradas (hash) e o acesso aos dados é restrito. O conteúdo das páginas é tratado como não confiável: nunca é exibido como código, e o provedor de IA é instruído a ignorar comandos que estejam nele. Nenhum sistema é totalmente imune a incidentes; se ocorrer um incidente relevante, os titulares afetados e a ANPD serão comunicados, conforme a lei.
+Toda a comunicação com os servidores é criptografada (HTTPS), as sessões são guardadas cifradas (hash), os servidores conversam entre si por rede privada com credenciais próprias e o acesso aos dados é restrito. O conteúdo das páginas é tratado como não confiável: nunca é exibido como código, e o provedor de IA é instruído a ignorar comandos que estejam nele. Nenhum sistema é totalmente imune a incidentes; se ocorrer um incidente relevante, os titulares afetados e a ANPD serão comunicados, conforme a lei.
 
 ## 12. Crianças e adolescentes
 

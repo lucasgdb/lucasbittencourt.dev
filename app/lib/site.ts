@@ -21,15 +21,20 @@ export const business = {
 };
 
 // Update when app/services/*.mdx changes
-export const servicesUpdatedAt = "2026-10-15";
+export const servicesUpdatedAt = "2026-10-19";
 
 // Update when app/legal/<doc>.*.mdx changes (each document has its own date)
-export const legalUpdatedAt = { terms: "2026-10-15", privacy: "2026-10-16" };
+export const legalUpdatedAt = { terms: "2026-10-19", privacy: "2026-10-19" };
 
 export const person = {
   name: "Lucas Bittencourt",
-  jobTitle: "Full-stack Software Engineer",
-  technologies: ["React.js", "Node.js", "PostgreSQL", "Docker", "TypeScript"],
+  jobTitle: "AI Software Engineer",
+  expertise: [
+    "Artificial intelligence",
+    "AI agents",
+    "Model Context Protocol",
+    "Software engineering",
+  ],
   profiles: {
     github: "https://github.com/lucasgdb",
     linkedin: "https://linkedin.com/in/lucas-bittencourt",

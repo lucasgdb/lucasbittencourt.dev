@@ -1,0 +1,132 @@
+Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **Video Downloader** para o Google Chrome e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
+
+O site lucasbittencourt.dev tem uma [Política de privacidade](/pt-br/privacy) própria; esta trata só da extensão.
+
+## 1. Controlador e encarregado
+
+O controlador dos dados é Lucas Genesses Dias Bittencourt (CNPJ 42.564.890/0001-04), que também atua como encarregado pelo tratamento de dados pessoais. Contato:
+
+- Endereço: Rua Expedicionário Benedito Vitoriano Siqueira, 44, Jardim do Vale, Guaratinguetá/SP, CEP 12519-370
+- E-mail: [lucasgdbittencourt@gmail.com](mailto:lucasgdbittencourt@gmail.com)
+- WhatsApp: [+55 (12) 98834-4336](https://wa.me/5512988344336)
+
+## 2. O que a extensão faz
+
+O Video Downloader encontra os vídeos da página em que você está (arquivos de vídeo e streams HLS ou DASH) e baixa, ou encontra o vídeo de um link que você cola. **A detecção e os downloads acontecem inteiramente no seu navegador**: nenhuma informação sobre as páginas que você visita, os vídeos encontrados ou os arquivos baixados é enviada aos meus servidores.
+
+Os servidores só são usados se você escolher **entrar na conta** e comprar o **Video Downloader Premium**, uma licença vitalícia opcional.
+
+## 3. Dados que tratamos
+
+### Detecção e downloads (só no seu navegador)
+
+Enquanto a extensão está aberta numa aba, ela lê, no seu navegador:
+
+- da página: os elementos `<video>` e os endereços deles, links para arquivos de vídeo, o título da página e a imagem de prévia dela (`og:image`);
+- se você permitir o acesso aos sites: os endereços, tipos e tamanhos dos pedidos de mídia que a página faz (arquivos, playlists e pedaços de streams). A extensão não bloqueia, não altera e não lê o conteúdo dos outros pedidos.
+
+Essas detecções ficam no armazenamento de sessão do navegador, uma lista por aba, e são apagadas quando a aba navega ou é fechada. Elas não são enviadas a ninguém.
+
+Para verificar um vídeo e baixá-lo, **o seu navegador acessa diretamente o próprio site do vídeo**, como o player faria: lê os primeiros bytes do arquivo, as playlists e os pedaços do stream (com os seus cookies daquele site, quando o site exige) e a miniatura. Esse site recebe esses pedidos como recebe qualquer visita, com o seu endereço IP. Os streams são montados em arquivos temporários no armazenamento do próprio navegador, apagados depois do download, e o resultado é salvo pelo gerenciador de downloads do Chrome.
+
+### Buscas "Por link"
+
+Quando você cola um link e busca, o seu navegador pede, diretamente:
+
+- para um post do X (Twitter): os dados públicos do post ao serviço de incorporação do X (`cdn.syndication.twimg.com`), com o identificador do post;
+- para um post do Reddit: a página pública do post em `www.reddit.com` e, para baixá-lo, os servidores de vídeo do Reddit (`v.redd.it` e `packaged-media.redd.it`);
+- para qualquer outro link: o endereço que você colou.
+
+Esses pedidos vão do seu navegador direto para esses sites, sob os termos e políticas deles, sem passar pelos meus servidores.
+
+### Conta (opcional)
+
+Entrar na conta só é necessário para comprar o Premium. O login é feito pelo **serviço de contas** compartilhado pelas minhas ferramentas (lb-auth-api.lucasbittencourt.dev), então a mesma conta vale no Video Downloader, no [AI Summarizer](/pt-br/tool/ai-summarizer) e em ferramentas futuras. Recebemos do Google apenas o **nome**, o **e-mail**, a **foto de perfil** e o **identificador da conta**, que o serviço de contas guarda para identificar você. Não temos acesso ao seu Gmail, ao seu Drive ou a qualquer outro dado da sua conta Google.
+
+Ao entrar, o serviço de contas cria uma sessão válida para esta extensão. A extensão guarda o código da sessão no seu navegador; o serviço de contas guarda apenas uma versão cifrada (hash) dele. O servidor do Video Downloader recebe só o identificador interno da sua conta, nunca o seu nome ou e-mail.
+
+### Compra do Premium e licença
+
+O Video Downloader Premium é pago via Pix e processado pela **AbacatePay**. Para criar a cobrança, enviamos a ela apenas o **valor**, a **descrição** (o nome do produto) e um **identificador interno da compra**. **Não enviamos o seu nome, e-mail ou CPF.** Como em qualquer pagamento Pix, a AbacatePay e as instituições envolvidas recebem do seu banco os dados do pagador exigidos pelas regras do Pix.
+
+De cada compra guardamos o produto, o valor, o status do pagamento, o código Pix e as datas de criação, expiração e pagamento. Da licença, guardamos o produto, o status (ativa ou revogada), a compra que a concedeu e as datas. As notificações de pagamento da AbacatePay são registradas com o identificador e o tipo. Não temos acesso aos dados da sua conta bancária.
+
+### Dados guardados no seu navegador
+
+A extensão guarda no armazenamento local do seu navegador o idioma da interface, o tema, a escolha entre painel lateral e popup e, se você entrar na conta, a sessão (com nome, e-mail e foto). Esses dados não são enviados a ninguém, exceto o código da sessão, que acompanha cada pedido ao serviço de contas e ao servidor do Video Downloader.
+
+### Registros técnicos
+
+A infraestrutura de hospedagem registra dados técnicos dos acessos aos servidores, como endereço IP, data e hora e o endereço chamado, para segurança e funcionamento. Os servidores registram erros e eventos como a criação de contas e as compras (com o identificador da conta), e nunca as páginas que você visita ou os vídeos que você baixa.
+
+### O que não coletamos
+
+A extensão não coleta o seu histórico de navegação, as páginas que você visita, os vídeos encontrados ou baixados, dados de formulários ou senhas, e não usa cookies, analytics, telemetria ou rastreamento de publicidade.
+
+## 4. Permissões da extensão
+
+- **activeTab** e **scripting**: ler os vídeos da aba em que a extensão está aberta.
+- **webRequest**: ver os pedidos de mídia dos sites que você permitiu, para encontrar streams. Nenhum pedido é bloqueado ou alterado.
+- **Acesso aos sites** (opcional): pedido só se você clicar em "Permitir acesso", para a detecção pela rede, a leitura depois de navegar e o download dos pedaços de streams. A aba "Por link" pede só os sites que usa (o serviço de incorporação do X, o Reddit ou o próprio site do link colado).
+- **downloads**: salvar os arquivos pelo gerenciador de downloads do Chrome e acompanhar o progresso. **downloads.open** (opcional): "Reproduzir" um vídeo baixado no player padrão do seu computador.
+- **storage**: guardar as detecções de cada aba, as preferências e a sessão no seu navegador.
+- **sidePanel**: mostrar a extensão no painel lateral.
+- **identity** (opcional): abrir a janela de login do Google, pedida no primeiro login.
+- O **serviço de contas** e o **servidor do Video Downloader** respondem à extensão sem nenhuma permissão extra.
+
+## 5. Finalidades e bases legais
+
+As bases legais são as do artigo 7º da LGPD:
+
+- **Conta, compra e licença**: execução de contrato.
+- **Segurança e registros de acesso**: legítimo interesse e cumprimento de obrigação legal.
+- **Cobrança via Pix e documentos fiscais**: execução de contrato e cumprimento de obrigação legal.
+
+## 6. Compartilhamento
+
+Não vendemos dados pessoais, não os usamos para publicidade e não os repassamos a corretores de dados. Os dados são compartilhados apenas com:
+
+- **Railway**: hospedagem dos servidores (o serviço de contas e o servidor do Video Downloader) e do banco de dados.
+- **Google**: login com a conta Google.
+- **AbacatePay**: processamento dos pagamentos via Pix.
+- **Autoridades públicas**: quando exigido por lei ou ordem judicial.
+
+Os sites cujos vídeos você baixa, o X e o Reddit recebem os pedidos do seu navegador diretamente, como descrito na seção 3, sob as políticas deles.
+
+## 7. Uso limitado
+
+O uso das informações recebidas pela extensão segue a [Política de dados do usuário da Chrome Web Store](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq), incluindo os requisitos de **Uso limitado**: os dados são usados apenas para oferecer e melhorar a finalidade única da extensão (encontrar e baixar os vídeos que você escolhe), não são transferidos para publicidade nem para avaliar crédito e não são lidos por pessoas, exceto com o seu consentimento, para segurança e investigação de abuso, ou quando exigido por lei.
+
+## 8. Transferência internacional
+
+A Railway (servidores nos Estados Unidos) e o Google armazenam ou processam dados de conta e de compra fora do Brasil, principalmente nos Estados Unidos. Essas transferências ocorrem conforme o artigo 33 da LGPD, com prestadores que adotam medidas de segurança e proteção de dados.
+
+## 9. Por quanto tempo guardamos
+
+- **Detecções**: só no seu navegador, até a aba navegar ou ser fechada.
+- **Arquivos temporários de download**: só no seu navegador, apagados depois do download (ou na próxima vez que a extensão abrir, se ele foi interrompido).
+- **Conta**: até você pedir a exclusão. A conta é compartilhada pelas minhas ferramentas; você pode pedir para excluir só os dados do Video Downloader ou a conta inteira.
+- **Sessão**: válida por até 30 dias. Ao sair da conta, ela é apagada, e sessões vencidas são apagadas automaticamente. "Sair de todos os dispositivos" encerra as suas sessões em todas as ferramentas.
+- **Compras e licença**: enquanto a conta existir e, depois, pelos prazos exigidos pela legislação fiscal.
+- **Registros de acesso**: pelos 6 meses exigidos pelo artigo 15 do Marco Civil da Internet.
+- **Dados no seu navegador**: até você sair da conta ou desinstalar a extensão.
+
+Depois disso, os dados são apagados ou anonimizados.
+
+## 10. Seus direitos
+
+Conforme o artigo 18 da LGPD, você pode pedir confirmação do tratamento, acesso, correção, anonimização, bloqueio ou eliminação, portabilidade, informação sobre compartilhamento e revogação do consentimento.
+
+Para excluir a conta ou exercer outros direitos, escreva para o e-mail acima. Você também pode revogar o acesso da extensão à sua conta Google em [myaccount.google.com/connections](https://myaccount.google.com/connections), revogar o acesso dela aos sites nas configurações de extensões do Chrome e apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD).
+
+## 11. Segurança
+
+Toda a comunicação com os servidores é criptografada (HTTPS), as sessões são guardadas cifradas (hash), os servidores conversam entre si por rede privada com credenciais próprias e o acesso aos dados é restrito. A licença só é registrada depois que o pagamento é confirmado pela própria AbacatePay, e as notificações de pagamento são conferidas por assinatura. No navegador, tudo o que a extensão lê das páginas é validado antes de ser usado, e endereços do seu próprio computador e da sua rede privada nunca são acessados a partir de um link colado. Nenhum sistema é totalmente imune a incidentes; se ocorrer um incidente relevante, os titulares afetados e a ANPD serão comunicados, conforme a lei.
+
+## 12. Crianças e adolescentes
+
+A conta e a compra do Premium não se destinam a menores de 18 anos, e não coletamos intencionalmente dados de crianças ou adolescentes.
+
+## 13. Alterações
+
+Esta política pode ser atualizada. A data da última atualização aparece no topo da página. Veja também os [Termos de uso](/pt-br/terms) e a [Política de privacidade do site](/pt-br/privacy).

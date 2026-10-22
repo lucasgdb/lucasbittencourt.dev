@@ -96,7 +96,7 @@ export function personJsonLd(locale: Locale = defaultLocale) {
     name: person.name,
     url: baseUrl,
     jobTitle: getDictionary(locale).jobTitle,
-    knowsAbout: person.technologies,
+    knowsAbout: person.expertise,
     knowsLanguage: locales.map((l) => localeConfig[l].htmlLang),
     sameAs: Object.values(person.profiles),
   };
@@ -224,7 +224,6 @@ export function postJsonLd(
 export function servicesJsonLd(locale: Locale = defaultLocale) {
   const url = pageUrl("/services", locale);
   const dict = getDictionary(locale);
-  const inLanguage = localeConfig[locale].htmlLang;
 
   return {
     "@context": "https://schema.org",
@@ -237,17 +236,6 @@ export function servicesJsonLd(locale: Locale = defaultLocale) {
         description: dict.services.fde,
         url,
         provider: { "@id": personId },
-      },
-      {
-        "@type": "SoftwareApplication",
-        "@id": `${url}#ai-summarizer`,
-        name: "AI Summarizer",
-        applicationCategory: "BrowserApplication",
-        operatingSystem: "Google Chrome",
-        description: dict.services.summarizer,
-        url,
-        author: { "@id": personId },
-        inLanguage,
       },
       {
         "@type": "BreadcrumbList",
@@ -332,6 +320,7 @@ export function buildSitemap(
       ...getTools().flatMap((tool) => [
         page(`/tool/${tool.slug}`, tool.updatedAt),
         page(`/tool/${tool.slug}/privacy`, tool.privacyUpdatedAt),
+        ...(tool.eulaUpdatedAt ? [page(`/tool/${tool.slug}/eula`, tool.eulaUpdatedAt)] : []),
       ]),
       ...posts.map((post) => page(`/blog/${post.slug}`, lastModified(post)))
     );
@@ -423,7 +412,7 @@ export function buildLlmsTxt(postsByLocale: Record<Locale, Post[]>) {
 
   return `# ${person.name}
 
-> ${person.name} is a ${person.jobTitle.toLowerCase()} working with ${person.technologies.join(", ")}. This website is the portfolio and technical blog of ${person.name}, in English and Brazilian Portuguese.
+> ${person.name} is a software engineer focused on AI who builds AI and agent systems for production, works as an AI Forward Deployed Engineer and builds tools such as AI Summarizer. This website is the portfolio and technical blog of ${person.name}, in English and Brazilian Portuguese.
 
 ## About
 
@@ -435,16 +424,16 @@ export function buildLlmsTxt(postsByLocale: Record<Locale, Post[]>) {
 
 ${postLinks("en")}
 
-## Services and products
+## Services
 
-- [Services and products](${pageUrl("/services")}): AI Forward Deployed Engineer services (hourly or per project) and AI Summarizer, a Chrome extension that summarizes only the selected part of a page ([em português](${pageUrl("/services", "pt-br")}))
+- [Services](${pageUrl("/services")}): AI Forward Deployed Engineer services, hourly or per project ([em português](${pageUrl("/services", "pt-br")}))
 
 ## Tools
 
 ${getTools()
   .map(
     (tool) =>
-      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})`
+      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
   )
   .join("\n")}
 

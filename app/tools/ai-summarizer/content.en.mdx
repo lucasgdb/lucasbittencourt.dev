@@ -4,30 +4,43 @@
 
 - **Part of a page**: point at the article, section or post with a picker like the DevTools one.
 - **The whole page**: the page's main content, in one go.
-- **PDFs**: every page or just one, read in the browser itself.
-- **Text files** opened in Chrome, such as `.txt` and `.md`.
+- **PDFs** up to 30 MB: every page or just one, read in the browser itself.
+- **Text and code files** opened in Chrome, such as `.txt`, `.md` and source code.
+
+The content goes to the AI with its structure kept (headings, lists, tables and code blocks), up to 60,000 characters per summary.
 
 ## How it works
 
-1. Open the extension's side panel and sign in with your Google account.
+1. Open the extension's side panel and sign in with your Google account. It's the same account as in my other tools, such as [Video Downloader](/tool/video-downloader).
 2. Choose the content: a selection, the whole page or the PDF.
 3. Adjust the options if you like: model, style (summary, bullet points, detailed, simple or study notes), length, effort, language and free-text preferences, such as "focus on the numbers".
-4. See the price before confirming, and watch the summary being written, already formatted.
+4. See the price before confirming, and watch the summary being written, already formatted. If you close the panel, the summary keeps being generated and lands in your history.
 
 ## Features
 
 - **History** with search and filters by type, site, model, style and period.
+- Summaries in **10 languages**: English, Portuguese, Spanish, French, German, Italian, Russian, Chinese, Japanese and Hindi.
 - **Translations** of a summary into other languages, without summarizing the page again.
 - **Export** the summary as Markdown (`.md`) and copy the text.
+- **Fill in forms**: pick a form and say how you want to answer it; the AI fills in the fields, you review and submit. It never submits for you, "Undo" puts back what was there, and password and card fields are left out.
 - Interface in **English** and **Portuguese**, with light and dark themes.
 
 ## Credits
 
-- Each summary and each translation uses credits, depending on the content's size and the model, effort, style and length chosen. The price shows up before you confirm, and it's exactly what's charged.
-- Every new account gets **1,000 credits** on its first sign-in.
-- If the AI fails, the credits come back automatically.
-- Prepaid credits, no subscription. Buying packs via Pix is coming soon.
+- Each summary, translation and form fill uses credits, depending on the content's size and the model, effort, style and length chosen. The price shows up before you confirm, and it's exactly what's charged.
+- Every account gets **welcome credits** the first time it uses the extension.
+- If the AI fails, the credits come back automatically. In a form fill, once the answers start coming in, the credits stay charged, even if you stop it partway. Asking again for a translation that already exists is free.
+- Deleting a summary from the history doesn't give back the credits spent on it.
+
+## Buying credits
+
+- Credits are **prepaid**, with no subscription, and bought in the extension itself via **Pix** (Brazilian instant payment): pick a pack, pay with the QR code or the copy-and-paste code (valid for 30 minutes), and the credits are added as soon as the payment is confirmed.
+- Packs from R$10 on come with a **credit bonus** at no extra cost, which grows with the pack: **10%**, **15%** and **20%**.
+
+<CreditPacks />
+
+- Payments are processed by AbacatePay. Purchase conditions and the right of withdrawal are in the [Terms of use](/terms).
 
 ## Privacy
 
-The extension only reads a page when you ask, and the page's text isn't stored. The details are in the extension's privacy policy, in the links above.
+The extension only reads a page when you ask, and neither the page's text nor the forms you fill are stored. The details are in the extension's privacy policy, in the links above.

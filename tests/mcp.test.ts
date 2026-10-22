@@ -203,7 +203,7 @@ test("tools answer in Portuguese with language: pt-BR", async () => {
   const profile = structured<{ jobTitle: string; website: string }>(
     await client.callTool({ name: "get_profile", arguments: { language: "pt-BR" } })
   );
-  assert.equal(profile.jobTitle, "Engenheiro de Software Full-stack");
+  assert.equal(profile.jobTitle, "Engenheiro de Software de IA");
   assert.equal(profile.website, `${baseUrl}/pt-br`);
 
   const { results } = structured<{ results: { url: string }[] }>(

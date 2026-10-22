@@ -6,15 +6,16 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CustomMDX } from "app/components/mdx";
 import { formatDate } from "app/blog/utils";
-import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
+import { getDictionary, localeConfig, localizePath, type Locale } from "app/lib/i18n";
 import { baseOpenGraph, pageAlternates } from "app/lib/seo";
 import { business } from "app/lib/site";
 import { getTool, getTools, type Tool } from "app/tools/registry";
 
 const toolPath = (slug: string) => `/tool/${slug}`;
 const privacyPath = (slug: string) => `/tool/${slug}/privacy`;
+const eulaPath = (slug: string) => `/tool/${slug}/eula`;
 
-function readContent(slug: string, file: "content" | "privacy", locale: Locale) {
+function readContent(slug: string, file: "content" | "privacy" | "eula", locale: Locale) {
   return fs.readFileSync(
     path.join(process.cwd(), "app", "tools", slug, `${file}.${locale}.mdx`),
     "utf-8"
@@ -31,6 +32,12 @@ function findTool(slug: string) {
 
 export function toolStaticParams() {
   return getTools().map((tool) => ({ slug: tool.slug }));
+}
+
+export function toolEulaStaticParams() {
+  return getTools()
+    .filter((tool) => tool.eulaUpdatedAt)
+    .map((tool) => ({ slug: tool.slug }));
 }
 
 // --- /tools ---------------------------------------------------------------
@@ -116,6 +123,47 @@ export function toolMetadata(slug: string, locale: Locale): Metadata | undefined
 const linkClass =
   "underline underline-offset-2 decoration-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-100";
 
+function CreditPacks({ tool, locale }: { tool: Tool; locale: Locale }) {
+  const dict = getDictionary(locale).tools.packs;
+  const intl = localeConfig[locale].intl;
+  const number = (value: number) => value.toLocaleString(intl);
+  const price = (value: number) =>
+    value.toLocaleString(intl, { style: "currency", currency: "BRL" });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>{dict.pack}</th>
+          <th>{dict.price}</th>
+          <th>{dict.bonus}</th>
+          <th>{dict.total}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {tool.creditPacks?.map((pack) => (
+          <tr key={pack.credits}>
+            <td>
+              {number(pack.credits)} {dict.credits}
+            </td>
+            <td>{price(pack.priceBRL)}</td>
+            <td>{pack.bonus ? `+${number(pack.bonus)}` : "—"}</td>
+            <td>{number(pack.credits + pack.bonus)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/** "R$ 24,90": the lifetime license's price, from the registry */
+function LifetimePrice({ tool, locale }: { tool: Tool; locale: Locale }) {
+  const price = tool.lifetimeLicense?.priceBRL ?? 0;
+  return (
+    <>{price.toLocaleString(localeConfig[locale].intl, { style: "currency", currency: "BRL" })}</>
+  );
+}
+
 export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
   const tool = findTool(slug);
   const dict = getDictionary(locale).tools;
@@ -152,6 +200,13 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
             {dict.privacy}
           </Link>
         </li>
+        {tool.eulaUpdatedAt && (
+          <li>
+            <Link className={linkClass} href={localizePath(eulaPath(slug), locale)}>
+              {dict.eula}
+            </Link>
+          </li>
+        )}
         <li>
           <Link className={linkClass} href={localizePath("/terms", locale)}>
             {dict.terms}
@@ -166,7 +221,13 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
       </ul>
 
       <article className="prose">
-        <CustomMDX source={readContent(slug, "content", locale)} />
+        <CustomMDX
+          source={readContent(slug, "content", locale)}
+          components={{
+            CreditPacks: () => <CreditPacks tool={tool} locale={locale} />,
+            LifetimePrice: () => <LifetimePrice tool={tool} locale={locale} />,
+          }}
+        />
       </article>
     </section>
   );
@@ -213,6 +274,55 @@ export function ToolPrivacyPage({ slug, locale }: { slug: string; locale: Locale
       </p>
       <article className="prose">
         <CustomMDX source={readContent(slug, "privacy", locale)} />
+      </article>
+    </section>
+  );
+}
+
+// --- /tool/<slug>/eula ------------------------------------------------------
+
+export function toolEulaMetadata(slug: string, locale: Locale): Metadata | undefined {
+  const tool = getTool(slug);
+  if (!tool?.eulaUpdatedAt) {
+    return;
+  }
+  const dict = getDictionary(locale).tools;
+  const name = tool.text[locale].name;
+  const title = dict.eulaTitle(name);
+  const description = dict.eulaDescription(name);
+  const alternates = pageAlternates(eulaPath(slug), locale);
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: { ...baseOpenGraph(locale), title, description, url: alternates.canonical },
+  };
+}
+
+export function ToolEulaPage({ slug, locale }: { slug: string; locale: Locale }) {
+  const tool = findTool(slug);
+  if (!tool.eulaUpdatedAt) {
+    notFound();
+  }
+  const dict = getDictionary(locale);
+  const name = tool.text[locale].name;
+
+  return (
+    <section>
+      <h1 className="title font-semibold text-2xl tracking-tighter">
+        {dict.tools.eulaTitle(name)}
+      </h1>
+      <p className="mt-2 mb-8 text-sm text-neutral-600 dark:text-neutral-400">
+        <Link className={linkClass} href={localizePath(toolPath(slug), locale)}>
+          {name}
+        </Link>{" "}
+        · {dict.legal.updated}:{" "}
+        <time dateTime={tool.eulaUpdatedAt}>
+          {formatDate(tool.eulaUpdatedAt, false, locale)}
+        </time>
+      </p>
+      <article className="prose">
+        <CustomMDX source={readContent(slug, "eula", locale)} />
       </article>
     </section>
   );

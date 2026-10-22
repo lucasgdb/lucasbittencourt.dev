@@ -10,7 +10,7 @@ import { mcpEndpoint, person } from "./site.ts";
 
 export const serverInfo = { name: "lucasbittencourt.dev", version: "1.0.0" };
 
-export const serverInstructions = `Read-only access to the portfolio and technical blog of ${person.name}, a ${person.jobTitle.toLowerCase()}.
+export const serverInstructions = `Read-only access to the portfolio and technical blog of ${person.name}, ${person.jobTitle}.
 Use get_profile for who ${person.name} is, list_posts and get_post for the articles, and search_blog to find the passages that answer a question.
 The content is available in English and Brazilian Portuguese: pass language "pt-BR" to answer in Portuguese.
 Every result includes canonical URLs: cite them when you use the content.`;
@@ -19,7 +19,7 @@ export const mcpTools = [
   {
     name: "get_profile",
     title: "Get profile",
-    description: `Who ${person.name} is: role, technologies, profiles and links.`,
+    description: `Who ${person.name} is: role, areas of expertise, profiles and links.`,
   },
   {
     name: "list_posts",
@@ -56,7 +56,7 @@ export function getProfile(locale: Locale = defaultLocale) {
     name: person.name,
     jobTitle: dict.jobTitle,
     summary: dict.siteDescription,
-    technologies: [...person.technologies],
+    expertise: [...person.expertise],
     website: pageUrl("/", locale),
     blog: pageUrl("/blog", locale),
     profiles: { ...person.profiles },
@@ -257,7 +257,7 @@ export function createMcpServer() {
         name: z.string(),
         jobTitle: z.string(),
         summary: z.string(),
-        technologies: z.array(z.string()),
+        expertise: z.array(z.string()),
         website: z.string(),
         blog: z.string(),
         profiles: z.record(z.string(), z.string()),

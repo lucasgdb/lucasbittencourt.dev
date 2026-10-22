@@ -68,7 +68,11 @@ test("sitemap lists every page in both languages, with hreflang alternates", () 
     "/terms",
     "/privacy",
     "/tools",
-    ...getTools().flatMap((tool) => [`/tool/${tool.slug}`, `/tool/${tool.slug}/privacy`]),
+    ...getTools().flatMap((tool) => [
+      `/tool/${tool.slug}`,
+      `/tool/${tool.slug}/privacy`,
+      ...(tool.eulaUpdatedAt ? [`/tool/${tool.slug}/eula`] : []),
+    ]),
     ...posts.map((post) => `/blog/${post.slug}`),
   ];
 
@@ -212,6 +216,9 @@ test("llms.txt follows the proposal structure and links every post", () => {
   assert.match(llms, /^# Lucas Bittencourt\n\n> /);
   assert.ok(llms.includes("\n## Blog posts\n"));
   assert.ok(llms.includes(`${baseUrl}/api/mcp`));
+  for (const tool of getTools().filter((tool) => tool.eulaUpdatedAt)) {
+    assert.ok(llms.includes(`(${baseUrl}/tool/${tool.slug}/eula)`), tool.slug);
+  }
   for (const post of posts) {
     assert.ok(llms.includes(`(${baseUrl}/blog/${post.slug})`), post.slug);
     assert.ok(llms.includes(`(${baseUrl}/pt-br/blog/${post.slug})`), post.slug);
