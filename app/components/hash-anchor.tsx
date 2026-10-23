@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 
 const gap = 16;
+// The subtitle's slide animation (see .section-subheading), plus a margin
+const subtitleSettle = 260;
 
 /**
  * Where an anchor in a post should land, given the sticky header and section
@@ -34,29 +36,32 @@ export function scrollToElement(element: Element) {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: anchorTop(element), behavior: reduced ? "instant" : "smooth" });
 
-  // The stuck title can change height on the way (its subtitle changes, and
-  // a long title may wrap): once there, correct the landing, unless the
-  // reader has scrolled in the meantime
+  // Stuck titles change height on the way (a long title wraps while its
+  // subtitle shows), moving what's below: once the scroll ends and the
+  // subtitles settle, correct the landing, unless the reader has scrolled
   let done = false;
   const cancel = () => finish(false);
-  const correct = () => finish(true);
+  const settled = () => setTimeout(() => finish(true), subtitleSettle);
   const events = ["wheel", "touchstart", "keydown"] as const;
   function finish(apply: boolean) {
     if (done) {
       return;
     }
     done = true;
-    window.removeEventListener("scrollend", correct);
+    window.removeEventListener("scrollend", settled);
     events.forEach((name) => window.removeEventListener(name, cancel));
     const top = anchorTop(element);
     if (apply && Math.abs(top - window.scrollY) > 1) {
       window.scrollTo({ top, behavior: "instant" });
     }
   }
-  window.addEventListener("scrollend", correct, { once: true });
   events.forEach((name) => window.addEventListener(name, cancel, { passive: true, once: true }));
-  // Browsers without scrollend
-  setTimeout(correct, 1200);
+  if ("onscrollend" in window) {
+    window.addEventListener("scrollend", settled, { once: true });
+  } else {
+    // Without scrollend, a generous guess of when a long smooth scroll ends
+    setTimeout(() => finish(true), 2000);
+  }
 }
 
 /** Scrolls to an anchor in a post, and puts it in the URL */
