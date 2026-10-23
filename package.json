@@ -19,7 +19,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "geist": "1.7.2",
-    "next": "16.4.0",
+    "next": "16.4.3",
     "next-mdx-remote": "^6.0.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
