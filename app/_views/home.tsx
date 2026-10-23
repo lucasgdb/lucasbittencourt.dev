@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { BlogPosts } from "app/components/posts";
+import { Feed } from "app/components/feed";
 import { JsonLd } from "app/components/json-ld";
 import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 import { homeJsonLd, pageAlternates } from "app/lib/seo";
@@ -33,7 +33,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         {after}
       </p>
       <div className="my-8">
-        <BlogPosts locale={locale} />
+        <Feed locale={locale} />
       </div>
     </section>
   );

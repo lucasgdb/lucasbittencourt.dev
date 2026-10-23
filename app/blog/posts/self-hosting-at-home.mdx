@@ -1,0 +1,1213 @@
+---
+title: "Self-hosting at home: ports, firewall, reverse proxy and DNS"
+publishedAt: "2026-10-23"
+summary: "A step-by-step guide to publishing an app from your own computer on the internet with your domain: public and private IPs, NAT, CGNAT, ports, firewall, Docker Compose, Nginx as a reverse proxy, DNS and HTTPS with Let's Encrypt, with commands for Linux, macOS and Windows and how to test each step."
+---
+
+You can publish an app that runs on your own computer, at home, on the internet under your own domain, **without** Cloudflare Tunnel, ngrok or any other tunneling service. Just the router, the firewall, Docker, Nginx and DNS.
+
+In this guide, I explain each piece of that path, from the networking concepts to commands you can copy, on **Linux, macOS and Windows**, and how to test each step. The goal is that you can do it all on your own, even without networking experience, whatever your router or ISP.
+
+## Table of contents:
+
+- [What we're building](#what-were-building)
+- [Networking concepts, made simple](#networking-concepts-made-simple)
+  - [Private IP and public IP](#private-ip-and-public-ip)
+  - [Ports](#ports)
+  - [NAT and the router](#nat-and-the-router)
+  - [CGNAT: when you can't open a port](#cgnat-when-you-cant-open-a-port)
+  - [DNS](#dns)
+  - [Firewall](#firewall)
+  - [HTTPS, TLS and certificates](#https-tls-and-certificates)
+  - [Reverse proxy](#reverse-proxy)
+- [Prerequisites](#prerequisites)
+- [Step 1: find your IPs](#step-1-find-your-ips)
+- [Step 2: run the app with Docker Compose and Nginx](#step-2-run-the-app-with-docker-compose-and-nginx)
+- [Step 3: allow the ports in the firewall](#step-3-allow-the-ports-in-the-firewall)
+- [Step 4: give the computer a fixed local IP](#step-4-give-the-computer-a-fixed-local-ip)
+- [Step 5: open the ports on the router](#step-5-open-the-ports-on-the-router)
+- [Step 6: point the domain with DNS](#step-6-point-the-domain-with-dns)
+- [Step 7: test from outside your network](#step-7-test-from-outside-your-network)
+- [Step 8: HTTPS with Let's Encrypt](#step-8-https-with-lets-encrypt)
+- [Common problems and how to diagnose them](#common-problems-and-how-to-diagnose-them)
+- [Security: what not to do](#security-what-not-to-do)
+- [Undoing everything](#undoing-everything)
+
+## What we're building
+
+This is the path a request takes, from the visitor to the app:
+
+```text
+Browser (anywhere on the internet)
+  │  1. DNS: local.example.com → 203.0.113.10 (your public IP)
+  ▼
+Router (public IP 203.0.113.10)
+  │  2. Port forwarding: TCP 80/443 → 192.168.1.50
+  ▼
+Computer (private IP 192.168.1.50)
+  │  3. Firewall: allow TCP 80/443
+  ▼
+Docker: nginx container (the only one with published ports: 80/443)
+  │  4. Reverse proxy: proxy_pass http://app:8080
+  ▼
+Docker: app container (Node.js on port 8080, reachable only inside Docker's network)
+```
+
+Each number is a step that has to work. If one fails, the request stops there. That's why we'll build and **test one step at a time**, from the inside out.
+
+The examples use made-up values. Replace them with yours:
+
+- `local.example.com`: your subdomain.
+- `203.0.113.10`: your public IP (this IP is reserved for documentation and doesn't really exist).
+- `192.168.1.50`: your computer's IP on the home network.
+- `192.168.1.1`: the router's IP (the "gateway").
+
+## Networking concepts, made simple
+
+### Private IP and public IP
+
+Every device on a network has an **IP address**, like a phone number.
+
+- The **private IP** is the address inside your home. The router gives one to each device: the computer may be `192.168.1.50`, the phone `192.168.1.51`, and so on. These addresses (the ranges `192.168.x.x`, `10.x.x.x` and `172.16.x.x` to `172.31.x.x`) **don't exist on the internet**: thousands of homes use the same ones.
+- The **public IP** is your home's address on the internet. It's usually a single one, and it belongs to the **router**. Every device in the house goes out to the internet using that same IP.
+
+On residential internet, the public IP is usually **dynamic**: the ISP may change it when the router restarts or from time to time. Keep this in mind, because it affects DNS (see [step 6](#step-6-point-the-domain-with-dns)).
+
+### Ports
+
+An IP takes the request to the right machine. The **port** says which program on that machine it goes to. Think of the IP as a building's address and the port as the apartment number.
+
+Some ports are standard:
+
+- **80**: HTTP (websites without encryption).
+- **443**: HTTPS (websites with encryption, the padlock in the browser).
+- **22**: SSH (remote terminal access).
+
+When you type `https://site.com`, the browser uses port 443 without you having to write it. A program that "listens" on a port is waiting for connections on it.
+
+Ports use a transport protocol, almost always **TCP** (for websites) or **UDP** (for games, real-time video and DNS). For a website, we open **TCP** only.
+
+### NAT and the router
+
+If only the router has a public IP, how does a request from the internet reach your computer? Through **NAT** (Network Address Translation).
+
+- **Outgoing** (you visiting a website): the router swaps your private IP for the public IP and notes who asked for what, to deliver the response to the right device. This works on its own.
+- **Incoming** (someone visiting your server): the router receives the connection on port 80, but doesn't know which device in the house to send it to. By default, it **drops** it. That's why you need a **port forwarding** rule: "whatever arrives on port 80 goes to `192.168.1.50`, port 80".
+
+### CGNAT: when you can't open a port
+
+Many ISPs don't have enough public IPs for every customer and use **CGNAT** (Carrier-Grade NAT): several homes share the same public IP, and your router only gets an "ISP-private" IP, usually in the range `100.64.0.0` to `100.127.255.255`.
+
+With CGNAT, **port forwarding on your router doesn't help**, because the connection is blocked earlier, on the ISP's equipment. The test is simple: compare the **WAN IP** shown in the router's panel with your public IP (see [step 1](#step-1-find-your-ips)). If they're different, or the WAN one starts with `100.64` to `100.127`, you're behind CGNAT. The way out is to ask your ISP for a public IP (sometimes called a "static IP"), use IPv6 or use a tunnel.
+
+### DNS
+
+Nobody memorizes IPs. **DNS** (Domain Name System) is the internet's phone book: it translates `local.example.com` into `203.0.113.10`.
+
+The record types that matter here:
+
+- **A**: points a name to an IPv4 address (e.g. `203.0.113.10`).
+- **AAAA**: points a name to an IPv6 address.
+- **CNAME**: points a name to another name.
+- **CAA**: says which certificate authorities may issue certificates for the domain.
+
+Each record has a **TTL** (time to live): for how many seconds servers may cache the answer. A low TTL (such as 300 seconds) makes changes show up faster, which is good when your IP is dynamic.
+
+### Firewall
+
+The **firewall** is the computer's doorman: it decides which outside connections may come in. Even with the port open on the router, if the computer's firewall blocks it, the connection never reaches the program.
+
+It works with **rules** such as "allow inbound TCP connections on port 80". On Windows, rules also depend on the **network profile** (Public, Private or Domain).
+
+### HTTPS, TLS and certificates
+
+**HTTP** sends everything as plain text: anyone along the way (the coffee shop's Wi-Fi, the ISP) can read and change what goes through. **HTTPS** is HTTP inside a tunnel encrypted by **TLS** (Transport Layer Security).
+
+TLS solves two things:
+
+- **Encryption**: only the browser and the server can read the content.
+- **Identity**: the server presents a **certificate** that proves it really is `local.example.com`. The certificate is signed by a **certificate authority** (CA) that browsers trust. A certificate you make yourself (self-signed) encrypts, but the browser shows a warning, because no trusted party confirmed your identity.
+
+**Let's Encrypt** is a free, automated CA. Before issuing, it checks that you control the domain (see [step 8](#step-8-https-with-lets-encrypt)). The certificate is valid for 90 days and is renewed automatically.
+
+In our setup, TLS ends at Nginx: the connection is encrypted from the internet to Nginx, and from Nginx to the app it continues as plain HTTP, inside Docker's internal network.
+
+### Reverse proxy
+
+A **reverse proxy** is a server that sits in front of your apps, receives every request and passes each one to the right app. Here, **Nginx** plays that role.
+
+Why not expose the app directly?
+
+- **A single entry point**: only Nginx has open ports. The app stays hidden in Docker's internal network.
+- **Several sites on the same IP**: Nginx looks at the requested name (`local.example.com`, `api.example.com`) and picks the app.
+- **HTTPS in one place**: the certificate lives in Nginx, and the apps keep speaking plain HTTP on the inside.
+- **Protection and tuning**: upload size limits, timeouts, compression, security headers and logs.
+
+## Prerequisites
+
+- **Docker** with **Docker Compose**:
+  - Linux: [Docker Engine](https://docs.docker.com/engine/install/).
+  - macOS and Windows: [Docker Desktop](https://docs.docker.com/desktop/).
+- Access to the **router's panel** (the username and password are often on a label under it).
+- A **domain** and access to its DNS panel.
+- The computer connected **by cable**, ideally. Wi-Fi works, but it's less stable for a server.
+
+On Windows, use **PowerShell** for the commands. On Linux and macOS, the **Terminal**.
+
+Check that Docker is working:
+
+```bash
+docker version
+```
+
+And that Docker Compose is installed:
+
+```bash
+docker compose version
+```
+
+If you see an error such as `failed to connect to the docker API`, Docker isn't running. On macOS and Windows, open Docker Desktop and wait for it to finish starting. On Linux, start the service:
+
+```bash
+sudo systemctl start docker
+```
+
+## Step 1: find your IPs
+
+You need three addresses: the computer's **private IP**, the **router's IP** (gateway) and the **public IP**.
+
+Each system's commands are in tabs. Pick yours once: every other tab on the page follows.
+
+### The computer's private IP
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+Look for the `inet` of your network interface, such as `eth0`, `enp3s0` or `wlan0`:
+
+```bash
+ip -4 addr show
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+`en0` is usually the cable or the Wi-Fi:
+
+```bash
+ipconfig getifaddr en0
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Look for `IPv4Address`:
+
+```powershell
+Get-NetIPConfiguration
+```
+
+</Tab>
+</Tabs>
+
+### The router's IP (gateway)
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+It's the IP after `default via`:
+
+```bash
+ip route | grep default
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+```bash
+route -n get default | grep gateway
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+It's the `IPv4DefaultGateway` from the same `Get-NetIPConfiguration` command:
+
+```powershell
+Get-NetIPConfiguration
+```
+
+</Tab>
+</Tabs>
+
+### The public IP
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+curl -4 https://api.ipify.org
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Use `curl.exe`: in PowerShell, `curl` is an alias of another command.
+
+```powershell
+curl.exe -4 https://api.ipify.org
+```
+
+</Tab>
+</Tabs>
+
+### Checking for CGNAT
+
+Log in to the router's panel (open `http://192.168.1.1`, the gateway IP, in the browser) and look for the **WAN IP** (or "Internet IP") on the status screen. If it's **the same** as the public IP you just saw, great. If it's different, or starts with `100.64` to `100.127`, read the [CGNAT](#cgnat-when-you-cant-open-a-port) section before going on.
+
+## Step 2: run the app with Docker Compose and Nginx
+
+By the end of this step, the project folder will look like this:
+
+```text
+local-server/
+├── compose.yml
+├── app/
+│   └── server.mjs
+└── nginx/
+    └── conf.d/
+        └── default.conf
+```
+
+### Creating the folders
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+mkdir -p local-server/app local-server/nginx/conf.d
+cd local-server
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+New-Item -ItemType Directory -Force local-server\app, local-server\nginx\conf.d
+Set-Location local-server
+```
+
+</Tab>
+</Tabs>
+
+All the next commands run **inside the `local-server` folder**.
+
+### The Node.js app
+
+Create the file `app/server.mjs` with this content. It's an HTTP server that only uses Node.js's own `http` module (nothing to install). It answers with a text and some data from the request, which helps you see the reverse proxy working:
+
+```js
+import http from "node:http";
+
+const port = Number(process.env.PORT ?? 8080);
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end(
+    [
+      "Hello from local application!",
+      `Path: ${req.url}`,
+      `Host: ${req.headers.host}`,
+      `Your IP (seen by Nginx): ${req.headers["x-real-ip"] ?? req.socket.remoteAddress}`,
+      `Protocol: ${req.headers["x-forwarded-proto"] ?? "http"}`,
+    ].join("\n") + "\n"
+  );
+});
+
+server.listen(port, () => {
+  console.log(`App listening on port ${port}`);
+});
+```
+
+If you have Node.js installed, you can test the app on its own, without Docker. Start the server:
+
+```bash
+node app/server.mjs
+```
+
+And, **in another terminal**, make a request (on Windows, use `curl.exe`):
+
+```bash
+curl http://localhost:8080/
+```
+
+Stop the server with `Ctrl+C`. With Docker, you don't need Node.js installed: the `node:24-alpine` image already has it.
+
+### The compose.yml
+
+**Docker Compose** describes several containers in a single file and starts them all with one command. Here we have two services:
+
+- `app`: the Node.js app. In your case, replace it with your app (in any language).
+- `nginx`: the reverse proxy, the **only** one with a port published on the computer.
+
+Create the file `compose.yml`:
+
+```yaml
+services:
+  app:
+    image: node:24-alpine
+    working_dir: /app
+    command: ["node", "server.mjs"]
+    volumes:
+      - ./app:/app:ro
+    environment:
+      - PORT=8080
+    expose:
+      - "8080"
+    init: true
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+```
+
+What each part does:
+
+- `image: node:24-alpine` and `command`: runs `server.mjs` with Node.js 24 on a small image (Alpine Linux).
+- `volumes: ./app:/app:ro`: mounts the `app` folder inside the container, read-only (`ro`). To change the app, edit the file and run `docker compose restart app`.
+- `environment`: environment variables. Here, the port the app listens on.
+- `expose: "8080"`: the app's port 8080 is visible **only to other containers** in the same Compose project. Nobody from outside reaches the app directly.
+- `init: true`: puts a tiny process in front of Node.js to pass on stop signals. Without it, `docker compose down` waits 10 seconds before killing the container.
+- `ports: "80:80"`: publishes the computer's port 80 to port 80 of the Nginx container. The format is `computer_port:container_port`.
+- `volumes: ./nginx/conf.d`: mounts the Nginx configuration inside the container.
+- `depends_on`: starts the app before Nginx.
+- `restart: unless-stopped`: restarts the container if it crashes or the computer reboots, unless you stop it yourself.
+
+Compose creates an **internal network** for the containers, where each one is found by its **service name**. That's why Nginx can reach the app at `http://app:8080`.
+
+### The Nginx configuration
+
+Create the file `nginx/conf.d/default.conf` (replace `local.example.com` with your subdomain):
+
+```nginx
+server {
+    listen 80;
+    server_name local.example.com;
+
+    location / {
+        proxy_pass http://app:8080;
+
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Line by line:
+
+- `listen 80`: Nginx listens on port 80.
+- `server_name`: this block answers requests for `local.example.com`. With several `server` blocks, you can serve several domains on the same IP.
+- `location /`: applies to every path (`/`, `/api`, `/anything`).
+- `proxy_pass`: passes the request on to the app.
+- `proxy_set_header`: the app receives the request **from Nginx**, not from the visitor. These headers tell it the requested name (`Host`), the visitor's IP (`X-Real-IP`, `X-Forwarded-For`) and whether the original connection was HTTP or HTTPS (`X-Forwarded-Proto`).
+
+### Starting the containers
+
+Start the containers in the background (the first time, Docker downloads the images, which may take a minute):
+
+```bash
+docker compose up -d
+```
+
+Check that both are running. The `STATUS` column should show `Up` (or `running`):
+
+```bash
+docker compose ps
+```
+
+Check the Nginx configuration. You should see `syntax is ok` and `test is successful`:
+
+```bash
+docker compose exec nginx nginx -t
+```
+
+### Testing on the local network
+
+**First, on the computer itself:**
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+curl -i http://localhost/
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+curl.exe -i http://localhost/
+```
+
+</Tab>
+</Tabs>
+
+The response should have `HTTP/1.1 200 OK`, `Server: nginx` and the text `Hello from local application!`, with the path, the host and your IP. `Server: nginx` shows the response went through the reverse proxy.
+
+**Then, from another device on the same network** (your phone on Wi-Fi, for example), open `http://192.168.1.50` (the computer's private IP) in the browser. If the text shows up, the local network is working.
+
+If something goes wrong, check the Nginx logs:
+
+```bash
+docker compose logs --tail 50 nginx
+```
+
+And check what's listening on port 80:
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+```bash
+sudo ss -tlnp | grep ':80 '
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+```bash
+sudo lsof -nP -iTCP:80 -sTCP:LISTEN
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+Get-NetTCPConnection -State Listen -LocalPort 80
+```
+
+</Tab>
+</Tabs>
+
+## Step 3: allow the ports in the firewall
+
+We allow ports **80** (HTTP) and **443** (HTTPS), TCP only and inbound only.
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+The most common firewall is **ufw** (Ubuntu, Debian). On Fedora, RHEL and CentOS, it's **firewalld**. Follow only the one on your system.
+
+**With ufw**, allow port 80:
+
+```bash
+sudo ufw allow 80/tcp
+```
+
+Allow port 443:
+
+```bash
+sudo ufw allow 443/tcp
+```
+
+Check the rules. Both ports should show as `ALLOW`:
+
+```bash
+sudo ufw status
+```
+
+**With firewalld**, allow HTTP and HTTPS:
+
+```bash
+sudo firewall-cmd --permanent --add-service=http --add-service=https
+```
+
+Apply the rules:
+
+```bash
+sudo firewall-cmd --reload
+```
+
+Check. You should see `http` and `https`:
+
+```bash
+sudo firewall-cmd --list-services
+```
+
+> **Watch out:** Docker creates its own iptables rules for published ports (`ports:`), and they **bypass** ufw. In other words, a port published by Docker is reachable even if ufw doesn't allow it. So publish only what needs to be public (here, only Nginx) and use `expose` for the rest.
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+The macOS firewall works per **app**, not per port. The visual way: System Settings → Network → Firewall → Options, and allow incoming connections for **Docker**.
+
+From the terminal, first check whether the firewall is on:
+
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+```
+
+If it is, add Docker:
+
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /Applications/Docker.app
+```
+
+And allow incoming connections for it:
+
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /Applications/Docker.app
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Open PowerShell **as administrator** (right-click PowerShell → "Run as administrator").
+
+Check your network's profile (`Public` or `Private`):
+
+```powershell
+Get-NetConnectionProfile
+```
+
+Allow port 80:
+
+```powershell
+New-NetFirewallRule -DisplayName "local-server HTTP (TCP 80)" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow -Profile Public,Private
+```
+
+Allow port 443:
+
+```powershell
+New-NetFirewallRule -DisplayName "local-server HTTPS (TCP 443)" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow -Profile Public,Private
+```
+
+Check. Both rules should show `Enabled: True` and `Action: Allow`:
+
+```powershell
+Get-NetFirewallRule -DisplayName "local-server*" | Select-Object DisplayName,Enabled,Profile,Action
+```
+
+The first time it runs, Docker Desktop may create broad rules named `com.docker.backend`, which allow **every** port published by containers. See whether they exist and decide whether to keep them:
+
+```powershell
+Get-NetFirewallRule -DisplayName "com.docker.backend" | Select-Object DisplayName,Enabled,Profile,Action
+```
+
+</Tab>
+</Tabs>
+
+## Step 4: give the computer a fixed local IP
+
+The router hands out IPs through **DHCP**, and your computer's IP may change after a while or after a restart. If it changes, the forwarding rule from the next step points to the wrong place.
+
+The fix is a **DHCP reservation** (sometimes "static DHCP", "fixed IP" or "Address Reservation"), which tells the router: "this computer always gets this IP". The computer is identified by its **MAC address**, a unique code of the network card.
+
+### Finding the MAC address
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+It's the value after `link/ether` on your interface:
+
+```bash
+ip link show
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+It's the value after `ether`:
+
+```bash
+ifconfig en0 | grep ether
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+It's the `MacAddress` column of the adapter that's `Up`:
+
+```powershell
+Get-NetAdapter | Select-Object Name,MacAddress,Status
+```
+
+</Tab>
+</Tabs>
+
+### Creating the reservation on the router
+
+In the router's panel, look under **Local network (LAN) → DHCP** (the name changes by vendor). Add a reservation with the computer's **MAC** and the **IP** it will have, such as `192.168.1.50`, and save. Many routers also let you pick the device from a list, by the computer's name.
+
+Be careful not to confuse it with the list of **active leases**, which shows the IPs handed out and the time left on each. A lease expires; a reservation doesn't.
+
+### Checking the new IP
+
+Renew the computer's IP so it picks up the reserved address.
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+With NetworkManager, see the connection's name:
+
+```bash
+nmcli connection show
+```
+
+Reconnect (replace it with your connection's name):
+
+```bash
+sudo nmcli connection up "Wired connection 1"
+```
+
+And check the IP:
+
+```bash
+ip -4 addr show
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+Renew the IP:
+
+```bash
+sudo ipconfig set en0 DHCP
+```
+
+And check:
+
+```bash
+ipconfig getifaddr en0
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Renew the IP (the connection drops for a few seconds):
+
+```powershell
+ipconfig /release
+ipconfig /renew
+```
+
+And check:
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4 | Select-Object InterfaceAlias,IPAddress,PrefixOrigin
+```
+
+</Tab>
+</Tabs>
+
+Rather not touch the router? You can set a fixed IP in the operating system itself (in the network settings, switch from "Automatic (DHCP)" to "Manual"), using an IP **outside the range** the router hands out. The reservation on the router is safer, because it avoids conflicts with another device.
+
+## Step 5: open the ports on the router
+
+In the router's panel, look for **Port Forwarding**, **NAT** or **Virtual Server**. The name changes by vendor and ISP, and it's usually under "Advanced" or "Network". If you can't find it, search the web for "port forwarding" plus your router's model, which is on its label.
+
+Create two rules:
+
+- **HTTP**: TCP protocol, external port 80 → internal IP `192.168.1.50`, internal port 80.
+- **HTTPS**: TCP protocol, external port 443 → internal IP `192.168.1.50`, internal port 443.
+
+Leave the source IP empty (any source) and **save**. Some routers only apply the rule after a separate "Apply".
+
+Two things to check:
+
+- If **remote access to the router's panel** is on, on port 80 or 443, turn it off: it competes with your server for the port.
+- **Don't use DMZ**, and don't let **UPnP** open ports on its own (see [security](#security-what-not-to-do)).
+
+## Step 6: point the domain with DNS
+
+In your domain's DNS panel (where you bought the domain, or the DNS service you use), create a record:
+
+- **Type**: A
+- **Name**: `local` (becomes `local.example.com`)
+- **Value**: your public IP, `203.0.113.10`
+- **TTL**: 300 (5 minutes)
+
+Why TTL 300? Since a residential IP can change, a low TTL makes the fix show up quickly. If your IP changes often, use **DDNS** (dynamic DNS): a program that updates the record on its own when the IP changes. Many DNS providers and routers support it.
+
+What about **IPv6** (an AAAA record)? Only create one if the server really answers over IPv6, including in Docker and the firewall. A broken AAAA makes visitors with IPv6 (and Let's Encrypt, which prefers IPv6) fail even with IPv4 working.
+
+### Testing DNS
+
+Ask different DNS servers (Cloudflare, at `1.1.1.1`, and Google, at `8.8.8.8`). All of them should answer with your public IP. It may take a few minutes after you create the record.
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+dig +short local.example.com A @1.1.1.1
+dig +short local.example.com A @8.8.8.8
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+Resolve-DnsName local.example.com -Type A -Server 1.1.1.1 -DnsOnly
+Resolve-DnsName local.example.com -Type A -Server 8.8.8.8 -DnsOnly
+```
+
+</Tab>
+</Tabs>
+
+This one works on all three systems:
+
+```bash
+nslookup local.example.com 1.1.1.1
+```
+
+If a device looked the name up **before** the record existed, it may have cached the "doesn't exist" answer (negative caching) and show `DNS_PROBE_FINISHED_NXDOMAIN` for a while. Clear the cache:
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+With systemd-resolved:
+
+```bash
+resolvectl flush-caches
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+ipconfig /flushdns
+```
+
+</Tab>
+</Tabs>
+
+In Chrome, you can also clear it at `chrome://net-internals/#dns`. On a phone, turning airplane mode on and off usually does it.
+
+## Step 7: test from outside your network
+
+This is the test that matters, and it has to be done **from outside** your network. Many routers don't support **NAT loopback** (or "hairpin NAT"): reaching your public IP from inside your own home simply doesn't work, even with everything right. So test in one of these ways:
+
+- Use your **phone on mobile data** (Wi-Fi off) and open `http://203.0.113.10`.
+- Use an online port checker, such as [portchecker.io](https://portchecker.io).
+- Ask someone on another network to run the commands below.
+
+Test whether the port is open:
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+nc -vz 203.0.113.10 80
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Look for `TcpTestSucceeded : True`:
+
+```powershell
+Test-NetConnection 203.0.113.10 -Port 80
+```
+
+</Tab>
+</Tabs>
+
+Test the response through the domain (on Windows, use `curl.exe`):
+
+```bash
+curl -I http://local.example.com
+```
+
+Meanwhile, on your computer, follow the Nginx logs. If the outside request arrives, it shows up here (exit with `Ctrl+C`):
+
+```bash
+docker compose logs -f nginx
+```
+
+How to read the result:
+
+- **A 200 response with the text**: everything works. Move on to HTTPS.
+- **Port closed and nothing in the logs**: the connection never reached the computer. The problem is in the router, the ISP (CGNAT or a blocked port) or the firewall. See [common problems](#common-problems-and-how-to-diagnose-them).
+- **It shows up in the logs, but there's an error**: the problem is in Nginx or the app.
+
+A detail about `.dev` domains (and `.app`, among others): they're on the browsers' **HSTS preload** list, which **forces HTTPS**. The browser never opens `http://local.example.dev`; it switches to `https://` on its own. To test HTTP, use the IP directly or `curl`. In the browser, the domain only works after [step 8](#step-8-https-with-lets-encrypt).
+
+## Step 8: HTTPS with Let's Encrypt
+
+To issue the certificate, Let's Encrypt runs an **HTTP-01 challenge**: it asks your server to publish a file at `http://local.example.com/.well-known/acme-challenge/...` and fetches that address **over the internet, on port 80**. That's why [step 7](#step-7-test-from-outside-your-network) has to work first.
+
+The program that talks to Let's Encrypt is **Certbot**, which will run as one more Docker Compose service.
+
+### Checking the CAA record
+
+If your domain has a **CAA** record, it must allow `letsencrypt.org`. This command works on all three systems (on Windows, use `curl.exe`) and queries Google's DNS:
+
+```bash
+curl -s "https://dns.google/resolve?name=example.com&type=CAA"
+```
+
+If the answer has no CAA, that's fine: any authority may issue. If it has one, one of them must contain `letsencrypt.org`.
+
+### Preparing Compose and Nginx
+
+Create the folders where Certbot will keep the challenge files and the certificates:
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+mkdir -p certbot/www certbot/conf
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+New-Item -ItemType Directory -Force certbot\www, certbot\conf
+```
+
+</Tab>
+</Tabs>
+
+Replace `compose.yml` with this version. It publishes port 443, shares both folders with Nginx and adds the Certbot service:
+
+```yaml
+services:
+  app:
+    image: node:24-alpine
+    working_dir: /app
+    command: ["node", "server.mjs"]
+    volumes:
+      - ./app:/app:ro
+    environment:
+      - PORT=8080
+    expose:
+      - "8080"
+    init: true
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+```
+
+Nginx has to serve the challenge files. Replace `nginx/conf.d/default.conf` with this temporary version:
+
+```nginx
+server {
+    listen 80;
+    server_name local.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        proxy_pass http://app:8080;
+    }
+}
+```
+
+Apply the changes:
+
+```bash
+docker compose up -d
+```
+
+### Issuing the certificate
+
+Request the certificate (replace the domain and the email; Let's Encrypt writes to that email if something goes wrong with renewal):
+
+```bash
+docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d local.example.com --email you@example.com --agree-tos --no-eff-email
+```
+
+If it works, you'll see `Successfully received certificate`, and the certificate lands in `certbot/conf/live/local.example.com/`.
+
+### Turning on HTTPS in Nginx
+
+Replace `nginx/conf.d/default.conf` with the final version. Port 80 only answers the challenge and redirects everything else to HTTPS, and 443 serves the site:
+
+```nginx
+server {
+    listen 80;
+    server_name local.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name local.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/local.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/local.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://app:8080;
+
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Check the configuration:
+
+```bash
+docker compose exec nginx nginx -t
+```
+
+And reload Nginx, without dropping connections:
+
+```bash
+docker compose exec nginx nginx -s reload
+```
+
+### Testing HTTPS
+
+From mobile data or another network, open `https://local.example.com` in the browser. The padlock should show up, and the response should say `Protocol: https`. Click the padlock to see the certificate. From the terminal (on Windows, use `curl.exe`):
+
+```bash
+curl -I https://local.example.com
+```
+
+To see who issued the certificate and its validity:
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+```bash
+openssl s_client -connect local.example.com:443 -servername local.example.com </dev/null 2>/dev/null | openssl x509 -noout -issuer -dates
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Click the padlock next to the address in the browser and open the certificate details. They show the issuer (`Let's Encrypt`) and the validity dates.
+
+</Tab>
+</Tabs>
+
+### Renewing the certificate
+
+The certificate expires in 90 days. To renew it, run Certbot:
+
+```bash
+docker compose run --rm certbot renew
+```
+
+And reload Nginx so it uses the new certificate:
+
+```bash
+docker compose exec nginx nginx -s reload
+```
+
+`renew` only renews what's close to expiring, so it's fine to run it every day. So you don't have to remember, schedule it.
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+Use **cron**. Open the scheduler:
+
+```bash
+crontab -e
+```
+
+And add this line, replacing the path with your folder's. It runs every day at 3 AM:
+
+```bash
+0 3 * * * cd /path/to/local-server && docker compose run --rm certbot renew && docker compose exec -T nginx nginx -s reload
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+Create the file `renew.ps1` in the project folder, replacing the path with your folder's:
+
+```powershell
+Set-Location C:\path\to\local-server
+docker compose run --rm certbot renew
+docker compose exec -T nginx nginx -s reload
+```
+
+And schedule it in **Task Scheduler** to run every day at 3 AM:
+
+```powershell
+schtasks /Create /SC DAILY /ST 03:00 /TN "certbot-renew" /TR "powershell -NoProfile -File C:\path\to\local-server\renew.ps1"
+```
+
+</Tab>
+</Tabs>
+
+## Common problems and how to diagnose them
+
+The golden rule: **test from the inside out**. `localhost` → private IP → public IP over mobile data → domain. The first step that fails shows where the problem is.
+
+**It works on `localhost`, but not on the private IP:** the computer's firewall is blocking it. Review [step 3](#step-3-allow-the-ports-in-the-firewall) and, on Windows, the network profile.
+
+**It works on the local network, but from outside the port shows as closed and nothing reaches the logs:**
+
+1. **CGNAT**: compare the router's WAN IP with your public IP ([step 1](#step-1-find-your-ips)). If they differ, the ISP is blocking incoming connections, and only the ISP can fix it (ask for a public IP).
+2. **The router rule**: check that it was saved and applied, with the right internal IP and the TCP protocol. If the computer's IP changed, the rule points to the wrong place (see [step 4](#step-4-give-the-computer-a-fixed-local-ip)).
+3. **ISP blocking**: some ISPs block inbound ports 80 and 443 on residential plans. To test, create a temporary rule from a high port, such as external `8888` to internal `80`, and try `http://203.0.113.10:8888` over mobile data. If 8888 works and 80 doesn't, it's the ISP. In that case the HTTP-01 challenge won't work, but you can issue the certificate with the **DNS-01** challenge.
+
+**Reaching the public IP only fails from inside your home:** that's the missing NAT loopback. Test over mobile data.
+
+**The browser shows `DNS_PROBE_FINISHED_NXDOMAIN`:** the record hasn't propagated yet, or the device cached the "doesn't exist" answer. Check with `dig` or `Resolve-DnsName` and clear the cache ([step 6](#testing-dns)).
+
+**The browser switches `http://` to `https://` on its own:** that's the domain's HSTS (as with `.dev`). Set up HTTPS ([step 8](#step-8-https-with-lets-encrypt)).
+
+**Certbot fails the challenge:** port 80 isn't reachable from outside (go back to [step 7](#step-7-test-from-outside-your-network)), the A record points to another IP, there's a broken AAAA or a CAA that doesn't allow Let's Encrypt.
+
+**`failed to connect to the docker API` error:** Docker isn't running. Open Docker Desktop or run `sudo systemctl start docker`.
+
+**Port 80 is already in use:** another program holds the port (IIS on Windows, Apache on Linux, another container). Find out which one with the commands at the end of [step 2](#step-2-run-the-app-with-docker-compose-and-nginx) and stop it, or publish Nginx on another port.
+
+**The logs always show the same IP, such as `172.x.x.x`:** on Docker Desktop (macOS and Windows), connections go through a virtual network layer, and Nginx sees that layer's IP, not the visitor's. On Linux, with Docker Engine, the real IP usually gets through.
+
+**`ERR_NETWORK_CHANGED` on the phone:** the phone switched networks (Wi-Fi to mobile data) in the middle of the test. Try again.
+
+## Security: what not to do
+
+Opening a port opens a door of your home to the entire internet, and bots will knock on it within minutes. A few precautions:
+
+- **Don't use DMZ.** DMZ sends **every** port to the computer. Forward only 80 and 443.
+- **Turn off UPnP** on the router if you don't need it. With UPnP, any program on the network can open ports on its own.
+- **Publish only Nginx.** Databases (MongoDB on 27017, PostgreSQL on 5432, Redis on 6379) and admin panels should never have published `ports:`. Use `expose` or nothing.
+- **Don't expose the router's panel** to the internet.
+- **Keep everything updated**: the system, Docker and the images (`docker compose pull`, then `docker compose up -d`).
+- **Prefer HTTPS** and redirect HTTP to it, as in [step 8](#step-8-https-with-lets-encrypt).
+- **Remember the computer has to stay on**: the site is only up while the computer, Docker and your home internet are working. For anything serious, a cloud server is more reliable.
+
+## Undoing everything
+
+If it was just a test, undo it in reverse order.
+
+**1. Router:** delete both forwarding rules (80 and 443).
+
+**2. DNS:** delete the `local` A record.
+
+**3. Firewall:**
+
+<Tabs>
+<Tab label="Linux" value="linux">
+
+**With ufw**, remove the port 80 rule:
+
+```bash
+sudo ufw delete allow 80/tcp
+```
+
+And the port 443 one:
+
+```bash
+sudo ufw delete allow 443/tcp
+```
+
+**With firewalld**, remove the services:
+
+```bash
+sudo firewall-cmd --permanent --remove-service=http --remove-service=https
+```
+
+And apply:
+
+```bash
+sudo firewall-cmd --reload
+```
+
+</Tab>
+<Tab label="macOS" value="macos">
+
+Remove Docker from the firewall's list:
+
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --remove /Applications/Docker.app
+```
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+In PowerShell as administrator:
+
+```powershell
+Remove-NetFirewallRule -DisplayName "local-server HTTP (TCP 80)","local-server HTTPS (TCP 443)"
+```
+
+</Tab>
+</Tabs>
+
+**4. Containers.** In the project folder, stop and remove the containers:
+
+```bash
+docker compose down
+```
+
+To free up space, also delete the downloaded images:
+
+```bash
+docker image rm node:24-alpine nginx:alpine certbot/certbot
+```
+
+**5. Scheduling** (if you set it up):
+
+<Tabs>
+<Tab label="Linux / macOS" value="linux macos">
+
+Open `crontab -e` and delete the Certbot line.
+
+</Tab>
+<Tab label="Windows" value="windows">
+
+```powershell
+schtasks /Delete /TN "certbot-renew" /F
+```
+
+</Tab>
+</Tabs>
+
+Hosting a server at home isn't hard, but it depends on **every link in the chain**, and some of them (CGNAT and port blocking) are in your ISP's hands. By testing one step at a time, from the inside out, you find exactly which link broke.

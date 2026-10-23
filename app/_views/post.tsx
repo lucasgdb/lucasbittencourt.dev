@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { CustomMDX } from "app/components/mdx";
 import { JsonLd } from "app/components/json-ld";
 import { WatcherBar } from "app/components/watcher-bar";
+import { ReadAloud } from "app/components/read-aloud";
+import { HashAnchor } from "app/components/hash-anchor";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import {
   getDictionary,
@@ -79,11 +81,12 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
   return (
     <section>
       <WatcherBar />
+      <HashAnchor />
       <JsonLd data={postJsonLd(post, locale, translated)} />
       <h1 className="title font-semibold text-2xl tracking-tighter">
         {post.metadata.title}
       </h1>
-      <div className="flex justify-between items-center mt-2 mb-8 text-sm">
+      <div className="mt-2 mb-8 flex flex-col items-start gap-3 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {dict.post.by} <Link href={localizePath("/", locale)}>{person.name}</Link> ·{" "}
           <time dateTime={publishedAt}>
@@ -99,8 +102,9 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
             </>
           )}
         </p>
+        <ReadAloud title={post.metadata.title} labels={dict.post.readAloud} />
       </div>
-      <article className="prose">
+      <article className="prose post">
         <CustomMDX source={post.content} />
       </article>
     </section>

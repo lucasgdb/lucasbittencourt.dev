@@ -28,6 +28,9 @@
   --background: #fafafa;
   --foreground: #262626;
   --header-border: var(--color-neutral-200);
+  --code-scrollbar: var(--color-neutral-300);
+  --read-aloud: rgb(250 204 21 / 0.22);
+  --read-aloud-outline: rgb(202 138 4 / 0.6);
   color-scheme: light;
 
   --sh-class: #2d5e9d;
@@ -44,6 +47,9 @@
     --background: #0a0a0a;
     --foreground: #ededed;
     --header-border: var(--color-neutral-800);
+    --code-scrollbar: var(--color-neutral-700);
+    --read-aloud: rgb(250 204 21 / 0.14);
+    --read-aloud-outline: rgb(250 204 21 / 0.45);
     color-scheme: dark;
 
     --sh-class: #4c97f8;
@@ -115,6 +121,150 @@ html {
   @apply visible;
 }
 
+.prose .code-block {
+  @apply my-4;
+}
+
+/* In posts, the current section's title sticks under the header until the
+   next one takes its place, so long sections keep their context */
+.post h2 {
+  @apply sticky z-10 flex items-center gap-4 py-2 mb-0 bg-background/80 backdrop-blur-md;
+  top: 3.5rem;
+  box-shadow: 0 1px 0 var(--header-border);
+  /* Clicking it goes to the section (or the subtitle's subsection) */
+  cursor: pointer;
+}
+
+/* In posts the title itself is the link (see SectionSubheading), not the
+   "#" anchor that would cover it */
+.post h2 > .anchor {
+  display: none;
+}
+
+/* Anchors land right below the header; a section title is then exactly where
+   it sticks (clicking it doesn't make it move), and other headings also clear
+   the stuck title */
+html:has(.post) {
+  scroll-padding-top: 3.5rem;
+}
+
+.post :is(h3, h4, h5, h6) {
+  /* Clears a stuck title even when it wraps to two lines; the subtitle
+     counts a subsection as current from here (see SectionSubheading) */
+  scroll-margin-top: 5rem;
+}
+
+/* The stuck title shows the current subsection, sliding as it changes */
+/* Right side of a stuck title: the current subsection and the read-aloud
+   toggle. Keeps its width (the title wraps instead), up to half the line */
+.section-extras {
+  @apply ml-auto flex max-w-[50%] shrink-0 items-center gap-3;
+}
+
+/* A subsection name too long for that space is shortened with an ellipsis */
+.section-subheading {
+  @apply relative hidden min-w-0 overflow-hidden text-sm font-normal tracking-normal text-neutral-500 dark:text-neutral-400 sm:grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.section-subheading > span {
+  @apply truncate;
+  grid-area: 1 / 1;
+  /* While the old and new names overlap, the box is as wide as the longer
+     one: keep both against the right edge so the text never shifts */
+  justify-self: end;
+  text-align: right;
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.section-subheading .in-down {
+  animation-name: subheading-in-down;
+}
+
+/* The outgoing name doesn't take up space: the title's width (and whether it
+   wraps) follows the current one only */
+.section-subheading > [class^="out-"] {
+  position: absolute;
+  right: 0;
+}
+
+.section-subheading .out-down {
+  animation-name: subheading-out-down;
+}
+
+.section-subheading .in-up {
+  animation-name: subheading-in-up;
+}
+
+.section-subheading .out-up {
+  animation-name: subheading-out-up;
+}
+
+@keyframes subheading-in-down {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes subheading-out-down {
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes subheading-in-up {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes subheading-out-up {
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-subheading > span {
+    animation-duration: 0s;
+  }
+}
+
+/* The passage being read aloud */
+.read-aloud-current {
+  border-radius: 0.25rem;
+  background-color: var(--read-aloud);
+  box-shadow: 0 0 0 0.25rem var(--read-aloud);
+}
+
+/* A code block's own background would hide the highlight: outline it */
+.read-aloud-current.code-block {
+  background-color: transparent;
+  box-shadow: none;
+  outline: 2px solid var(--read-aloud-outline);
+  outline-offset: 3px;
+}
+
+/* Room for the reader's bar at the bottom of the page */
+html.read-aloud-open body {
+  padding-bottom: 5rem;
+}
+
+/* Tighter spacing right under the tab bar */
+.prose .tab-panel > :first-child {
+  @apply mt-3;
+}
+
+.prose .tab-panel > :last-child {
+  @apply mb-0;
+}
+
 .prose pre {
   @apply bg-neutral-100 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-800 py-2 px-3 text-sm;
 }
@@ -176,13 +326,22 @@ html {
   margin-bottom: 1.25em !important;
 }
 
-pre::-webkit-scrollbar {
-  display: none;
+/* Code that overflows sideways shows a thin scrollbar in the theme's colors */
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--code-scrollbar) transparent;
 }
 
-pre {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+/* Browsers without scrollbar-color (older Safari) */
+@supports not (scrollbar-color: auto) {
+  pre::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  pre::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: var(--code-scrollbar);
+  }
 }
 
 /* Remove Safari input shadow on mobile */

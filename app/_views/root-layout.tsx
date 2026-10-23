@@ -111,7 +111,7 @@ export function RootDocument({
       </head>
       <body className="antialiased flex min-h-dvh flex-col">
         {shown.map((l) => only(l, <Navbar locale={l} notFound={auto} />))}
-        <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-xl mt-14 min-w-0 px-2 md:px-0">
+        <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-2xl mt-14 min-w-0 px-2 md:px-0">
           <main className="flex-1">{children}</main>
           {shown.map((l) => only(l, <Footer locale={l} />))}
         </div>
