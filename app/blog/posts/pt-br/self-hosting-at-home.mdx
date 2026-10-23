@@ -29,7 +29,6 @@ Neste guia, explico cada peça desse caminho, desde os conceitos de rede até os
 - [Passo 6: apontar o domínio com DNS](#passo-6-apontar-o-dominio-com-dns)
 - [Passo 7: testar de fora da sua rede](#passo-7-testar-de-fora-da-sua-rede)
 - [Passo 8: HTTPS com Let's Encrypt](#passo-8-https-com-lets-encrypt)
-- [Problemas comuns e como diagnosticar](#problemas-comuns-e-como-diagnosticar)
 - [Segurança: o que não fazer](#seguranca-o-que-nao-fazer)
 - [Desfazendo tudo](#desfazendo-tudo)
 
@@ -844,7 +843,7 @@ docker compose logs -f nginx
 Como ler o resultado:
 
 - **Resposta 200 com o texto**: tudo funcionando. Siga para o HTTPS.
-- **Porta fechada e nada nos logs**: a conexão nem chegou no computador. O problema está no roteador, na operadora (CGNAT ou bloqueio de porta) ou no firewall. Veja [problemas comuns](#problemas-comuns-e-como-diagnosticar).
+- **Porta fechada e nada nos logs**: a conexão nem chegou no computador. O problema está no roteador (revise o [passo 5](#passo-5-abrir-as-portas-no-roteador)), no firewall ([passo 3](#passo-3-liberar-as-portas-no-firewall)) ou na operadora ([CGNAT](#cgnat-quando-nao-da-para-abrir-a-porta) ou bloqueio das portas 80 e 443).
 - **Aparece nos logs, mas dá erro**: o problema está no Nginx ou na aplicação.
 
 Um detalhe sobre domínios `.dev` (e `.app`, entre outros): eles estão na lista **HSTS preload** dos navegadores, que **forçam HTTPS**. O navegador nunca abre `http://local.example.dev`; ele troca para `https://` sozinho. Para testar o HTTP, use o IP direto ou o `curl`. No navegador, o domínio só vai funcionar depois do [passo 8](#passo-8-https-com-lets-encrypt).
@@ -1082,34 +1081,6 @@ schtasks /Create /SC DAILY /ST 03:00 /TN "certbot-renew" /TR "powershell -NoProf
 
 </Tab>
 </Tabs>
-
-## Problemas comuns e como diagnosticar
-
-A regra de ouro: **teste de dentro para fora**. `localhost` → IP privado → IP público pelos dados móveis → domínio. A primeira etapa que falhar mostra onde está o problema.
-
-**Funciona em `localhost`, mas não pelo IP privado:** o firewall do computador está bloqueando. Revise o [passo 3](#passo-3-liberar-as-portas-no-firewall) e, no Windows, o perfil da rede.
-
-**Funciona na rede local, mas de fora a porta aparece fechada e nada chega nos logs:**
-
-1. **CGNAT**: compare o IP da WAN do roteador com o seu IP público ([passo 1](#passo-1-descobrir-os-seus-ips)). Se forem diferentes, a operadora está bloqueando a entrada, e só ela resolve (peça um IP público).
-2. **Regra do roteador**: confira se ela foi salva e aplicada, com o IP interno certo e o protocolo TCP. Se o IP do computador mudou, a regra aponta para o lugar errado (veja o [passo 4](#passo-4-fixar-o-ip-do-computador-na-rede-local)).
-3. **Bloqueio da operadora**: algumas operadoras bloqueiam as portas 80 e 443 de entrada em planos residenciais. Para testar, crie uma regra temporária de uma porta alta, como a externa `8888` para a interna `80`, e teste `http://203.0.113.10:8888` pelos dados móveis. Se a 8888 funcionar e a 80 não, é bloqueio da operadora. Nesse caso, o desafio HTTP-01 não funciona, mas dá para emitir o certificado pelo desafio **DNS-01**.
-
-**O acesso pelo IP público falha só de dentro de casa:** é a falta de NAT loopback. Teste pelos dados móveis.
-
-**O navegador mostra `DNS_PROBE_FINISHED_NXDOMAIN`:** o registro ainda não propagou ou o dispositivo guardou o "não existe" em cache. Confira com o `dig` ou o `Resolve-DnsName` e limpe o cache ([passo 6](#testando-o-dns)).
-
-**O navegador troca `http://` por `https://` sozinho:** é o HSTS do domínio (como em `.dev`). Faça o HTTPS ([passo 8](#passo-8-https-com-lets-encrypt)).
-
-**O Certbot falha no desafio:** a porta 80 não está acessível de fora (volte ao [passo 7](#passo-7-testar-de-fora-da-sua-rede)), o registro A aponta para outro IP, existe um AAAA quebrado ou um CAA que não permite o Let's Encrypt.
-
-**Erro `failed to connect to the docker API`:** o Docker não está rodando. Abra o Docker Desktop ou rode `sudo systemctl start docker`.
-
-**A porta 80 já está em uso:** outro programa ocupa a porta (um IIS no Windows, um Apache no Linux, outro container). Descubra quem é com os comandos do final do [passo 2](#passo-2-subir-a-aplicacao-com-docker-compose-e-nginx) e pare o programa, ou publique o Nginx em outra porta.
-
-**Os logs mostram sempre o mesmo IP, como `172.x.x.x`:** no Docker Desktop (macOS e Windows), as conexões passam por uma camada de rede virtual, e o Nginx vê o IP dessa camada, não o do visitante. No Linux, com o Docker Engine, o IP real costuma chegar.
-
-**`ERR_NETWORK_CHANGED` no celular:** o celular trocou de rede (Wi-Fi para dados) no meio do teste. Tente de novo.
 
 ## Segurança: o que não fazer
 
