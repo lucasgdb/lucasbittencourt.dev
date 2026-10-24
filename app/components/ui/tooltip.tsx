@@ -24,9 +24,25 @@ function Tooltip({
 }
 
 function TooltipTrigger({
+  onFocus,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+  return (
+    <TooltipPrimitive.Trigger
+      data-slot="tooltip-trigger"
+      // Focus opens the tooltip only when it comes from the keyboard: a
+      // clicked button gets focus again when the window does (Alt+Tab back),
+      // and the tooltip would open with the pointer elsewhere. Radix skips
+      // its own handler when the event is default-prevented
+      onFocus={(event) => {
+        onFocus?.(event)
+        if (!event.currentTarget.matches(":focus-visible")) {
+          event.preventDefault()
+        }
+      }}
+      {...props}
+    />
+  )
 }
 
 function TooltipContent({
