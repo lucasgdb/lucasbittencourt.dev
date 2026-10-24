@@ -6,11 +6,15 @@ import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "app/components/nav";
+import { TooltipProvider } from "app/components/ui/tooltip";
+import { HashAnchor } from "app/components/hash-anchor";
+import { InlineCodeSelect } from "app/components/inline-code-select";
 import Footer from "app/components/footer";
 import { getDictionary, localeConfig, locales, type Locale } from "app/lib/i18n";
 import { baseOpenGraph, pageAlternates } from "app/lib/seo";
 import { baseUrl, isIndexable, person, site } from "app/lib/site";
 import { themeColors, themeScript } from "app/lib/theme";
+import { readingScript } from "app/lib/reading";
 
 export function rootMetadata(locale: Locale): Metadata {
   const dict = getDictionary(locale);
@@ -97,7 +101,6 @@ export function RootDocument({
   return (
     <html
       lang={localeConfig[auto ? "en" : locale].htmlLang}
-      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cx(
         "bg-background text-foreground",
@@ -107,14 +110,19 @@ export function RootDocument({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: readingScript }} />
         {auto && <script dangerouslySetInnerHTML={{ __html: localeScript }} />}
       </head>
       <body className="antialiased flex min-h-dvh flex-col">
-        {shown.map((l) => only(l, <Navbar locale={l} notFound={auto} />))}
-        <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-2xl mt-14 min-w-0 px-2 md:px-0">
-          <main className="flex-1">{children}</main>
-          {shown.map((l) => only(l, <Footer locale={l} />))}
-        </div>
+        <TooltipProvider>
+          <HashAnchor />
+          <InlineCodeSelect />
+          {shown.map((l) => only(l, <Navbar locale={l} notFound={auto} />))}
+          <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-(--column-width) mt-14 min-w-0 px-2 md:px-0">
+            <main className="flex-1">{children}</main>
+            {shown.map((l) => only(l, <Footer locale={l} />))}
+          </div>
+        </TooltipProvider>
         <Analytics />
         <SpeedInsights />
       </body>

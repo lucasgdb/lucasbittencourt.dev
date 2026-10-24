@@ -1,3 +1,6 @@
+import { DownloadIcon } from "lucide-react";
+import { Button } from "app/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "app/components/ui/table";
 import fs from "fs";
 import path from "path";
 import Image from "next/image";
@@ -131,28 +134,28 @@ function CreditPacks({ tool, locale }: { tool: Tool; locale: Locale }) {
     value.toLocaleString(intl, { style: "currency", currency: "BRL" });
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>{dict.pack}</th>
-          <th>{dict.price}</th>
-          <th>{dict.bonus}</th>
-          <th>{dict.total}</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>{dict.pack}</TableHead>
+          <TableHead className="text-right">{dict.price}</TableHead>
+          <TableHead className="text-right">{dict.bonus}</TableHead>
+          <TableHead className="text-right">{dict.total}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {tool.creditPacks?.map((pack) => (
-          <tr key={pack.credits}>
-            <td>
+          <TableRow key={pack.credits}>
+            <TableCell>
               {number(pack.credits)} {dict.credits}
-            </td>
-            <td>{price(pack.priceBRL)}</td>
-            <td>{pack.bonus ? `+${number(pack.bonus)}` : "—"}</td>
-            <td>{number(pack.credits + pack.bonus)}</td>
-          </tr>
+            </TableCell>
+            <TableCell className="text-right tabular-nums">{price(pack.priceBRL)}</TableCell>
+            <TableCell className="text-right tabular-nums">{pack.bonus ? `+${number(pack.bonus)}` : "—"}</TableCell>
+            <TableCell className="text-right font-medium tabular-nums">{number(pack.credits + pack.bonus)}</TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }
 
@@ -184,17 +187,24 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
       </div>
       {/* The summary is the page's description; the content opens with its
           own, fuller version */}
-      <h2 className="mt-8 mb-2 font-medium tracking-tight">{dict.links}</h2>
-      <ul className="flex flex-col gap-1.5 text-neutral-800 dark:text-neutral-300">
-        <li>
-          {tool.storeUrl ? (
-            <a className={linkClass} href={tool.storeUrl} rel="noopener noreferrer" target="_blank">
+      {/* The page's main action: installing (until it's published, disabled) */}
+      <div className="mt-6">
+        {tool.storeUrl ? (
+          <Button asChild size="lg">
+            <a href={tool.storeUrl} rel="noopener noreferrer" target="_blank">
+              <DownloadIcon />
               {dict.install}
             </a>
-          ) : (
-            <span className="text-neutral-600 dark:text-neutral-400">{dict.comingSoon}</span>
-          )}
-        </li>
+          </Button>
+        ) : (
+          <Button size="lg" variant="secondary" disabled>
+            <DownloadIcon />
+            {dict.comingSoon}
+          </Button>
+        )}
+      </div>
+      <h2 className="mt-8 mb-2 font-medium tracking-tight">{dict.links}</h2>
+      <ul className="flex flex-col gap-1.5 text-neutral-800 dark:text-neutral-300">
         <li>
           <Link className={linkClass} href={localizePath(privacyPath(slug), locale)}>
             {dict.privacy}

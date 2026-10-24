@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { HeadphonesIcon, PauseIcon, PlayIcon } from "lucide-react";
 import { goToAnchor } from "app/components/hash-anchor";
+import { Button } from "app/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
 import { pauseReadAloud, playReadAloudFrom, useReadAloudState } from "app/components/read-aloud-store";
 
 type Shown = { text: string; direction: "down" | "up"; id: number };
 
 /**
  * A subsection counts as current once its title is this close below the
- * stuck title: where a link to it lands (scroll-margin of .post h3) and where
- * reading it starts, not only after it slides under the title
+ * stuck title: where a link to it lands (see anchorTop in hash-anchor) and
+ * where reading it starts, not only after it slides under the title
  */
 const currentBand = 48;
 
@@ -142,48 +145,34 @@ function ReadAloudToggle({ startAt }: { startAt: () => Element | null }) {
   const icon = reading ? "pause" : open ? "play" : "headphones";
   const label = reading ? labels.pause : labels.fromHere;
   return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={(event) => {
-        const heading = event.currentTarget.closest("h2");
-        if (reading) {
-          pauseReadAloud();
-        } else if (heading) {
-          playReadAloudFrom(startAt() ?? heading);
-        }
-      }}
-      aria-label={label}
-      className="group/toggle relative inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800/70 dark:hover:text-neutral-100"
-    >
-      <svg
-        aria-hidden="true"
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill={icon === "headphones" ? "none" : "currentColor"}
-        stroke={icon === "headphones" ? "currentColor" : "none"}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {icon === "pause" ? (
-          <>
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
-          </>
-        ) : icon === "play" ? (
-          <path d="M7 4.5v15l12-7.5z" />
-        ) : (
-          <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
-        )}
-      </svg>
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute top-full right-0 mt-2 whitespace-nowrap rounded-md bg-neutral-900 px-2 py-1 text-xs font-normal tracking-normal text-neutral-50 opacity-0 shadow-md transition-opacity group-hover/toggle:opacity-100 group-focus-visible/toggle:opacity-100 dark:bg-neutral-100 dark:text-neutral-900"
-      >
-        {label}
-      </span>
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          ref={ref}
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={(event) => {
+            const heading = event.currentTarget.closest("h2");
+            if (reading) {
+              pauseReadAloud();
+            } else if (heading) {
+              playReadAloudFrom(startAt() ?? heading);
+            }
+          }}
+          aria-label={label}
+          className="text-muted-foreground"
+        >
+          {icon === "pause" ? (
+            <PauseIcon fill="currentColor" />
+          ) : icon === "play" ? (
+            <PlayIcon fill="currentColor" />
+          ) : (
+            <HeadphonesIcon />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }

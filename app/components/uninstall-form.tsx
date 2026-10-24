@@ -7,7 +7,24 @@ import {
   useMutation,
 } from "@tanstack/react-query";
 import Link from "next/link";
+import { CircleAlertIcon } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { Button } from "app/components/ui/button";
+import { Alert, AlertDescription } from "app/components/ui/alert";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "app/components/ui/field";
+import { Spinner } from "app/components/ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
+import { RadioGroup, RadioGroupItem } from "app/components/ui/radio-group";
+import { Textarea } from "app/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "app/components/ui/toggle-group";
 import { localizePath, type Locale } from "app/lib/i18n";
 import { uninstallSurveys } from "app/tools/uninstall-surveys";
 import {
@@ -22,21 +39,10 @@ import {
 const linkClass =
   "underline underline-offset-2 decoration-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-100";
 
-const legendClass =
-  "mb-3 font-medium tracking-tight text-neutral-900 dark:text-neutral-100";
-
-// A choice drawn as a small box: the radio itself stays, visually hidden,
-// so keyboard and screen readers use it as a radio
-const pillClass =
-  "inline-flex h-9 min-w-9 cursor-pointer items-center justify-center rounded-md border border-neutral-300 px-3 text-sm text-neutral-700 transition-colors hover:border-neutral-500 peer-checked:border-neutral-900 peer-checked:bg-neutral-900 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-neutral-400 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-neutral-500 dark:peer-checked:border-neutral-100 dark:peer-checked:bg-neutral-100 dark:peer-checked:text-neutral-900";
-
-/** A field's first error, whether a string or a Standard Schema issue */
-function firstError(errors: unknown[]) {
-  const error = errors.find(Boolean);
-  if (!error) return undefined;
-  if (typeof error === "string") return error;
-  return (error as { message?: string }).message;
-}
+// A chosen option of a scale/choice is filled, so it stands out. By
+// aria-checked: a Tooltip around an option replaces its data-state with its own
+const choiceClass =
+  "min-w-9 px-3 aria-checked:border-primary aria-checked:bg-primary aria-checked:text-primary-foreground";
 
 /** Sends one answer; resolves only once the API says it's stored (201) */
 async function send({ survey, payload }: { survey: Survey; payload: unknown }) {
@@ -71,10 +77,14 @@ function UninstallForm({ survey, locale }: { survey: Survey; locale: Locale }) {
   // Set at once on submit: clicks in the same instant, before the button
   // re-renders as disabled, don't send again
   const sending = useRef(false);
+  const schema = survey.formSchema(locale);
 
   const form = useForm({
     defaultValues: emptyForm as FeedbackForm,
-    validators: { onSubmit: survey.formSchema(locale) },
+    // The Zod schema checks on submit, then on every change, so an error
+    // clears as soon as it's fixed (shown only once a field is touched,
+    // which submitting does to all of them)
+    validators: { onSubmit: schema, onChange: schema },
     onSubmit: async ({ value }) => {
       // Built and checked again right before sending
       await mutation
@@ -95,7 +105,6 @@ function UninstallForm({ survey, locale }: { survey: Survey; locale: Locale }) {
   return (
     <form
       noValidate
-      className="space-y-10"
       onSubmit={async (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -108,195 +117,160 @@ function UninstallForm({ survey, locale }: { survey: Survey; locale: Locale }) {
         }
       }}
     >
-      <form.Field name="reason">
-        {(field) => {
-          const error = firstError(field.state.meta.errors);
-          return (
-            <fieldset
-              aria-describedby={error ? `${id}-reason-error` : undefined}
-            >
-              <legend className={legendClass}>{text.reasonLegend}</legend>
-              <div className="flex flex-col gap-3">
-                {survey.reasons.map((reason) => (
-                  <label
-                    key={reason}
-                    className="flex cursor-pointer items-start gap-3 text-neutral-700 dark:text-neutral-300"
-                  >
-                    <input
-                      type="radio"
-                      name={field.name}
-                      value={reason}
-                      checked={field.state.value === reason}
-                      onChange={() => field.handleChange(reason)}
-                      onBlur={field.handleBlur}
-                      className="mt-1 size-4 shrink-0 accent-neutral-900 dark:accent-neutral-100"
-                    />
-                    <span>{text.reasons[reason]}</span>
-                  </label>
-                ))}
-              </div>
-              {error && (
-                <p
-                  id={`${id}-reason-error`}
-                  className="mt-3 text-sm text-red-600 dark:text-red-400"
+      <FieldGroup className="gap-10">
+        <form.Field name="reason">
+          {(field) => {
+            const invalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <FieldSet data-invalid={invalid}>
+                <FieldLegend>{text.reasonLegend}</FieldLegend>
+                <RadioGroup
+                  name={field.name}
+                  value={field.state.value}
+                  onValueChange={(reason) => field.handleChange(reason as typeof field.state.value)}
+                  onBlur={field.handleBlur}
+                  aria-invalid={invalid || undefined}
+                  className="gap-3"
                 >
-                  {error}
-                </p>
-              )}
-            </fieldset>
-          );
-        }}
-      </form.Field>
+                  {survey.reasons.map((reason) => (
+                    <Field key={reason} orientation="horizontal" data-invalid={invalid}>
+                      <RadioGroupItem id={`${id}-reason-${reason}`} value={reason} aria-invalid={invalid || undefined} />
+                      <FieldLabel htmlFor={`${id}-reason-${reason}`} className="font-normal">
+                        {text.reasons[reason]}
+                      </FieldLabel>
+                    </Field>
+                  ))}
+                </RadioGroup>
+                {invalid && <FieldError errors={field.state.meta.errors} />}
+              </FieldSet>
+            );
+          }}
+        </form.Field>
 
-      <form.Field name="comment">
-        {(field) => {
-          const error = firstError(field.state.meta.errors);
-          const length = field.state.value.length;
-          return (
-            <div>
-              <label htmlFor={`${id}-comment`} className={`block ${legendClass}`}>
-                {text.commentLabel}
-              </label>
-              <p
-                id={`${id}-comment-hint`}
-                className="-mt-2 mb-3 text-sm text-neutral-600 dark:text-neutral-400"
-              >
-                {text.commentHint}
-              </p>
-              <textarea
-                id={`${id}-comment`}
-                name={field.name}
-                rows={4}
-                maxLength={maxCommentLength}
-                value={field.state.value}
-                onChange={(event) => field.handleChange(event.target.value)}
-                onBlur={field.handleBlur}
-                aria-describedby={`${id}-comment-hint ${id}-comment-count`}
-                aria-invalid={error ? true : undefined}
-                className="w-full resize-y rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:border-neutral-700 dark:text-neutral-100"
-              />
-              <div className="mt-1 flex justify-between gap-4 text-sm">
-                <span className="text-red-600 dark:text-red-400">{error}</span>
-                <span
-                  id={`${id}-comment-count`}
-                  className="shrink-0 tabular-nums text-neutral-500"
-                >
-                  {length}/{maxCommentLength}
-                </span>
-              </div>
-            </div>
-          );
-        }}
-      </form.Field>
-
-      <form.Field name="rating">
-        {(field) => (
-          <fieldset>
-            <legend className={legendClass}>
-              {text.ratingLegend}{" "}
-              <span className="text-sm font-normal text-neutral-500">
-                {text.optional}
-              </span>
-            </legend>
-            {/* The scale's ends under the first and last option */}
-            <div className="flex flex-wrap items-start gap-2">
-              <div className="inline-flex flex-col">
-                <div className="flex gap-2">
-                  {ratings.map((value) => {
-                    const label = text.ratingLabels[value - 1] ?? "";
-                    return (
-                      <label key={value} title={label}>
-                        <input
-                          type="radio"
-                          name={field.name}
-                          value={value}
-                          checked={field.state.value === value}
-                          onChange={() => field.handleChange(value)}
-                          aria-label={text.ratingAria(value, label)}
-                          className="peer sr-only"
-                        />
-                        <span className={pillClass} aria-hidden="true">
-                          {value}
-                        </span>
-                      </label>
-                    );
-                  })}
+        <form.Field name="comment">
+          {(field) => {
+            const invalid = field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <Field data-invalid={invalid}>
+                <FieldLabel htmlFor={`${id}-comment`}>{text.commentLabel}</FieldLabel>
+                <FieldDescription id={`${id}-comment-hint`}>{text.commentHint}</FieldDescription>
+                <Textarea
+                  id={`${id}-comment`}
+                  name={field.name}
+                  rows={4}
+                  maxLength={maxCommentLength}
+                  value={field.state.value}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  onBlur={field.handleBlur}
+                  aria-describedby={`${id}-comment-hint ${id}-comment-count`}
+                  aria-invalid={invalid || undefined}
+                  className="resize-y"
+                />
+                <div className="flex justify-between gap-4">
+                  <FieldError errors={invalid ? field.state.meta.errors : undefined} />
+                  <span id={`${id}-comment-count`} className="ml-auto shrink-0 text-sm text-muted-foreground tabular-nums">
+                    {field.state.value.length}/{maxCommentLength}
+                  </span>
                 </div>
-                <p
-                  className="mt-2 flex justify-between gap-4 text-sm text-neutral-500"
-                  aria-hidden="true"
-                >
-                  <span>{text.ratingLabels[0]}</span>
-                  <span>{text.ratingLabels[4]}</span>
-                </p>
+              </Field>
+            );
+          }}
+        </form.Field>
+
+        <form.Field name="rating">
+          {(field) => (
+            <FieldSet>
+              <FieldLegend>
+                {text.ratingLegend} <span className="text-sm font-normal text-muted-foreground">{text.optional}</span>
+              </FieldLegend>
+              {/* The scale's ends under the first and last option */}
+              <div className="flex flex-wrap items-start gap-2">
+                <div className="inline-flex flex-col">
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    size="lg"
+                    spacing={2}
+                    value={field.state.value === null ? "" : String(field.state.value)}
+                    onValueChange={(value) => field.handleChange(value ? (Number(value) as typeof field.state.value) : null)}
+                  >
+                    {ratings.map((value) => {
+                      const label = text.ratingLabels[value - 1] ?? "";
+                      return (
+                        <Tooltip key={value}>
+                          <TooltipTrigger asChild>
+                            <ToggleGroupItem value={String(value)} aria-label={text.ratingAria(value, label)} className={choiceClass}>
+                              {value}
+                            </ToggleGroupItem>
+                          </TooltipTrigger>
+                          <TooltipContent>{label}</TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </ToggleGroup>
+                  <p className="mt-2 flex justify-between gap-4 text-sm text-muted-foreground" aria-hidden="true">
+                    <span>{text.ratingLabels[0]}</span>
+                    <span>{text.ratingLabels[4]}</span>
+                  </p>
+                </div>
+                {field.state.value !== null && (
+                  <span className="flex h-9 items-center">
+                    <ClearButton onClick={() => field.handleChange(null)}>{text.clear}</ClearButton>
+                  </span>
+                )}
               </div>
-              {field.state.value !== null && (
-                <span className="flex h-9 items-center">
-                  <ClearButton onClick={() => field.handleChange(null)}>
-                    {text.clear}
-                  </ClearButton>
-                </span>
-              )}
-            </div>
-          </fieldset>
-        )}
-      </form.Field>
+            </FieldSet>
+          )}
+        </form.Field>
 
-      <form.Field name="wouldUseAgain">
-        {(field) => (
-          <fieldset>
-            <legend className={legendClass}>
-              {text.againLegend}{" "}
-              <span className="text-sm font-normal text-neutral-500">
-                {text.optional}
-              </span>
-            </legend>
-            <div className="flex flex-wrap items-center gap-2">
-              {wouldUseAgainValues.map((value) => (
-                <label key={value}>
-                  <input
-                    type="radio"
-                    name={field.name}
-                    value={value}
-                    checked={field.state.value === value}
-                    onChange={() => field.handleChange(value)}
-                    className="peer sr-only"
-                  />
-                  <span className={pillClass}>{text.again[value]}</span>
-                </label>
-              ))}
-              {field.state.value !== "" && (
-                <ClearButton onClick={() => field.handleChange("")}>
-                  {text.clear}
-                </ClearButton>
-              )}
-            </div>
-          </fieldset>
-        )}
-      </form.Field>
+        <form.Field name="wouldUseAgain">
+          {(field) => (
+            <FieldSet>
+              <FieldLegend>
+                {text.againLegend} <span className="text-sm font-normal text-muted-foreground">{text.optional}</span>
+              </FieldLegend>
+              <div className="flex flex-wrap items-center gap-2">
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  size="lg"
+                  spacing={2}
+                  value={field.state.value}
+                  onValueChange={(value) => field.handleChange(value as typeof field.state.value)}
+                  className="flex-wrap"
+                >
+                  {wouldUseAgainValues.map((value) => (
+                    <ToggleGroupItem key={value} value={value} className={choiceClass}>
+                      {text.again[value]}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+                {field.state.value !== "" && <ClearButton onClick={() => field.handleChange("")}>{text.clear}</ClearButton>}
+              </div>
+            </FieldSet>
+          )}
+        </form.Field>
 
-      <form.Subscribe selector={(state) => state.isSubmitting}>
-        {(isSubmitting) => {
-          const busy = isSubmitting || mutation.isPending;
-          return (
-            <div className="space-y-3">
-              <button
-                type="submit"
-                disabled={busy}
-                aria-busy={busy}
-                className="w-full rounded-md bg-neutral-900 px-4 py-2 font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:bg-neutral-100 dark:text-neutral-900"
-              >
-                {busy ? text.sending : text.submit}
-              </button>
-              {mutation.isError && !busy && (
-                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-                  {text.errors.send}
-                </p>
-              )}
-            </div>
-          );
-        }}
-      </form.Subscribe>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => {
+            const busy = isSubmitting || mutation.isPending;
+            return (
+              <div className="space-y-4">
+                <Button type="submit" size="lg" disabled={busy} aria-busy={busy} className="w-full px-4 sm:w-auto">
+                  {busy && <Spinner />}
+                  {busy ? text.sending : text.submit}
+                </Button>
+                {mutation.isError && !busy && (
+                  <Alert variant="destructive">
+                    <CircleAlertIcon />
+                    <AlertDescription>{text.errors.send}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            );
+          }}
+        </form.Subscribe>
+      </FieldGroup>
     </form>
   );
 }
@@ -309,13 +283,9 @@ function ClearButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`ml-1 text-sm text-neutral-600 dark:text-neutral-400 ${linkClass}`}
-    >
+    <Button type="button" variant="link" size="sm" onClick={onClick} className="text-muted-foreground">
       {children}
-    </button>
+    </Button>
   );
 }
 

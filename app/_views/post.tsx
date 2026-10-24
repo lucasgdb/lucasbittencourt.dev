@@ -5,7 +5,8 @@ import { CustomMDX } from "app/components/mdx";
 import { JsonLd } from "app/components/json-ld";
 import { WatcherBar } from "app/components/watcher-bar";
 import { ReadAloud } from "app/components/read-aloud";
-import { HashAnchor } from "app/components/hash-anchor";
+import { ReadingSettings } from "app/components/reading-settings";
+import { Atkinson_Hyperlegible, Literata } from "next/font/google";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import {
   getDictionary,
@@ -25,6 +26,26 @@ import { person } from "app/lib/site";
 function findPost(slug: string, locale: Locale) {
   return getBlogPosts(locale).find((post) => post.slug === slug);
 }
+
+
+// Reading fonts a reader can pick (see ReadingSettings): not preloaded, so
+// their files only download for whoever chooses them
+const literata = Literata({
+  subsets: ["latin"],
+  variable: "--font-literata",
+  display: "swap",
+  preload: false,
+});
+// The original (not "Next"): Next.js has its metrics, so the fallback shown
+// while it downloads is sized to match (and the build doesn't warn)
+const atkinson = Atkinson_Hyperlegible({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-atkinson",
+  display: "swap",
+  preload: false,
+});
 
 export function postStaticParams(locale: Locale) {
   return getBlogPosts(locale).map((post) => ({ slug: post.slug }));
@@ -79,9 +100,8 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
   const translated = Boolean(findPost(slug, otherLocale(locale)));
 
   return (
-    <section>
+    <section className={`${literata.variable} ${atkinson.variable}`}>
       <WatcherBar />
-      <HashAnchor />
       <JsonLd data={postJsonLd(post, locale, translated)} />
       <h1 className="title font-semibold text-2xl tracking-tighter">
         {post.metadata.title}
@@ -102,7 +122,10 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
             </>
           )}
         </p>
-        <ReadAloud title={post.metadata.title} labels={dict.post.readAloud} />
+        <div className="flex items-center gap-2">
+          <ReadAloud title={post.metadata.title} labels={dict.post.readAloud} />
+          <ReadingSettings labels={dict.post.reading} themeLabels={dict.theme} />
+        </div>
       </div>
       <article className="prose post">
         <CustomMDX source={post.content} />

@@ -7,26 +7,28 @@ import { slugify } from "app/lib/slugify";
 import { CodeBlock } from "app/components/code-block";
 import { SectionSubheading } from "app/components/section-subheading";
 import { Tab, Tabs } from "app/components/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "app/components/ui/table";
 
-function Table({ data }) {
-  let headers = data.headers.map((header, index) => (
-    <th key={index}>{header}</th>
-  ));
-  let rows = data.rows.map((row, index) => (
-    <tr key={index}>
-      {row.map((cell, cellIndex) => (
-        <td key={cellIndex}>{cell}</td>
-      ))}
-    </tr>
-  ));
-
+function MdxTable({ data }) {
   return (
-    <table>
-      <thead>
-        <tr>{headers}</tr>
-      </thead>
-      <tbody>{rows}</tbody>
-    </table>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {data.headers.map((header, index) => (
+            <TableHead key={index}>{header}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.rows.map((row, index) => (
+          <TableRow key={index}>
+            {row.map((cell, cellIndex) => (
+              <TableCell key={cellIndex}>{cell}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -95,7 +97,7 @@ let components = {
   pre: CodeBlock,
   Tabs,
   Tab,
-  Table,
+  Table: MdxTable,
 };
 
 // Wraps each h2 and what follows it in a <section>, so a sticky section

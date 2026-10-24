@@ -1,6 +1,9 @@
 "use client";
 
+import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useRef, useState, type ComponentProps, type ReactElement } from "react";
+import { Button } from "app/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
 
 const labels = {
   en: { copy: "Copy code", copied: "Copied" },
@@ -44,24 +47,21 @@ export function CodeBlock({ children, style, ...props }: ComponentProps<"pre">) 
         {children}
       </pre>
       {copyable && (
-        <button
-          type="button"
-          onClick={copy}
-          aria-label={label}
-          title={label}
-          className="absolute top-[7.5px] right-2 cursor-pointer rounded-md border border-neutral-200 bg-neutral-50 p-1 text-neutral-600 opacity-100 transition-opacity hover:text-neutral-900 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"
-        >
-          {copied ? (
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          ) : (
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
-          )}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-xs"
+              onClick={copy}
+              aria-label={label}
+              className="absolute top-[7.5px] right-2 opacity-100 transition-opacity focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+            >
+              {copied ? <CheckIcon /> : <CopyIcon />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
       )}
     </div>
   );

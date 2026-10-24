@@ -37,10 +37,10 @@ export function Feed({ locale }: { locale: Locale }) {
             {formatDate(entry.date, false, locale)}
           </time>
           <Link className="group mb-4 flex flex-wrap items-baseline gap-x-2" href={entry.href}>
-            <span className="text-neutral-900 dark:text-neutral-100 tracking-tight group-hover:underline underline-offset-2">
+            <span className="text-neutral-900 dark:text-neutral-100 tracking-tight">
               {entry.title}
             </span>
-            <span className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+            <span className="text-sm text-neutral-500 dark:text-neutral-500">
               {labels[entry.kind]}
             </span>
           </Link>

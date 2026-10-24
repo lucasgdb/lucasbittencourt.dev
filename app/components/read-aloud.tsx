@@ -1,8 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
+import {
+  HeadphonesIcon,
+  LocateFixedIcon,
+  MicIcon,
+  PauseIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  SkipBackIcon,
+  SkipForwardIcon,
+  XIcon,
+} from "lucide-react";
 import type { Dictionary } from "app/lib/i18n";
-import { Dropdown } from "app/components/dropdown";
+import { Button } from "app/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "app/components/ui/select";
+import { Progress } from "app/components/ui/progress";
+import { Toggle } from "app/components/ui/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
 import { scrollToElement } from "app/components/hash-anchor";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { setReadAloudCommands, setReadAloudState } from "app/components/read-aloud-store";
@@ -74,7 +97,9 @@ function collectSegments(title: string, article: Element, lang: string, codeBloc
   const readable = "h2, h3, h4, p, li, .code-block";
   const taken: Element[] = [];
   for (const element of article.querySelectorAll(readable)) {
-    if (element.closest("[hidden]") || taken.some((parent) => parent.contains(element))) {
+    // Hidden content, such as the tabs not chosen (OS-specific commands)
+    const hidden = element.closest('[hidden], [role="tabpanel"][data-state="inactive"]');
+    if (hidden || taken.some((parent) => parent.contains(element))) {
       continue;
     }
     // The post's own sections (one per h2), not the page's wrapper
@@ -113,7 +138,9 @@ function pickVoice(voices: SpeechSynthesisVoice[], lang: string) {
  * Hidden where the browser can't speak.
  */
 export function ReadAloud({ title, labels }: { title: string; labels: Labels }) {
-  const [supported, setSupported] = useState(false);
+  // "checking" until the browser lists its voices (they load asynchronously)
+  const [support, setSupport] = useState<"checking" | "unsupported" | "noVoices" | "ready">("checking");
+  const supported = support === "ready";
   const [open, setOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -134,6 +161,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
 
   useEffect(() => {
     if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+      setSupport("unsupported");
       return;
     }
     lang.current = document.documentElement.lang || "en";
@@ -145,17 +173,22 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
     const loadVoices = () => {
       const all = speechSynthesis.getVoices();
       // Some browsers have the API but no voice installed: nothing would play
-      setSupported(all.length > 0);
+      if (all.length > 0) {
+        setSupport("ready");
+      }
       const base = lang.current.split("-")[0].toLowerCase();
       setVoices(all.filter((v) => v.lang.toLowerCase().startsWith(base)));
       setVoice((current) => current ?? pickVoice(all, lang.current));
     };
     loadVoices();
     speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    // Still no voices after a while: say so (a late "voiceschanged" still enables it)
+    const noVoices = setTimeout(() => setSupport((current) => (current === "checking" ? "noVoices" : current)), 2000);
 
     const stop = () => speechSynthesis.cancel();
     window.addEventListener("pagehide", stop);
     return () => {
+      clearTimeout(noVoices);
       speechSynthesis.removeEventListener("voiceschanged", loadVoices);
       window.removeEventListener("pagehide", stop);
       run.current++;
@@ -380,24 +413,32 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
     };
   }, []);
 
-  if (!supported) {
-    return null;
-  }
-
-  const button =
-    "inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100";
   const progress = total > 0 ? ((index + 1) / total) * 100 : 0;
+  const unavailable = support === "checking" ? labels.checking : support === "unsupported" ? labels.unsupported : labels.noVoices;
+
+  const mainButton = (
+    <Button variant="outline" onClick={mainAction} disabled={!supported}>
+      {open && playing ? <PauseIcon fill="currentColor" /> : <HeadphonesIcon />}
+      {mainLabel}
+    </Button>
+  );
 
   return (
     <MotionConfig reducedMotion="user">
-      <button
-        type="button"
-        onClick={mainAction}
-        className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900 dark:hover:text-neutral-100"
-      >
-        <Icon name={open && playing ? "pause" : "headphones"} />
-        {mainLabel}
-      </button>
+      {supported ? (
+        mainButton
+      ) : (
+        // Disabled buttons get no pointer or focus events: the wrapper carries
+        // the tooltip saying why (and is focusable, for keyboard users)
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span tabIndex={0} className="inline-flex rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+              {mainButton}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-64">{unavailable}</TooltipContent>
+        </Tooltip>
+      )}
 
       <AnimatePresence>
         {open && (
@@ -409,7 +450,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "140%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
-            className="fixed inset-x-0 bottom-3 z-50 mx-auto w-[calc(100%-1.5rem)] max-w-2xl sm:bottom-5"
+            className="fixed inset-x-0 bottom-3 z-50 mx-auto w-[calc(100%-1.5rem)] max-w-(--column-width) sm:bottom-5"
           >
             {/* A glow when it first appears, so it isn't missed */}
             <motion.div
@@ -419,101 +460,108 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
               animate={{ opacity: [0, 1, 0, 0.8, 0] }}
               transition={{ duration: 2, delay: 0.25, ease: "easeInOut" }}
             />
-            <div className="relative rounded-2xl border border-neutral-200 bg-background/90 shadow-[0_8px_30px_rgb(0_0_0/0.12)] backdrop-blur-md dark:border-neutral-800 dark:shadow-[0_8px_30px_rgb(0_0_0/0.6)]">
+            <div className="relative rounded-2xl border bg-popover/90 text-popover-foreground shadow-lg backdrop-blur-md">
               {/* Inset from the rounded corners: the card can't clip (its menus open outside it) */}
-              <div className="absolute inset-x-4 top-0 h-0.5 overflow-hidden rounded-full bg-neutral-200/70 dark:bg-neutral-800">
-                <motion.div
-                  className="h-full rounded-full bg-neutral-900 dark:bg-neutral-100"
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                />
-              </div>
+              <Progress
+                value={progress}
+                aria-label={labels.nowReading}
+                className="absolute inset-x-4 top-0 h-0.5 w-auto"
+              />
 
               <div className="flex items-center gap-1 px-2 pt-2 pb-1.5 sm:gap-1.5 sm:px-3">
-                <button type="button" className={`${button} max-[420px]:hidden`} onClick={() => speak(0)} aria-label={labels.restart} title={labels.restart}>
-                  <Icon name="restart" />
-                </button>
-                <button
-                  type="button"
-                  className={button}
-                  onClick={() => speak(Math.max(index - 1, 0))}
-                  disabled={index === 0}
-                  aria-label={labels.previous}
-                  title={labels.previous}
-                >
-                  <Icon name="previous" />
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-neutral-900 text-neutral-50 shadow-sm transition-[background-color,transform] hover:bg-neutral-700 active:scale-95 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
-                  onClick={playing ? pause : () => play(index)}
-                  aria-label={playing ? labels.pause : labels.play}
-                  title={playing ? labels.pause : labels.play}
-                >
-                  <Icon name={playing ? "pause" : "play"} />
-                </button>
-                <button
-                  type="button"
-                  className={button}
-                  onClick={() => speak(index + 1)}
-                  disabled={index >= total - 1}
-                  aria-label={labels.next}
-                  title={labels.next}
-                >
-                  <Icon name="next" />
-                </button>
+                <IconButton label={labels.restart} onClick={() => speak(0)} className="max-[420px]:hidden">
+                  <RotateCcwIcon />
+                </IconButton>
+                <IconButton label={labels.previous} onClick={() => speak(Math.max(index - 1, 0))} disabled={index === 0}>
+                  <SkipBackIcon />
+                </IconButton>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon-lg"
+                      className="rounded-full"
+                      onClick={playing ? pause : () => play(index)}
+                      aria-label={playing ? labels.pause : labels.play}
+                    >
+                      {playing ? <PauseIcon fill="currentColor" /> : <PlayIcon fill="currentColor" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{playing ? labels.pause : labels.play}</TooltipContent>
+                </Tooltip>
+                <IconButton label={labels.next} onClick={() => speak(index + 1)} disabled={index >= total - 1}>
+                  <SkipForwardIcon />
+                </IconButton>
 
                 <div className="mx-1 flex min-w-0 flex-1 flex-col overflow-hidden leading-tight sm:mx-2">
-                  <span className="flex items-center gap-1.5 whitespace-nowrap text-[11px] max-sm:hidden font-medium tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
-                    <span className={`size-1.5 shrink-0 rounded-full ${playing ? "animate-pulse bg-red-500" : "bg-neutral-400 dark:bg-neutral-600"}`} />
-                    <span className="max-sm:hidden">{labels.nowReading} ·</span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-medium tracking-wide whitespace-nowrap text-muted-foreground uppercase max-sm:hidden">
+                    <span className={`size-1.5 shrink-0 rounded-full ${playing ? "animate-pulse bg-red-500" : "bg-muted-foreground/50"}`} />
+                    <span>{labels.nowReading} ·</span>
                     <span className="font-normal tabular-nums normal-case">
                       {Math.min(index + 1, total)}/{total}
                     </span>
                   </span>
-                  <span className="truncate text-sm text-neutral-900 max-sm:hidden dark:text-neutral-100">{readingTitle}</span>
+                  <span className="truncate text-sm max-sm:hidden">{readingTitle}</span>
                 </div>
 
-                <button
-                  type="button"
-                  className={`${button} max-sm:hidden ${following ? "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100" : ""}`}
-                  onClick={toggleFollow}
-                  aria-pressed={following}
-                  aria-label={labels.follow}
-                  title={labels.follow}
-                >
-                  <Icon name="follow" />
-                </button>
-                <Dropdown
-                  label={labels.speed}
-                  value={rate}
-                  className="shrink-0"
-                  options={rates.map((value) => ({ value, label: `${value}×` }))}
-                  onChange={(value) => {
-                    save(storage.rate, String(value));
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Toggle pressed={following} onPressedChange={toggleFollow} aria-label={labels.follow} className="max-sm:hidden">
+                      <LocateFixedIcon />
+                    </Toggle>
+                  </TooltipTrigger>
+                  <TooltipContent>{labels.follow}</TooltipContent>
+                </Tooltip>
+                <Select
+                  value={String(rate)}
+                  onValueChange={(value) => {
+                    save(storage.rate, value);
                     restartWith.current = true;
-                    setRate(value);
+                    setRate(Number(value));
                   }}
-                />
+                >
+                  <SelectTrigger size="sm" aria-label={labels.speed} className="shrink-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent position="popper" side="top" align="end">
+                    <SelectGroup>
+                      <SelectLabel>{labels.speed}</SelectLabel>
+                      {rates.map((value) => (
+                        <SelectItem key={value} value={String(value)}>
+                          {value}×
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 {voices.length > 1 && (
-                  <Dropdown
-                    label={labels.voice}
+                  <Select
                     value={voice?.name ?? ""}
-                    icon={<Icon name="voice" size={14} />}
-                    className="shrink-0 md:max-w-44"
-                    labelClassName="max-md:hidden"
-                    options={voices.map((v) => ({ value: v.name, label: v.name }))}
-                    onChange={(name) => {
+                    onValueChange={(name) => {
                       const chosen = voices.find((v) => v.name === name) ?? null;
                       save(storage.voice(lang.current), chosen?.name ?? null);
                       restartWith.current = true;
                       setVoice(chosen);
                     }}
-                  />
+                  >
+                    <SelectTrigger size="sm" aria-label={labels.voice} className="shrink-0 md:max-w-44 [&>[data-slot=select-value]]:max-md:hidden">
+                      <MicIcon />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper" side="top" align="end" className="max-w-[min(20rem,calc(100vw-2rem))]">
+                      <SelectGroup>
+                        <SelectLabel>{labels.voice}</SelectLabel>
+                        {voices.map((v) => (
+                          <SelectItem key={v.name} value={v.name}>
+                            {v.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 )}
-                <button type="button" className={button} onClick={close} aria-label={labels.close} title={labels.close}>
-                  <Icon name="close" />
-                </button>
+                <IconButton label={labels.close} onClick={close}>
+                  <XIcon />
+                </IconButton>
               </div>
             </div>
           </motion.div>
@@ -523,54 +571,21 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
   );
 }
 
-const paths: Record<string, ReactNode> = {
-  headphones: <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />,
-  play: <path d="M6 4l14 8-14 8z" />,
-  pause: (
-    <>
-      <rect x="6" y="4" width="4" height="16" rx="1" />
-      <rect x="14" y="4" width="4" height="16" rx="1" />
-    </>
-  ),
-  previous: <path d="M19 20 9 12l10-8zM5 19V5" />,
-  next: <path d="m5 4 10 8-10 8zM19 5v14" />,
-  restart: (
-    <>
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-    </>
-  ),
-  follow: (
-    <>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-    </>
-  ),
-  close: <path d="M18 6 6 18M6 6l12 12" />,
-  voice: (
-    <>
-      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3" />
-    </>
-  ),
-};
-
-const filled = new Set(["play", "pause"]);
-
-function Icon({ name, size = 16 }: { name: keyof typeof paths; size?: number }) {
+/** A ghost icon button with its name as a tooltip */
+function IconButton({
+  label,
+  className,
+  children,
+  ...props
+}: { label: string } & ComponentProps<typeof Button>) {
   return (
-    <svg
-      aria-hidden="true"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill={filled.has(name) ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {paths[name]}
-    </svg>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label={label} className={className} {...props}>
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }

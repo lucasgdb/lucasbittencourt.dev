@@ -1,3 +1,4 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "app/components/ui/table";
 import fs from "fs";
 import path from "path";
 import type { Metadata } from "next";
@@ -61,24 +62,24 @@ function mcpComponents(locale: Locale) {
 
   function McpTools() {
     return (
-      <table>
-        <thead>
-          <tr>
-            <th>{dict.toolsTable.tool}</th>
-            <th>{dict.toolsTable.returns}</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{dict.toolsTable.tool}</TableHead>
+            <TableHead>{dict.toolsTable.returns}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {mcpTools.map((tool) => (
-            <tr key={tool.name}>
-              <td>
+            <TableRow key={tool.name}>
+              <TableCell>
                 <code>{tool.name}</code>
-              </td>
-              <td className="whitespace-normal">{dict.tools[tool.name]}</td>
-            </tr>
+              </TableCell>
+              <TableCell className="whitespace-normal">{dict.tools[tool.name]}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     );
   }
 

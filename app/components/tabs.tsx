@@ -4,13 +4,12 @@ import {
   Children,
   isValidElement,
   useEffect,
-  useId,
   useRef,
   useState,
-  type KeyboardEvent,
   type ReactElement,
   type ReactNode,
 } from "react";
+import { Tabs as TabsRoot, TabsContent, TabsList, TabsTrigger } from "app/components/ui/tabs";
 
 type TabProps = {
   label: string;
@@ -52,7 +51,6 @@ export function Tabs({ group = "os", children }: { group?: string; children: Rea
   const tabs = Children.toArray(children).filter(isValidElement) as ReactElement<TabProps>[];
   const values = tabs.map((tab) => tab.props.value.split(" "));
   const [selected, setSelected] = useState(values[0][0]);
-  const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
@@ -89,64 +87,37 @@ export function Tabs({ group = "os", children }: { group?: string; children: Rea
     });
   }
 
-  function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const last = tabs.length - 1;
-    const next =
-      event.key === "ArrowRight" ? (index === last ? 0 : index + 1)
-      : event.key === "ArrowLeft" ? (index === 0 ? last : index - 1)
-      : event.key === "Home" ? 0
-      : event.key === "End" ? last
-      : null;
-    if (next === null) {
-      return;
-    }
-    event.preventDefault();
-    select(next);
-    tabRefs.current[next]?.focus();
-  }
-
   return (
-    <div className="tabs my-4">
-      <div
-        role="tablist"
-        className="flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--header-border)]"
-      >
+    <TabsRoot
+      value={String(active)}
+      onValueChange={(value) => select(Number(value))}
+      className="tabs my-4"
+    >
+      <TabsList>
         {tabs.map((tab, index) => (
-          <button
+          <TabsTrigger
             key={tab.props.value}
+            value={String(index)}
             ref={(element) => {
               tabRefs.current[index] = element;
             }}
-            type="button"
-            role="tab"
-            id={`${id}-tab-${index}`}
-            aria-selected={index === active}
-            aria-controls={`${id}-panel-${index}`}
-            tabIndex={index === active ? 0 : -1}
-            onClick={() => select(index)}
-            onKeyDown={(event) => onKeyDown(event, index)}
-            className={`cursor-pointer whitespace-nowrap border-b-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-              index === active
-                ? "border-neutral-900 text-neutral-900 dark:border-neutral-100 dark:text-neutral-100"
-                : "border-transparent text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
-            }`}
           >
             {tab.props.label}
-          </button>
+          </TabsTrigger>
         ))}
-      </div>
+      </TabsList>
       {tabs.map((tab, index) => (
-        <div
+        // Inactive panels stay in the page (search engines, reader modes),
+        // just hidden; the read-aloud skips them
+        <TabsContent
           key={tab.props.value}
-          role="tabpanel"
-          id={`${id}-panel-${index}`}
-          aria-labelledby={`${id}-tab-${index}`}
-          hidden={index !== active}
-          className="tab-panel"
+          value={String(index)}
+          forceMount
+          className="tab-panel data-[state=inactive]:hidden"
         >
           {tab}
-        </div>
+        </TabsContent>
       ))}
-    </div>
+    </TabsRoot>
   );
 }

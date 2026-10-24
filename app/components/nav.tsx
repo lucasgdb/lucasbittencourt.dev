@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeSelect } from "./theme-toggle";
 import { LanguageSwitch } from "./language-switch";
 import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 
@@ -23,7 +23,7 @@ export function Navbar({
 
   return (
     <header className="site-header sticky top-0 z-40 mt-6 py-2 tracking-tight bg-background/80 backdrop-blur-md">
-      <div className="max-w-2xl mx-4 min-[44rem]:mx-auto px-2 md:px-0">
+      <div className="mx-auto w-[calc(100%-2rem)] max-w-(--column-width) px-2 md:px-0">
         <nav
           className="-ml-2 flex flex-row items-start relative"
           id="nav"
@@ -48,7 +48,7 @@ export function Navbar({
           </div>
           <div className="ml-auto flex shrink-0 items-center">
             <LanguageSwitch locale={locale} notFound={notFound} />
-            <ThemeToggle label={dict.themeToggle} />
+            <ThemeSelect labels={dict.theme} />
           </div>
         </nav>
       </div>
