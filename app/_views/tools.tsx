@@ -187,7 +187,12 @@ function DownloadBuild({ tool, locale, browser }: { tool: Tool; locale: Locale; 
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         {dict.released} <time dateTime={build.releasedAt}>{formatDate(build.releasedAt, false, locale)}</time>
         {" · "}
-        {dict.checksum}: <code className="break-all">{file.sha256}</code>
+        {dict.checksum}:{" "}
+        {/* Metadata, not a term to type: muted like the line (inline, since
+            .prose's inline code color would beat a utility class) */}
+        <code className="break-all" style={{ color: "inherit", background: "none", padding: 0 }}>
+          {file.sha256}
+        </code>
       </p>
     </div>
   );
