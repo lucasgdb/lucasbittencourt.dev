@@ -8,6 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "app/components/nav";
 import { TooltipProvider } from "app/components/ui/tooltip";
 import { HashAnchor } from "app/components/hash-anchor";
+import { HeaderBorder } from "app/components/header-border";
 import { InlineCodeSelect } from "app/components/inline-code-select";
 import Footer from "app/components/footer";
 import { getDictionary, localeConfig, locales, type Locale } from "app/lib/i18n";
@@ -116,6 +117,7 @@ export function RootDocument({
       <body className="antialiased flex min-h-dvh flex-col">
         <TooltipProvider>
           <HashAnchor />
+          <HeaderBorder />
           <InlineCodeSelect />
           {shown.map((l) => only(l, <Navbar locale={l} notFound={auto} />))}
           <div className="flex flex-1 flex-col self-center w-[calc(100%-2rem)] max-w-(--column-width) mt-14 min-w-0 px-2 md:px-0">
