@@ -87,7 +87,7 @@ export function ToolsIndexPage({ locale }: { locale: Locale }) {
               >
                 <ToolIcon tool={tool} size={40} />
                 <div className="flex flex-col space-y-1">
-                  <p className="text-neutral-900 dark:text-neutral-100 tracking-tight group-hover:underline underline-offset-2">
+                  <p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
                     {text.name}
                   </p>
                   <p className="text-neutral-600 dark:text-neutral-400">
