@@ -35,12 +35,27 @@ function detectOs() {
   return null;
 }
 
+// The browser reading the page, for install guides (Opera, Edge and Vivaldi
+// say so in the user agent; Brave only through navigator.brave)
+function detectBrowser() {
+  const agent = navigator.userAgent;
+  if (/Firefox\//.test(agent)) return "firefox";
+  if (/OPR\//.test(agent)) return "opera";
+  if (/Edg\//.test(agent)) return "edge";
+  if (/Vivaldi\//.test(agent)) return "vivaldi";
+  if ("brave" in navigator) return "brave";
+  if (/Chrome\//.test(agent)) return "chrome";
+  return null;
+}
+
 function savedValue(group: string) {
   try {
     const value = localStorage.getItem(storageKey(group));
     if (value) return value;
   } catch {}
-  return group === "os" ? detectOs() : null;
+  if (group === "os") return detectOs();
+  if (group === "browser") return detectBrowser();
+  return null;
 }
 
 /**
@@ -113,7 +128,8 @@ export function Tabs({ group = "os", children }: { group?: string; children: Rea
           key={tab.props.value}
           value={String(index)}
           forceMount
-          className="tab-panel data-[state=inactive]:hidden"
+          // Inherits the text size (shadcn sets text-sm; posts have a reading size)
+          className="tab-panel text-[length:inherit] data-[state=inactive]:hidden"
         >
           {tab}
         </TabsContent>

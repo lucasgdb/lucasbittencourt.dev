@@ -8,6 +8,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CustomMDX } from "app/components/mdx";
+import { InstallNowButton, ToolTabs } from "app/components/tool-tabs";
 import { formatDate } from "app/blog/utils";
 import { getDictionary, localeConfig, localizePath, type Locale } from "app/lib/i18n";
 import { baseOpenGraph, pageAlternates } from "app/lib/seo";
@@ -18,7 +19,7 @@ const toolPath = (slug: string) => `/tool/${slug}`;
 const privacyPath = (slug: string) => `/tool/${slug}/privacy`;
 const eulaPath = (slug: string) => `/tool/${slug}/eula`;
 
-function readContent(slug: string, file: "content" | "privacy" | "eula", locale: Locale) {
+function readContent(slug: string, file: "content" | "privacy" | "eula" | "install", locale: Locale) {
   return fs.readFileSync(
     path.join(process.cwd(), "app", "tools", slug, `${file}.${locale}.mdx`),
     "utf-8"
@@ -167,10 +168,46 @@ function LifetimePrice({ tool, locale }: { tool: Tool; locale: Locale }) {
   );
 }
 
+/** A manual build's download, for one browser family: the button, then its
+ * date and checksum (<DownloadBuild browser="chromium" /> in install.*.mdx) */
+function DownloadBuild({ tool, locale, browser }: { tool: Tool; locale: Locale; browser: "chromium" | "firefox" }) {
+  const build = tool.manualBuild!;
+  const file = build.files[browser]!;
+  const dict = getDictionary(locale).tools.manual;
+  const size = `${(file.bytes / 1e6).toLocaleString(localeConfig[locale].intl, { maximumFractionDigits: 1 })} MB`;
+  return (
+    <div className="my-5 flex flex-col items-start gap-2">
+      <Button asChild>
+        {/* Inline: .prose a's underline would beat a utility class */}
+        <a href={file.file} download style={{ textDecoration: "none" }}>
+          <DownloadIcon />
+          {dict.download(build.version, size)}
+        </a>
+      </Button>
+      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        {dict.released} <time dateTime={build.releasedAt}>{formatDate(build.releasedAt, false, locale)}</time>
+        {" · "}
+        {dict.checksum}: <code className="break-all">{file.sha256}</code>
+      </p>
+    </div>
+  );
+}
+
 export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
   const tool = findTool(slug);
   const dict = getDictionary(locale).tools;
   const text = tool.text[locale];
+  const about = (
+    <article className="prose">
+      <CustomMDX
+        source={readContent(slug, "content", locale)}
+        components={{
+          CreditPacks: () => <CreditPacks tool={tool} locale={locale} />,
+          LifetimePrice: () => <LifetimePrice tool={tool} locale={locale} />,
+        }}
+      />
+    </article>
+  );
 
   return (
     <section>
@@ -188,7 +225,9 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
       {/* The summary is the page's description; the content opens with its
           own, fuller version */}
       {/* The page's main action: installing (until it's published, disabled) */}
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap gap-2">
+        {/* Not in the store yet, but installable by hand: that comes first */}
+        {!tool.storeUrl && tool.manualBuild && <InstallNowButton>{dict.installNow}</InstallNowButton>}
         {tool.storeUrl ? (
           <Button asChild size="lg">
             <a href={tool.storeUrl} rel="noopener noreferrer" target="_blank">
@@ -232,15 +271,27 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
         </li>
       </ul>
 
-      <article className="prose">
-        <CustomMDX
-          source={readContent(slug, "content", locale)}
-          components={{
-            CreditPacks: () => <CreditPacks tool={tool} locale={locale} />,
-            LifetimePrice: () => <LifetimePrice tool={tool} locale={locale} />,
-          }}
+      {!tool.storeUrl && tool.manualBuild ? (
+        <ToolTabs
+          labels={dict.tabs}
+          about={about}
+          install={
+            <article className="prose">
+              <h2>{dict.manual.title}</h2>
+              <CustomMDX
+                source={readContent(slug, "install", locale)}
+                components={{
+                  DownloadBuild: ({ browser }: { browser: "chromium" | "firefox" }) => (
+                    <DownloadBuild tool={tool} locale={locale} browser={browser} />
+                  ),
+                }}
+              />
+            </article>
+          }
         />
-      </article>
+      ) : (
+        about
+      )}
     </section>
   );
 }
