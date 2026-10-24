@@ -4,6 +4,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { highlight } from "sugar-high";
 import React from "react";
 import { slugify } from "app/lib/slugify";
+import { wrappable } from "app/lib/code-wrap";
 import { CodeBlock } from "app/components/code-block";
 import { SectionSubheading } from "app/components/section-subheading";
 import { Tab, Tabs } from "app/components/tabs";
@@ -55,7 +56,7 @@ function RoundedImage(props) {
 }
 
 function Code({ children, ...props }) {
-  let codeHTML = highlight(children);
+  let codeHTML = wrappable(highlight(children), children);
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
 

@@ -512,6 +512,12 @@ html.read-aloud-open body {
   @apply px-1 py-0.5 rounded-lg;
 }
 
+/* Inline code with no spaces (paths, URLs) may break anywhere, instead of
+   widening the page on narrow screens; code blocks scroll on their own */
+.prose :not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
 .prose pre code {
   @apply p-0;
   border: initial;
@@ -520,6 +526,37 @@ html.read-aloud-open body {
 
 .prose code span {
   @apply font-medium;
+}
+
+/* Wrapped code blocks (the "wrap lines" button), like VS Code: each line is
+   a block whose wrapped lines start at its indentation (--indent, from
+   app/lib/code-wrap.ts); the newlines between them are then whitespace-only
+   flex items, which aren't rendered */
+/* Chrome breaks at <wbr> even in "white-space: pre": the break points only
+   exist while wrapping */
+.prose pre:not([data-wrap]) wbr {
+  display: none;
+}
+
+.prose pre[data-wrap] code {
+  display: flex;
+  flex-direction: column;
+}
+
+.prose pre[data-wrap] .sh__line {
+  min-height: 1lh;
+  padding-left: var(--indent, 0);
+  text-indent: calc(-1 * var(--indent, 0));
+}
+
+/* The first line runs beside the buttons (wrap and copy) */
+.prose pre[data-wrap] .sh__line:first-child {
+  padding-right: 3.75rem;
+}
+
+/* The code's final newline: no empty line at the end */
+.prose pre[data-wrap] .sh__line:last-child:empty {
+  display: none;
 }
 
 .prose img {
