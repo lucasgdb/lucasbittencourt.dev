@@ -1,0 +1,108 @@
+Video Downloader isn't in the extension stores yet. Until it is, you can install it by hand: it's the same build that will go to the stores, connected to the real servers, so your account and Premium license carry over afterwards.
+
+There are two files: one for Chromium-based browsers (Chrome, Edge, Brave, Opera and Vivaldi) and one for Firefox. Pick your browser below; if it can be recognized, its tab is already open. It only works on a computer.
+
+## Step by step
+
+<Tabs group="browser">
+<Tab label="Chrome" value="chrome">
+
+<DownloadBuild browser="chromium" />
+
+1. **Unzip** the file into a folder you'll keep, such as one in Documents. Chrome loads the extension from that folder, so don't delete or move it.
+2. Type `chrome://extensions` in the address bar and press Enter.
+3. Turn on **Developer mode**, the switch in the top right corner.
+4. Click **Load unpacked** and pick the unzipped folder, the one with the `manifest.json` file.
+5. **Pin** the extension: click the puzzle icon next to the address bar, then the pin next to Video Downloader.
+6. Click its icon: the **side panel** opens.
+
+It needs Chrome 116 or newer.
+
+</Tab>
+<Tab label="Edge" value="edge">
+
+<DownloadBuild browser="chromium" />
+
+1. **Unzip** the file into a folder you'll keep, such as one in Documents. Edge loads the extension from that folder, so don't delete or move it.
+2. Type `edge://extensions` in the address bar and press Enter.
+3. Turn on **Developer mode**, the switch in the left menu (in narrow windows, open the ☰ menu first).
+4. Click **Load unpacked** and pick the unzipped folder, the one with the `manifest.json` file.
+5. **Show** the extension in the toolbar: click the puzzle icon (Extensions), then the eye icon next to Video Downloader.
+6. Click its icon: the **side panel** opens.
+
+</Tab>
+<Tab label="Brave" value="brave">
+
+<DownloadBuild browser="chromium" />
+
+1. **Unzip** the file into a folder you'll keep, such as one in Documents. Brave loads the extension from that folder, so don't delete or move it.
+2. Type `brave://extensions` in the address bar and press Enter.
+3. Turn on **Developer mode**, the switch in the top right corner.
+4. Click **Load unpacked** and pick the unzipped folder, the one with the `manifest.json` file.
+5. **Pin** the extension: click the puzzle icon next to the address bar, then the pin next to Video Downloader.
+6. Click its icon: the **side panel** opens.
+
+</Tab>
+<Tab label="Opera" value="opera">
+
+<DownloadBuild browser="chromium" />
+
+1. **Unzip** the file into a folder you'll keep, such as one in Documents. Opera loads the extension from that folder, so don't delete or move it.
+2. Type `opera://extensions` in the address bar and press Enter.
+3. Turn on **Developer mode**, the switch in the top right corner.
+4. Click **Load unpacked** and pick the unzipped folder, the one with the `manifest.json` file.
+5. **Pin** the extension: click the cube icon (Extensions) next to the address bar, then the pin next to Video Downloader.
+6. Click its icon: the extension opens in a **popup**.
+
+Opera doesn't have Chrome's side panel, so the icon always opens the popup.
+
+</Tab>
+<Tab label="Vivaldi" value="vivaldi">
+
+<DownloadBuild browser="chromium" />
+
+1. **Unzip** the file into a folder you'll keep, such as one in Documents. Vivaldi loads the extension from that folder, so don't delete or move it.
+2. Type `vivaldi://extensions` in the address bar and press Enter.
+3. Turn on **Developer mode**, the switch in the top right corner.
+4. Click **Load unpacked** and pick the unzipped folder, the one with the `manifest.json` file.
+5. The extension's icon shows up in the toolbar (or under the Extensions button, next to the address bar).
+6. Click its icon: the **side panel** opens.
+
+</Tab>
+<Tab label="Firefox" value="firefox">
+
+<DownloadBuild browser="firefox" />
+
+1. Type `about:debugging#/runtime/this-firefox` in the address bar and press Enter.
+2. Click **Load Temporary Add-on…** and pick the downloaded `.zip` file, without unzipping it.
+3. Click the puzzle icon (Extensions), then Video Downloader. To keep it in the toolbar, use the gear next to its name and **Pin to Toolbar**.
+4. Click its icon: the extension opens in a **popup**. If you prefer, it's also in Firefox's sidebar: **View → Sidebar → Video Downloader**.
+
+It needs Firefox 128 or newer. **The install is temporary**: Firefox only keeps extensions signed by Mozilla for good, so this one goes away when you close the browser, and you have to load it again. The signed version, which stays installed, comes later.
+
+</Tab>
+</Tabs>
+
+When they start, Chromium-based browsers may warn about extensions in developer mode. That's because this copy was installed by hand, not from the store: you can close the warning.
+
+## Testing
+
+To check that everything works:
+
+1. **Automatic detection**: open a page with a video, play it and click the extension's icon. The videos found show up in the list; if it asks, click **Allow access** to also catch the streams (HLS and DASH).
+2. **Download**: download a file and a stream. The stream is put together inside the browser and saved as a single file.
+3. **By link**: in the **By link** tab, paste the link of a public X (Twitter) post with a video and click **Search**.
+4. **Account and Premium** (optional): click **Continue with Google** and look at the **Premium** tab. The extension works without an account.
+
+If something fails, send me the browser, its version and what happened at the support email, in the links above.
+
+## Updating
+
+New versions show up on this page. Your account and Premium license are on the server, so nothing is lost.
+
+- **Chrome, Edge, Brave, Opera and Vivaldi**: download the new version, replace the files in the folder with the new ones, and click **Reload** (↻) on the extension's card, on the browser's extensions page.
+- **Firefox**: load the new `.zip` as a temporary add-on, as when installing.
+
+## When it reaches the stores
+
+Install it from your browser's store and remove this copy (**Remove** on its card, on the extensions page). If you use an account, sign in with the same Google account and your license will be there.

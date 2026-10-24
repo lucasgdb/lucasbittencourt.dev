@@ -1,4 +1,4 @@
-This Privacy policy explains how **Lucas Genesses Dias Bittencourt** (trade name Lucas Bittencourt), a sole proprietorship registered in Brazil under CNPJ **42.564.890/0001-04**, processes personal data in the **Video Downloader** extension for Google Chrome and in the servers it uses, under the Brazilian General Data Protection Law (Law No. 13,709/2018, "LGPD").
+This Privacy policy explains how **Lucas Genesses Dias Bittencourt** (trade name Lucas Bittencourt), a sole proprietorship registered in Brazil under CNPJ **42.564.890/0001-04**, processes personal data in the **Video Downloader** extension, for Chrome, Firefox and other browsers, and in the servers it uses, under the Brazilian General Data Protection Law (Law No. 13,709/2018, "LGPD").
 
 This is a translation. In case of any difference, the [Portuguese version](/pt-br/tool/video-downloader/privacy) prevails. The lucasbittencourt.dev website has a [Privacy policy](/privacy) of its own; this one covers only the extension.
 
@@ -27,7 +27,7 @@ While the extension is open on a tab, it reads, in your browser:
 
 These detections are kept in the browser's session storage, one list per tab, and are deleted when the tab navigates or closes. They aren't sent to anyone.
 
-To check a video and download it, **your browser contacts the video's own site directly**, like the player would: it reads the file's first bytes, the stream's playlists and pieces (with your cookies for that site, when the site requires them) and the thumbnail. That site receives these requests as it receives any visit, with your IP address. Streams are assembled in temporary files in the browser's own storage, deleted after the download, and the result is saved by Chrome's download manager.
+To check a video and download it, **your browser contacts the video's own site directly**, like the player would: it reads the file's first bytes, the stream's playlists and pieces (with your cookies for that site, when the site requires them) and the thumbnail. That site receives these requests as it receives any visit, with your IP address. Streams are assembled in temporary files in the browser's own storage, deleted after the download, and the result is saved by the browser's download manager.
 
 ### "By link" searches
 
@@ -68,11 +68,11 @@ The extension doesn't collect your browsing history, the pages you visit, the vi
 - **activeTab** and **scripting**: read the videos of the tab the extension is open on.
 - **webRequest**: see the media requests of the sites you allowed, to find streams. No request is blocked or changed.
 - **Access to sites** (optional): requested only if you click "Allow access", for network detection, scanning after navigation and fetching stream pieces. The "By link" tab asks only for the sites it uses (X's embed service, Reddit, or the pasted link's own site).
-- **downloads**: save the files with Chrome's download manager and follow their progress. **downloads.open** (optional): "Play" a downloaded video in your computer's default player.
+- **downloads**: save the files with the browser's download manager and follow their progress. **downloads.open** (optional): "Play" a downloaded video in your computer's default player.
 - **storage**: keep the detections of each tab, the preferences and the session in your browser.
-- **sidePanel**: show the extension in the side panel.
-- **identity** (optional): open Google's sign-in window, requested on the first sign-in.
-- The **account service** and the **Video Downloader server** answer the extension without any extra permission.
+- **sidePanel**: show the extension in the side panel (in browsers that have one; in Opera and Firefox it opens in a popup).
+- **identity** (optional): open Google's sign-in window, requested on the first sign-in. In Firefox it can't be optional, but it asks nothing at install.
+- The **account service** and the **Video Downloader server** answer the extension without any extra permission. In Firefox, access to them is an extension permission too, because Firefox gives each install a different address.
 
 ## 5. Purposes and legal bases
 
@@ -117,7 +117,7 @@ After that, the data is deleted or anonymized.
 
 Under article 18 of the LGPD, you may ask for confirmation of processing, access, correction, anonymization, blocking or deletion, portability, information about sharing and withdrawal of consent.
 
-To delete your account or exercise other rights, write to the email above. You can also revoke the extension's access to your Google account at [myaccount.google.com/connections](https://myaccount.google.com/connections), revoke its site access in Chrome's extension settings, and file a complaint with the Brazilian Data Protection Authority (ANPD).
+To delete your account or exercise other rights, write to the email above. You can also revoke the extension's access to your Google account at [myaccount.google.com/connections](https://myaccount.google.com/connections), revoke its site access in the browser's extension settings, and file a complaint with the Brazilian Data Protection Authority (ANPD).
 
 ## 11. Security
 

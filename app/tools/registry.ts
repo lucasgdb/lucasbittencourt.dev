@@ -90,23 +90,39 @@ export const tools: Tool[] = [
     slug: "video-downloader",
     icon: "/tools/video-downloader/icon.svg",
     storeUrl: null,
+    manualBuild: {
+      version: "0.1.0",
+      releasedAt: "2026-10-24",
+      files: {
+        chromium: {
+          file: "/tools/video-downloader/video-downloader-0.1.0-chromium.zip",
+          bytes: 718012,
+          sha256: "5cabba2f8718909ec2a4c424178787d7c5e5d43bc91e759b49c354447a39802e",
+        },
+        firefox: {
+          file: "/tools/video-downloader/video-downloader-0.1.0-firefox.zip",
+          bytes: 717797,
+          sha256: "e38cc63b37365db2167ccb20b87c3db6f6f7a7fcd71f9e82847cef8cba074646",
+        },
+      },
+    },
     publishedAt: "2026-10-19",
-    updatedAt: "2026-10-19",
-    privacyUpdatedAt: "2026-10-19",
-    eulaUpdatedAt: "2026-10-19",
+    updatedAt: "2026-10-24",
+    privacyUpdatedAt: "2026-10-24",
+    eulaUpdatedAt: "2026-10-24",
     lifetimeLicense: { name: "Video Downloader Premium", priceBRL: 24.9 },
     text: {
       en: {
         name: "Video Downloader",
         summary:
           "Finds the videos on a page, files and HLS or DASH streams, and downloads them inside the browser.",
-        platform: "Chrome extension",
+        platform: "Browser extension",
       },
       "pt-br": {
         name: "Video Downloader",
         summary:
           "Encontra os vídeos de uma página, arquivos e streams HLS ou DASH, e baixa dentro do navegador.",
-        platform: "Extensão para o Chrome",
+        platform: "Extensão para navegadores",
       },
     },
   },

@@ -163,7 +163,7 @@ const en = {
     title: "Tools",
     heading: "Tools",
     description:
-      "Tools and digital products by Lucas Bittencourt: AI Summarizer, a Chrome extension that summarizes only the part of a page you pick, and Video Downloader, which finds and downloads the videos on a page.",
+      "Tools and digital products by Lucas Bittencourt: AI Summarizer, a browser extension that summarizes only the part of a page you pick, and Video Downloader, which finds and downloads the videos on a page. For Chrome, Edge, Firefox and other browsers.",
     links: "Links",
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
@@ -323,7 +323,7 @@ const ptBr: Dictionary = {
     title: "Ferramentas",
     heading: "Ferramentas",
     description:
-      "Ferramentas e produtos digitais de Lucas Bittencourt: o AI Summarizer, uma extensão para o Chrome que resume só o trecho da página que você escolhe, e o Video Downloader, que encontra e baixa os vídeos de uma página.",
+      "Ferramentas e produtos digitais de Lucas Bittencourt: o AI Summarizer, uma extensão que resume só o trecho da página que você escolhe, e o Video Downloader, que encontra e baixa os vídeos de uma página. Para Chrome, Edge, Firefox e outros navegadores.",
     links: "Links",
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",

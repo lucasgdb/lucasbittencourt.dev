@@ -1,4 +1,4 @@
-Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **Video Downloader** para o Google Chrome e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
+Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **Video Downloader**, para o Chrome, o Firefox e outros navegadores, e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
 
 O site lucasbittencourt.dev tem uma [Política de privacidade](/pt-br/privacy) própria; esta trata só da extensão.
 
@@ -27,7 +27,7 @@ Enquanto a extensão está aberta numa aba, ela lê, no seu navegador:
 
 Essas detecções ficam no armazenamento de sessão do navegador, uma lista por aba, e são apagadas quando a aba navega ou é fechada. Elas não são enviadas a ninguém.
 
-Para verificar um vídeo e baixá-lo, **o seu navegador acessa diretamente o próprio site do vídeo**, como o player faria: lê os primeiros bytes do arquivo, as playlists e os pedaços do stream (com os seus cookies daquele site, quando o site exige) e a miniatura. Esse site recebe esses pedidos como recebe qualquer visita, com o seu endereço IP. Os streams são montados em arquivos temporários no armazenamento do próprio navegador, apagados depois do download, e o resultado é salvo pelo gerenciador de downloads do Chrome.
+Para verificar um vídeo e baixá-lo, **o seu navegador acessa diretamente o próprio site do vídeo**, como o player faria: lê os primeiros bytes do arquivo, as playlists e os pedaços do stream (com os seus cookies daquele site, quando o site exige) e a miniatura. Esse site recebe esses pedidos como recebe qualquer visita, com o seu endereço IP. Os streams são montados em arquivos temporários no armazenamento do próprio navegador, apagados depois do download, e o resultado é salvo pelo gerenciador de downloads do navegador.
 
 ### Buscas "Por link"
 
@@ -68,11 +68,11 @@ A extensão não coleta o seu histórico de navegação, as páginas que você v
 - **activeTab** e **scripting**: ler os vídeos da aba em que a extensão está aberta.
 - **webRequest**: ver os pedidos de mídia dos sites que você permitiu, para encontrar streams. Nenhum pedido é bloqueado ou alterado.
 - **Acesso aos sites** (opcional): pedido só se você clicar em "Permitir acesso", para a detecção pela rede, a leitura depois de navegar e o download dos pedaços de streams. A aba "Por link" pede só os sites que usa (o serviço de incorporação do X, o Reddit ou o próprio site do link colado).
-- **downloads**: salvar os arquivos pelo gerenciador de downloads do Chrome e acompanhar o progresso. **downloads.open** (opcional): "Reproduzir" um vídeo baixado no player padrão do seu computador.
+- **downloads**: salvar os arquivos pelo gerenciador de downloads do navegador e acompanhar o progresso. **downloads.open** (opcional): "Reproduzir" um vídeo baixado no player padrão do seu computador.
 - **storage**: guardar as detecções de cada aba, as preferências e a sessão no seu navegador.
-- **sidePanel**: mostrar a extensão no painel lateral.
-- **identity** (opcional): abrir a janela de login do Google, pedida no primeiro login.
-- O **serviço de contas** e o **servidor do Video Downloader** respondem à extensão sem nenhuma permissão extra.
+- **sidePanel**: mostrar a extensão no painel lateral (nos navegadores que têm um; no Opera e no Firefox ela abre num popup).
+- **identity** (opcional): abrir a janela de login do Google, pedida no primeiro login. No Firefox ela não pode ser opcional, mas não pede nada ao ser instalada.
+- O **serviço de contas** e o **servidor do Video Downloader** respondem à extensão sem nenhuma permissão extra. No Firefox, o acesso a eles também é uma permissão da extensão, porque o Firefox dá um endereço diferente a cada instalação.
 
 ## 5. Finalidades e bases legais
 
@@ -117,7 +117,7 @@ Depois disso, os dados são apagados ou anonimizados.
 
 Conforme o artigo 18 da LGPD, você pode pedir confirmação do tratamento, acesso, correção, anonimização, bloqueio ou eliminação, portabilidade, informação sobre compartilhamento e revogação do consentimento.
 
-Para excluir a conta ou exercer outros direitos, escreva para o e-mail acima. Você também pode revogar o acesso da extensão à sua conta Google em [myaccount.google.com/connections](https://myaccount.google.com/connections), revogar o acesso dela aos sites nas configurações de extensões do Chrome e apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD).
+Para excluir a conta ou exercer outros direitos, escreva para o e-mail acima. Você também pode revogar o acesso da extensão à sua conta Google em [myaccount.google.com/connections](https://myaccount.google.com/connections), revogar o acesso dela aos sites nas configurações de extensões do navegador e apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD).
 
 ## 11. Segurança
 

@@ -1,0 +1,108 @@
+O Video Downloader ainda não está nas lojas de extensões. Até lá, você pode instalá-lo manualmente: é a mesma versão que vai para as lojas, ligada aos servidores de verdade, então a sua conta e a licença Premium continuam valendo depois.
+
+São dois arquivos: um para os navegadores baseados no Chromium (Chrome, Edge, Brave, Opera e Vivaldi) e outro para o Firefox. Escolha o seu navegador abaixo; se der para reconhecê-lo, a aba dele já vem aberta. Funciona só no computador.
+
+## Passo a passo
+
+<Tabs group="browser">
+<Tab label="Chrome" value="chrome">
+
+<DownloadBuild browser="chromium" />
+
+1. **Descompacte** o arquivo numa pasta que você vai manter, como uma em Documentos. O Chrome carrega a extensão dessa pasta, então não a apague nem a mova.
+2. Digite `chrome://extensions` na barra de endereços e aperte Enter.
+3. Ative o **Modo do desenvolvedor**, na chave do canto superior direito.
+4. Clique em **Carregar sem compactação** e escolha a pasta descompactada, a que tem o arquivo `manifest.json`.
+5. **Fixe** a extensão: clique no ícone de quebra-cabeça ao lado da barra de endereços e no alfinete ao lado de Video Downloader.
+6. Clique no ícone dela: o **painel lateral** abre.
+
+Precisa do Chrome 116 ou mais novo.
+
+</Tab>
+<Tab label="Edge" value="edge">
+
+<DownloadBuild browser="chromium" />
+
+1. **Descompacte** o arquivo numa pasta que você vai manter, como uma em Documentos. O Edge carrega a extensão dessa pasta, então não a apague nem a mova.
+2. Digite `edge://extensions` na barra de endereços e aperte Enter.
+3. Ative o **Modo de desenvolvedor**, na chave do menu da esquerda (em janelas estreitas, abra o menu ☰ primeiro).
+4. Clique em **Carregar sem pacote** (em inglês, *Load unpacked*) e escolha a pasta descompactada, a que tem o arquivo `manifest.json`.
+5. **Mostre** a extensão na barra: clique no ícone de quebra-cabeça (Extensões) e no ícone de olho ao lado de Video Downloader.
+6. Clique no ícone dela: o **painel lateral** abre.
+
+</Tab>
+<Tab label="Brave" value="brave">
+
+<DownloadBuild browser="chromium" />
+
+1. **Descompacte** o arquivo numa pasta que você vai manter, como uma em Documentos. O Brave carrega a extensão dessa pasta, então não a apague nem a mova.
+2. Digite `brave://extensions` na barra de endereços e aperte Enter.
+3. Ative o **Modo do desenvolvedor**, na chave do canto superior direito.
+4. Clique em **Carregar sem compactação** e escolha a pasta descompactada, a que tem o arquivo `manifest.json`.
+5. **Fixe** a extensão: clique no ícone de quebra-cabeça ao lado da barra de endereços e no alfinete ao lado de Video Downloader.
+6. Clique no ícone dela: o **painel lateral** abre.
+
+</Tab>
+<Tab label="Opera" value="opera">
+
+<DownloadBuild browser="chromium" />
+
+1. **Descompacte** o arquivo numa pasta que você vai manter, como uma em Documentos. O Opera carrega a extensão dessa pasta, então não a apague nem a mova.
+2. Digite `opera://extensions` na barra de endereços e aperte Enter.
+3. Ative o **Modo do desenvolvedor**, na chave do canto superior direito.
+4. Clique no botão de carregar sem compactação (em inglês, *Load unpacked*) e escolha a pasta descompactada, a que tem o arquivo `manifest.json`.
+5. **Fixe** a extensão: clique no ícone de cubo (Extensões) ao lado da barra de endereços e no alfinete ao lado de Video Downloader.
+6. Clique no ícone dela: a extensão abre num **popup**.
+
+O Opera não tem o painel lateral do Chrome, por isso o ícone sempre abre o popup.
+
+</Tab>
+<Tab label="Vivaldi" value="vivaldi">
+
+<DownloadBuild browser="chromium" />
+
+1. **Descompacte** o arquivo numa pasta que você vai manter, como uma em Documentos. O Vivaldi carrega a extensão dessa pasta, então não a apague nem a mova.
+2. Digite `vivaldi://extensions` na barra de endereços e aperte Enter.
+3. Ative o **Modo do desenvolvedor**, na chave do canto superior direito.
+4. Clique em **Carregar sem compactação** (em inglês, *Load unpacked*) e escolha a pasta descompactada, a que tem o arquivo `manifest.json`.
+5. O ícone da extensão aparece na barra de ferramentas (ou no botão de Extensões, ao lado da barra de endereços).
+6. Clique no ícone dela: o **painel lateral** abre.
+
+</Tab>
+<Tab label="Firefox" value="firefox">
+
+<DownloadBuild browser="firefox" />
+
+1. Digite `about:debugging#/runtime/this-firefox` na barra de endereços e aperte Enter.
+2. Clique em **Carregar extensão temporária…** e escolha o arquivo `.zip` baixado, sem descompactar.
+3. Clique no ícone de quebra-cabeça (Extensões) e em Video Downloader. Para deixá-la na barra, use a engrenagem ao lado do nome e **Fixar na barra de ferramentas**.
+4. Clique no ícone dela: a extensão abre num **popup**. Se preferir, ela também fica na barra lateral do Firefox: menu **Exibir → Painel lateral → Video Downloader**.
+
+Precisa do Firefox 128 ou mais novo. **A instalação é temporária**: o Firefox só mantém de vez extensões assinadas pela Mozilla, então esta some quando você fecha o navegador, e é preciso carregá-la de novo. A versão assinada, que fica instalada, vem depois.
+
+</Tab>
+</Tabs>
+
+Ao abrir, os navegadores baseados no Chromium podem avisar sobre extensões no modo do desenvolvedor. É porque esta cópia foi instalada manualmente, e não pela loja: pode fechar o aviso.
+
+## Testando
+
+Para conferir se está tudo funcionando:
+
+1. **Detecção automática**: abra uma página com um vídeo, dê play e clique no ícone da extensão. Os vídeos encontrados aparecem na lista; se ela pedir, clique em **Permitir acesso** para pegar também os streams (HLS e DASH).
+2. **Baixar**: baixe um arquivo e um stream. O stream é montado dentro do navegador e salvo como um arquivo só.
+3. **Por link**: na aba **Por link**, cole o link de um post público do X (Twitter) com vídeo e clique em **Buscar**.
+4. **Conta e Premium** (opcional): clique em **Continuar com o Google** e veja a aba **Premium**. A extensão funciona sem conta.
+
+Se algo falhar, me mande o navegador, a versão dele e o que aconteceu pelo e-mail de suporte, nos links acima.
+
+## Como atualizar
+
+As novas versões aparecem nesta página. A sua conta e a licença Premium ficam no servidor, então nada se perde.
+
+- **Chrome, Edge, Brave, Opera e Vivaldi**: baixe a nova versão, substitua os arquivos da pasta pelos novos e clique em **Recarregar** (↻) no card da extensão, na página de extensões do navegador.
+- **Firefox**: carregue o novo `.zip` como extensão temporária, como na instalação.
+
+## Quando chegar às lojas
+
+Instale pela loja do seu navegador e remova esta cópia (**Remover** no card dela, na página de extensões). Se usa conta, entre com a mesma conta Google e a licença estará lá.
