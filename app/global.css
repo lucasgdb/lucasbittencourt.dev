@@ -182,6 +182,9 @@ html {
   --read-aloud-outline: rgb(202 138 4 / 0.6);
   color-scheme: light;
 
+  /* Inline code: one accent color, like a highlighted term */
+  --inline-code: #b84a0d;
+
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
   --sh-sign: #636f7a;
@@ -216,6 +219,8 @@ html {
     --read-aloud: rgb(250 204 21 / 0.14);
     --read-aloud-outline: rgb(250 204 21 / 0.45);
     color-scheme: dark;
+
+    --inline-code: #f0834a;
 
     --sh-class: #4c97f8;
     --sh-identifier: #ededed;
@@ -516,6 +521,8 @@ html.read-aloud-open body {
    widening the page on narrow screens; code blocks scroll on their own */
 .prose :not(pre) > code {
   overflow-wrap: anywhere;
+  color: var(--inline-code);
+  @apply bg-neutral-100 dark:bg-neutral-800/70 rounded-md font-medium;
 }
 
 .prose pre code {

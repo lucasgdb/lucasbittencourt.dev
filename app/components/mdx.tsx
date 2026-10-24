@@ -56,6 +56,11 @@ function RoundedImage(props) {
 }
 
 function Code({ children, ...props }) {
+  // Inline code (no language, one line) is a name, a path or a command, not
+  // a program: one color (global.css), no syntax highlighting
+  if (!props.className && typeof children === "string" && !children.includes("\n")) {
+    return <code {...props}>{children}</code>;
+  }
   let codeHTML = wrappable(highlight(children), children);
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
