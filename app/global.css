@@ -129,6 +129,9 @@ html {
 :root[data-theme="sepia"] {
   --card: var(--color-neutral-50);
   --popover: var(--color-neutral-50);
+  /* A shade darker than in light: on the cream page, neutral-500 falls just
+     short of WCAG AA (4.5:1) */
+  --muted-foreground: var(--color-neutral-600);
 }
 
 ::selection {

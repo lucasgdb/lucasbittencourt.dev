@@ -197,7 +197,9 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
             </a>
           </Button>
         ) : (
-          <Button size="lg" variant="secondary" disabled>
+          // Outline and muted text instead of the default half opacity, which
+          // nearly vanished on the light background
+          <Button size="lg" variant="outline" disabled className="text-muted-foreground disabled:opacity-100">
             <DownloadIcon />
             {dict.comingSoon}
           </Button>
