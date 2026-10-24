@@ -1,4 +1,4 @@
-Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **AI Summarizer** para o Google Chrome e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
+Esta Política de privacidade explica como **Lucas Genesses Dias Bittencourt** (nome fantasia Lucas Bittencourt), empresário individual inscrito no CNPJ sob o nº **42.564.890/0001-04**, trata dados pessoais na extensão **AI Summarizer**, para o Chrome, o Firefox e outros navegadores, e nos servidores que ela usa, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, "LGPD").
 
 O site lucasbittencourt.dev tem uma [Política de privacidade](/pt-br/privacy) própria. Esta aqui vale só para a extensão.
 
@@ -12,7 +12,7 @@ O controlador dos dados é Lucas Genesses Dias Bittencourt (CNPJ 42.564.890/0001
 
 ## 2. O que a extensão faz
 
-O AI Summarizer resume com inteligência artificial o conteúdo que você escolhe: um trecho da página, a página inteira ou um PDF. Os resumos ficam no seu histórico, podem ser traduzidos para outros idiomas e são pagos com créditos. Ela também **preenche formulários**: você escolhe o formulário e diz como quer respondê-lo, e a IA preenche os campos para você revisar e enviar.
+O AI Summarizer resume com inteligência artificial o conteúdo que você escolhe: um trecho da página, a página inteira ou um PDF. Os resumos ficam no seu histórico, podem ser traduzidos para outros idiomas e são pagos com créditos. Você pode **ouvir** um resumo, narrado em áudio, ou **assistir** a ele, como uma apresentação narrada em vídeo. Ela também **preenche formulários**: você escolhe o formulário e diz como quer respondê-lo, e a IA preenche os campos para você revisar e enviar.
 
 A extensão **só lê uma página quando você pede**, ao clicar em "Selecionar conteúdo", "Usar a página inteira", "Ler PDF" ou "Selecionar formulário". Ela nunca envia um formulário por você. Ela não lê nem envia nada das páginas que você só visita.
 
@@ -32,7 +32,7 @@ Quando você pede um resumo, enviamos ao servidor:
 
 - o **texto** escolhido (o trecho selecionado, o texto da página ou o texto extraído do PDF), com a estrutura em Markdown (títulos, listas, tabelas e blocos de código; dos links, só o texto), até 60 mil caracteres;
 - o **título** e o **endereço (URL)** da página;
-- as **opções** do resumo: modelo, estilo, tamanho, esforço, idioma e as preferências que você escrever.
+- as **opções** do resumo: estilo, tamanho, esforço, idioma e as preferências que você escrever. O modelo de IA é escolhido pelo servidor.
 
 Esse conteúdo é enviado para calcular o preço (cotação) e para gerar o resumo, que é feito por um provedor de inteligência artificial (veja a seção 6). **O texto da página não é armazenado** pelo servidor, apenas a quantidade de caracteres. No caso de um PDF, o arquivo é baixado e lido pelo seu navegador e só o texto extraído é enviado.
 
@@ -46,6 +46,12 @@ Quando você pede para preencher um formulário, enviamos ao servidor:
 
 **Campos de senha, de cartão de pagamento, de arquivo, de código de verificação e campos ocultos nunca são lidos.** Esse conteúdo é enviado para calcular o preço e gerar as respostas, pelos mesmos provedores de inteligência artificial dos resumos (veja a seção 6). A extensão escreve as respostas na página, e "Desfazer" devolve o que havia antes. **Nada do formulário é armazenado**: ele não vai para o histórico, e o que você escreveu não é guardado, nem no servidor nem no seu navegador. Só a cobrança fica registrada no extrato de créditos.
 
+### Áudios e vídeos dos resumos
+
+Quando você pede para ouvir um resumo ou assistir a ele, o servidor usa o **texto do resumo** (ou da tradução escolhida), que já está no seu histórico; nada da página é lido de novo. Um provedor de inteligência artificial (veja a seção 6) reescreve esse texto como roteiro de narração ou como apresentação em slides. A **voz e o vídeo são gerados nos nossos próprios servidores**, sem enviar o texto a outro serviço de voz.
+
+Os arquivos (MP3 e MP4) ficam num **armazenamento privado**, que não é público: a extensão recebe um link temporário, válido por 30 minutos, a cada vez que você abre o áudio ou o vídeo. Guardamos também a situação, a duração, o tamanho e os créditos de cada um. Se você baixar o arquivo, ele vai para o seu computador como um download comum (a permissão **downloads** é pedida só na primeira vez).
+
 ### Resumos, traduções e histórico
 
 Guardamos o que a extensão gera para você, para que fique no seu histórico:
@@ -56,7 +62,7 @@ Guardamos o que a extensão gera para você, para que fique no seu histórico:
 
 ### Créditos
 
-Guardamos o seu saldo e o extrato de movimentações: créditos de boas-vindas, compras, resumos, traduções, preenchimentos de formulário, devoluções e ajustes, com o valor, o saldo depois de cada uma e o título do resumo relacionado.
+Guardamos o seu saldo e o extrato de movimentações: créditos de boas-vindas, compras, resumos, traduções, preenchimentos de formulário, áudios, vídeos, devoluções e ajustes, com o valor, o saldo depois de cada uma e o título do resumo relacionado.
 
 ### Compras de créditos
 
@@ -66,9 +72,13 @@ Guardamos de cada compra o pacote, os créditos e o bônus, o valor, a situaçã
 
 ### Dados guardados no seu navegador
 
-A extensão guarda no armazenamento local do seu navegador a sessão (com nome, e-mail, foto e saldo), o idioma da interface, o tema e as suas últimas opções de resumo. Esses dados não são enviados a ninguém, exceto o código da sessão, que acompanha cada pedido ao servidor do AI Summarizer e ao serviço de contas.
+A extensão guarda no armazenamento local do seu navegador a sessão (com nome, e-mail, foto e saldo), o idioma da interface, o tema, se a extensão abre no painel lateral ou num popup e as suas últimas opções de resumo. Esses dados não são enviados a ninguém, exceto o código da sessão, que acompanha cada pedido ao servidor do AI Summarizer e ao serviço de contas.
 
-As informações da página mostradas na tela inicial (título, descrição, quantidade de palavras e idioma) são calculadas no seu navegador e não são enviadas ao nosso servidor. Para mostrar o ícone do site, a extensão usa o cache do Chrome e pode consultar o endereço `/favicon.ico` do próprio site; esse pedido vai do seu navegador direto para o site, como numa visita normal, sem passar pelo nosso servidor.
+As informações da página mostradas na tela inicial (título, descrição, quantidade de palavras e idioma) são calculadas no seu navegador e não são enviadas ao nosso servidor. Para mostrar o ícone do site, a extensão usa o cache de ícones do navegador (nos baseados no Chromium) e pode consultar o endereço `/favicon.ico` do próprio site; esse pedido vai do seu navegador direto para o site, como numa visita normal, sem passar pelo nosso servidor.
+
+### Pesquisa ao desinstalar
+
+Ao desinstalar a extensão, o navegador abre uma página deste site com uma pesquisa opcional sobre o motivo. O endereço dessa página leva só a **versão** da extensão e o **navegador** (como Chrome, Edge ou Firefox). Se você responder, guardamos o motivo, a nota e o comentário que escrever, com a versão e o navegador. As respostas são **anônimas**: não ficam ligadas à sua conta, e não guardamos o endereço IP nem dados do navegador.
 
 ### Registros técnicos
 
@@ -85,15 +95,17 @@ A extensão não coleta o seu histórico de navegação, o conteúdo das página
 - **sidePanel**: mostrar a extensão no painel lateral.
 - **storage**: guardar a sessão e as preferências no seu navegador.
 - **identity**: abrir a janela de login do Google.
-- **favicon**: mostrar o ícone do site a partir do cache do Chrome.
-- **Acesso ao servidor da extensão**: enviar os pedidos de resumo, tradução, preenchimento de formulário, histórico e créditos.
-- O **serviço de contas** (login, seu nome e foto, sair da conta) responde à extensão sem nenhuma permissão extra.
+- **favicon** (só nos navegadores baseados no Chromium): mostrar o ícone do site a partir do cache do navegador.
+- **downloads** (opcional): salvar o áudio ou o vídeo de um resumo no seu computador, pedida só na primeira vez que você baixar um deles.
+- **Acesso ao servidor da extensão**: enviar os pedidos de resumo, tradução, preenchimento de formulário, áudio, vídeo, histórico e créditos.
+- O **serviço de contas** (login, seu nome e foto, sair da conta) responde à extensão sem nenhuma permissão extra. No Firefox, o acesso a ele também é uma permissão da extensão, porque o Firefox dá um endereço diferente a cada instalação.
 
 ## 5. Finalidades e bases legais
 
 As bases legais são as do artigo 7º da LGPD:
 
-- **Gerar resumos, traduções e respostas de formulários, manter o histórico, a conta e os créditos**: execução de contrato.
+- **Gerar resumos, traduções, áudios, vídeos e respostas de formulários, manter o histórico, a conta e os créditos**: execução de contrato.
+- **Pesquisa ao desinstalar**: legítimo interesse, para melhorar a extensão, com respostas opcionais e anônimas.
 - **Segurança e registros de acesso**: legítimo interesse e cumprimento de obrigação legal.
 - **Venda de créditos, cobrança via Pix e documentos fiscais**: execução de contrato e cumprimento de obrigação legal.
 
@@ -101,9 +113,9 @@ As bases legais são as do artigo 7º da LGPD:
 
 Não vendemos dados pessoais, não os usamos para publicidade e não os repassamos a intermediários de dados. Os dados são compartilhados apenas com:
 
-- **OpenAI**: gera os resumos, as traduções e as respostas de formulários a partir do conteúdo enviado, quando você usa um modelo da OpenAI (o padrão). O conteúdo é enviado sem armazenamento no histórico da OpenAI, e os termos dela para a API não usam esses dados para treinar modelos.
-- **DeepSeek**: gera o resumo ou as respostas do formulário apenas se você escolher um modelo da DeepSeek, quando ele estiver disponível na lista de modelos. Nesse caso, o conteúdo é tratado conforme os termos e a política de privacidade da DeepSeek.
-- **Railway**: hospedagem dos servidores (o da extensão e o serviço de contas) e do banco de dados.
+- **OpenAI**: gera os resumos, as traduções, as respostas de formulários e os roteiros dos áudios e vídeos a partir do conteúdo enviado. É o provedor principal: o servidor escolhe, para cada pedido, o modelo mais econômico. O conteúdo é enviado sem armazenamento no histórico da OpenAI, e os termos dela para a API não usam esses dados para treinar modelos.
+- **DeepSeek**: usado como alternativa, apenas quando o provedor principal falha, para gerar o resumo, a tradução ou as respostas do formulário. Nesse caso, o conteúdo é tratado conforme os termos e a política de privacidade da DeepSeek.
+- **Railway**: hospedagem dos servidores (o da extensão, o que gera as vozes e os vídeos e o serviço de contas), do banco de dados e do armazenamento dos áudios e vídeos.
 - **Google**: login com a conta Google.
 - **AbacatePay**: processamento dos pagamentos via Pix.
 - **Autoridades públicas**: quando houver obrigação legal ou ordem judicial.
@@ -114,11 +126,13 @@ O uso das informações recebidas pela extensão segue a [Política de dados do 
 
 ## 8. Transferência internacional
 
-A OpenAI, a Railway (servidores nos Estados Unidos) e o Google armazenam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Se você escolher um modelo da DeepSeek, o conteúdo pode ser processado na China, conforme a política dela. Essas transferências ocorrem conforme o artigo 33 da LGPD, com prestadores que adotam medidas de segurança e proteção de dados.
+A OpenAI, a Railway (servidores nos Estados Unidos) e o Google armazenam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Quando a DeepSeek é usada como alternativa, o conteúdo pode ser processado na China, conforme a política dela. Essas transferências ocorrem conforme o artigo 33 da LGPD, com prestadores que adotam medidas de segurança e proteção de dados.
 
 ## 9. Por quanto tempo guardamos os dados
 
 - **Resumos e traduções**: até você excluí-los. Ao excluir um resumo, o texto dele e o das traduções são apagados. Ao excluir só uma tradução, apenas ela é apagada.
+- **Áudios e vídeos**: enquanto o resumo ou a tradução de que vieram existir. São apagados junto com eles, e uma limpeza diária remove os arquivos que tenham ficado para trás.
+- **Respostas da pesquisa ao desinstalar**: guardadas por tempo indeterminado, por serem anônimas.
 - **Créditos e registros de uso** (extrato, créditos gastos, quantidade de texto processada e datas): enquanto a conta existir, e depois pelos prazos exigidos pela legislação fiscal.
 - **Conta**: até você pedir a exclusão. A conta é compartilhada pelas minhas ferramentas; você pode pedir para excluir só os dados do AI Summarizer ou a conta inteira.
 - **Sessão**: válida por até 30 dias. Ao sair da conta, ela é apagada, e sessões vencidas são apagadas automaticamente. "Sair de todos os dispositivos" encerra as suas sessões em todas as ferramentas.

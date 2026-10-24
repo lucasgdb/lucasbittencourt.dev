@@ -24,7 +24,7 @@ export const business = {
 export const servicesUpdatedAt = "2026-10-19";
 
 // Update when app/legal/<doc>.*.mdx changes (each document has its own date)
-export const legalUpdatedAt = { terms: "2026-10-19", privacy: "2026-10-19" };
+export const legalUpdatedAt = { terms: "2026-10-24", privacy: "2026-10-19" };
 
 export const person = {
   name: "Lucas Bittencourt",
