@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { BookOpenIcon, MonitorIcon, MoonIcon, SunIcon, type LucideIcon } from "lucide-react";
 import { Button } from "app/components/ui/button";
 import {
@@ -40,18 +41,28 @@ const shownWhen: Record<Choice, string> = {
 /** The site's theme: system (light or dark, as the OS), light, sepia, dark or black */
 export function ThemeSelect({ labels }: { labels: Dictionary["theme"] }) {
   const [choice, choose] = useSiteTheme();
+  const trigger = useRef<HTMLButtonElement>(null);
 
   return (
     // Not modal: a modal menu locks the page's scroll (hiding the scrollbar)
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={labels.label} className="m-1 text-muted-foreground">
+        <Button ref={trigger} variant="ghost" size="icon" aria-label={labels.label} className="m-1 text-muted-foreground">
           {themeChoices.map((option) => (
             <Icon key={option} choice={option} className={`hidden ${shownWhen[option]}`} />
           ))}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
+      <DropdownMenuContent
+        align="end"
+        className="min-w-40"
+        // Focus goes back to the button, without scrolling: it's in the sticky
+        // header, which the browser would otherwise scroll up to "show"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          trigger.current?.focus({ preventScroll: true });
+        }}
+      >
         <DropdownMenuLabel>{labels.label}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={choice} onValueChange={(value) => choose(value as Choice)}>
           {themeChoices.map((option) => (

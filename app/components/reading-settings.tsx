@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useLayoutEffect, useState, type CSSProperties } from "react";
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { CheckIcon, RotateCcwIcon } from "lucide-react";
 import { Button } from "app/components/ui/button";
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "app/components/ui/field";
@@ -107,6 +107,7 @@ export function ReadingSettings({
   const [theme, setTheme] = useSiteTheme();
   const [settings, setSettings] = useState<Settings>(defaultReading);
   const progressId = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
 
   // Applied before paint on client navigations (a full load already has them,
   // from the inline script in <head>), and removed when leaving the post
@@ -136,7 +137,7 @@ export function ReadingSettings({
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
-            <Button variant="outline" aria-label={labels.open} className="px-2.5">
+            <Button ref={trigger} variant="outline" aria-label={labels.open} className="px-2.5">
               <span aria-hidden="true">
                 A<span className="text-xs">a</span>
               </span>
@@ -147,6 +148,12 @@ export function ReadingSettings({
       </Tooltip>
 
       <PopoverContent
+        // Focus goes back to "Aa" without scrolling the page back up to it
+        // (the reader may have scrolled with the panel open)
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          trigger.current?.focus({ preventScroll: true });
+        }}
         align="start"
         className="max-h-(--radix-popover-content-available-height) w-80 gap-4 overflow-y-auto p-4"
       >
