@@ -377,18 +377,6 @@ services:
     restart: unless-stopped
 ```
 
-O que cada parte faz:
-
-- `image: node:24-alpine` e `command`: roda o `server.mjs` com o Node.js 24 numa imagem pequena (Alpine Linux).
-- `volumes: ./app:/app:ro`: monta a pasta `app` dentro do container, só leitura (`ro`). Para mudar a aplicação, edite o arquivo e rode `docker compose restart app`.
-- `environment`: variáveis de ambiente. Aqui, a porta em que a aplicação escuta.
-- `expose: "8080"`: a porta 8080 da aplicação fica visível **só para outros containers** do mesmo Compose. Ninguém de fora acessa a aplicação diretamente.
-- `init: true`: coloca um processo pequeno na frente do Node.js para repassar os sinais de parada. Sem ele, o `docker compose down` espera 10 segundos antes de matar o container.
-- `ports: "80:80"`: publica a porta 80 do computador na porta 80 do container do Nginx. O formato é `porta_do_computador:porta_do_container`.
-- `volumes: ./nginx/conf.d`: monta a configuração do Nginx dentro do container.
-- `depends_on`: sobe a aplicação antes do Nginx.
-- `restart: unless-stopped`: reinicia o container se ele cair ou se o computador reiniciar, a não ser que você o pare manualmente.
-
 O Compose cria uma **rede interna** para os containers, onde cada um é encontrado pelo **nome do serviço**. Por isso o Nginx consegue acessar a aplicação em `http://app:8080`.
 
 ### A configuração do Nginx
@@ -412,14 +400,6 @@ server {
     }
 }
 ```
-
-Linha por linha:
-
-- `listen 80`: o Nginx escuta na porta 80.
-- `server_name`: este bloco atende requisições para `local.example.com`. Com vários blocos `server`, dá para servir vários domínios no mesmo IP.
-- `location /`: vale para todos os caminhos (`/`, `/api`, `/qualquer-coisa`).
-- `proxy_pass`: repassa a requisição para a aplicação.
-- `proxy_set_header`: a aplicação recebe a requisição **vinda do Nginx**, não do visitante. Esses cabeçalhos contam a ela o nome pedido (`Host`), o IP de quem acessou (`X-Real-IP`, `X-Forwarded-For`) e se a conexão original era HTTP ou HTTPS (`X-Forwarded-Proto`).
 
 ### Subindo os containers
 

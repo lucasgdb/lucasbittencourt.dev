@@ -377,18 +377,6 @@ services:
     restart: unless-stopped
 ```
 
-What each part does:
-
-- `image: node:24-alpine` and `command`: runs `server.mjs` with Node.js 24 on a small image (Alpine Linux).
-- `volumes: ./app:/app:ro`: mounts the `app` folder inside the container, read-only (`ro`). To change the app, edit the file and run `docker compose restart app`.
-- `environment`: environment variables. Here, the port the app listens on.
-- `expose: "8080"`: the app's port 8080 is visible **only to other containers** in the same Compose project. Nobody from outside reaches the app directly.
-- `init: true`: puts a tiny process in front of Node.js to pass on stop signals. Without it, `docker compose down` waits 10 seconds before killing the container.
-- `ports: "80:80"`: publishes the computer's port 80 to port 80 of the Nginx container. The format is `computer_port:container_port`.
-- `volumes: ./nginx/conf.d`: mounts the Nginx configuration inside the container.
-- `depends_on`: starts the app before Nginx.
-- `restart: unless-stopped`: restarts the container if it crashes or the computer reboots, unless you stop it yourself.
-
 Compose creates an **internal network** for the containers, where each one is found by its **service name**. That's why Nginx can reach the app at `http://app:8080`.
 
 ### The Nginx configuration
@@ -412,14 +400,6 @@ server {
     }
 }
 ```
-
-Line by line:
-
-- `listen 80`: Nginx listens on port 80.
-- `server_name`: this block answers requests for `local.example.com`. With several `server` blocks, you can serve several domains on the same IP.
-- `location /`: applies to every path (`/`, `/api`, `/anything`).
-- `proxy_pass`: passes the request on to the app.
-- `proxy_set_header`: the app receives the request **from Nginx**, not from the visitor. These headers tell it the requested name (`Host`), the visitor's IP (`X-Real-IP`, `X-Forwarded-For`) and whether the original connection was HTTP or HTTPS (`X-Forwarded-Proto`).
 
 ### Starting the containers
 
