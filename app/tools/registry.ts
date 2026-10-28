@@ -13,7 +13,7 @@ export type BuildFile = { file: string; bytes: number; sha256: string };
 export type ManualBuild = {
   version: string;
   releasedAt: string;
-  files: { chromium: BuildFile; firefox?: BuildFile };
+  files: { chromium?: BuildFile; firefox?: BuildFile };
 };
 
 /** A one-time purchase that grants a lifetime license of the tool */
@@ -25,7 +25,8 @@ export type Tool = {
   icon: string;
   /** Where it's installed from; null until it's published there */
   storeUrl: string | null;
-  /** Until then, the build to install by hand, if there is one */
+  /** Builds to install by hand, if any: before the store, or for the
+   * browsers it doesn't serve (Firefox) */
   manualBuild?: ManualBuild;
   publishedAt: string;
   updatedAt: string;
@@ -45,16 +46,11 @@ export const tools: Tool[] = [
   {
     slug: "ai-summarizer",
     icon: "/tools/ai-summarizer/icon.svg",
-    storeUrl: null,
+    storeUrl: "https://ai-summarizer.lucasbittencourt.dev/",
     manualBuild: {
       version: "0.1.0",
       releasedAt: "2026-10-24",
       files: {
-        chromium: {
-          file: "/tools/ai-summarizer/ai-summarizer-0.1.0-chromium.zip",
-          bytes: 2331413,
-          sha256: "02e06558fba97f96d1e32dd18be26ef5e3ec2ad91737a3243b2fca0c69b12113",
-        },
         firefox: {
           file: "/tools/ai-summarizer/ai-summarizer-0.1.0-firefox.zip",
           bytes: 2331169,
@@ -63,7 +59,7 @@ export const tools: Tool[] = [
       },
     },
     publishedAt: "2026-10-16",
-    updatedAt: "2026-10-24",
+    updatedAt: "2026-10-28",
     privacyUpdatedAt: "2026-10-24",
     creditPacks: [
       { credits: 500, bonus: 0, priceBRL: 5 },

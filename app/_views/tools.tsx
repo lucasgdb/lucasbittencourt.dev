@@ -172,7 +172,10 @@ function LifetimePrice({ tool, locale }: { tool: Tool; locale: Locale }) {
  * date and checksum (<DownloadBuild browser="chromium" /> in install.*.mdx) */
 function DownloadBuild({ tool, locale, browser }: { tool: Tool; locale: Locale; browser: "chromium" | "firefox" }) {
   const build = tool.manualBuild!;
-  const file = build.files[browser]!;
+  const file = build.files[browser];
+  if (!file) {
+    return null;
+  }
   const dict = getDictionary(locale).tools.manual;
   const size = `${(file.bytes / 1e6).toLocaleString(localeConfig[locale].intl, { maximumFractionDigits: 1 })} MB`;
   return (
@@ -234,12 +237,18 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
         {/* Not in the store yet, but installable by hand: that comes first */}
         {!tool.storeUrl && tool.manualBuild && <InstallNowButton>{dict.installNow}</InstallNowButton>}
         {tool.storeUrl ? (
+          <>
           <Button asChild size="lg">
             <a href={tool.storeUrl} rel="noopener noreferrer" target="_blank">
               <DownloadIcon />
               {dict.install}
             </a>
           </Button>
+            {/* In the store, but other browsers (Firefox) still install by hand */}
+            {tool.manualBuild && (
+              <InstallNowButton variant="outline">{dict.otherBrowsers}</InstallNowButton>
+            )}
+          </>
         ) : (
           // Outline and muted text instead of the default half opacity, which
           // nearly vanished on the light background
@@ -276,13 +285,13 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
         </li>
       </ul>
 
-      {!tool.storeUrl && tool.manualBuild ? (
+      {tool.manualBuild ? (
         <ToolTabs
           labels={dict.tabs}
           about={about}
           install={
             <article className="prose">
-              <h2>{dict.manual.title}</h2>
+              <h2>{tool.storeUrl ? dict.manual.storeTitle : dict.manual.title}</h2>
               <CustomMDX
                 source={readContent(slug, "install", locale)}
                 components={{

@@ -65,9 +65,15 @@ export function ToolTabs({
 }
 
 /** The page's main action while there's no store: opens the "Install" tab */
-export function InstallNowButton({ children }: { children: ReactNode }) {
+export function InstallNowButton({
+  children,
+  variant,
+}: {
+  children: ReactNode;
+  variant?: "outline";
+}) {
   return (
-    <Button size="lg" onClick={() => window.dispatchEvent(new Event(openInstall))}>
+    <Button size="lg" variant={variant} onClick={() => window.dispatchEvent(new Event(openInstall))}>
       <DownloadIcon />
       {children}
     </Button>

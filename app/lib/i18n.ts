@@ -168,9 +168,11 @@ const en = {
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
     installNow: "Install now",
+    otherBrowsers: "Other browsers",
     tabs: { about: "About", install: "Install" },
     manual: {
       title: "Install before it's in the stores",
+      storeTitle: "How to install",
       download: (version: string, size: string) => `Download version ${version} (.zip, ${size})`,
       released: "Released",
       checksum: "SHA-256",
@@ -328,9 +330,11 @@ const ptBr: Dictionary = {
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",
     installNow: "Instalar agora",
+    otherBrowsers: "Outros navegadores",
     tabs: { about: "Sobre", install: "Instalar" },
     manual: {
       title: "Instale antes de chegar às lojas",
+      storeTitle: "Como instalar",
       download: (version: string, size: string) => `Baixar a versão ${version} (.zip, ${size})`,
       released: "Lançada em",
       checksum: "SHA-256",
