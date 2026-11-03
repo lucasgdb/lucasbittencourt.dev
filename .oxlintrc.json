@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "nextjs",
+    "jsx-a11y",
+    "import"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "ignorePatterns": [
+    ".next",
+    "node_modules",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/prefer-tag-over-role": "off"
+  }
+}
