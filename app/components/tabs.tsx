@@ -3,9 +3,8 @@
 import {
   Children,
   isValidElement,
-  useEffect,
   useRef,
-  useState,
+  useSyncExternalStore,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -48,7 +47,17 @@ function detectBrowser() {
   return null;
 }
 
+// Chosen on this page (kept even if localStorage is blocked)
+const chosen = new Map<string, string>();
+
+function subscribe(onChange: () => void) {
+  window.addEventListener(changeEvent, onChange);
+  return () => window.removeEventListener(changeEvent, onChange);
+}
+
 function savedValue(group: string) {
+  const picked = chosen.get(group);
+  if (picked) return picked;
   try {
     const value = localStorage.getItem(storageKey(group));
     if (value) return value;
@@ -65,23 +74,13 @@ function savedValue(group: string) {
 export function Tabs({ group = "os", children }: { group?: string; children: ReactNode }) {
   const tabs = Children.toArray(children).filter(isValidElement) as ReactElement<TabProps>[];
   const values = tabs.map((tab) => tab.props.value.split(" "));
-  const [selected, setSelected] = useState(values[0][0]);
+  const saved = useSyncExternalStore(
+    subscribe,
+    () => savedValue(group),
+    () => null
+  );
+  const selected = saved ?? values[0][0];
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  useEffect(() => {
-    const value = savedValue(group);
-    if (value) {
-      setSelected(value);
-    }
-    const onChange = (event: Event) => {
-      const { detail } = event as CustomEvent<{ group: string; value: string }>;
-      if (detail.group === group) {
-        setSelected(detail.value);
-      }
-    };
-    window.addEventListener(changeEvent, onChange);
-    return () => window.removeEventListener(changeEvent, onChange);
-  }, [group]);
 
   const found = values.findIndex((tabValues) => tabValues.includes(selected));
   const active = found === -1 ? 0 : found;
@@ -94,7 +93,8 @@ export function Tabs({ group = "os", children }: { group?: string; children: Rea
     try {
       localStorage.setItem(storageKey(group), value);
     } catch {}
-    window.dispatchEvent(new CustomEvent(changeEvent, { detail: { group, value } }));
+    chosen.set(group, value);
+    window.dispatchEvent(new CustomEvent(changeEvent));
     requestAnimationFrame(() => {
       if (button && top !== undefined) {
         window.scrollBy({ top: button.getBoundingClientRect().top - top, behavior: "instant" });

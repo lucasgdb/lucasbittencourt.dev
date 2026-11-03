@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 import { themeColorOverrideId, themeColors, themes, themeStorageKey, type Theme } from "app/lib/theme";
 
 /** A theme, or "system": light or dark, as the OS */
@@ -90,29 +90,33 @@ export function setSiteTheme(choice: ThemeChoice) {
  * The site's theme, kept in sync between the header's select, a post's
  * reading settings and other tabs
  */
+function subscribe(onChange: () => void) {
+  window.addEventListener(changeEvent, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(changeEvent, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+const storedChoice = (): ThemeChoice => storedTheme() ?? "system";
+const serverChoice = (): ThemeChoice => "system";
+
 export function useSiteTheme(): [ThemeChoice, (choice: ThemeChoice) => void] {
-  const [choice, setChoice] = useState<ThemeChoice>("system");
+  const choice = useSyncExternalStore(subscribe, storedChoice, serverChoice);
 
   useLayoutEffect(() => {
     // Re-applies the theme after React's dev remount clears <html> attributes
-    const stored = storedTheme();
-    applyTheme(stored);
-    setChoice(stored ?? "system");
+    applyTheme(storedTheme());
 
-    const sync = () => setChoice(storedTheme() ?? "system");
+    // Another browser tab changed it
     function onStorage(event: StorageEvent) {
       if (event.key === themeStorageKey) {
-        const next = storedTheme();
-        setChoice(next ?? "system");
-        withoutTransitions(() => applyTheme(next));
+        withoutTransitions(() => applyTheme(storedTheme()));
       }
     }
-    window.addEventListener(changeEvent, sync);
     window.addEventListener("storage", onStorage);
-    return () => {
-      window.removeEventListener(changeEvent, sync);
-      window.removeEventListener("storage", onStorage);
-    };
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   return [choice, setSiteTheme];

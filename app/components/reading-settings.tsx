@@ -1,6 +1,14 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import { CheckIcon, RotateCcwIcon } from "lucide-react";
 import { Button } from "app/components/ui/button";
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "app/components/ui/field";
@@ -45,6 +53,17 @@ const fontFamilies: Record<Settings["font"], string> = {
   serif: "var(--font-literata), Georgia, ui-serif, serif",
   legible: "var(--font-atkinson), ui-sans-serif, system-ui, sans-serif",
 };
+
+// Only this component writes them, and it keeps its own copy once edited
+const noSubscribe = () => () => {};
+function storedRaw() {
+  try {
+    return localStorage.getItem(readingStorageKey);
+  } catch {
+    return null;
+  }
+}
+const serverRaw = () => null;
 
 function save(settings: Settings) {
   try {
@@ -105,25 +124,23 @@ export function ReadingSettings({
 }) {
   // The site's theme (the same as the header's select), here for convenience
   const [theme, setTheme] = useSiteTheme();
-  const [settings, setSettings] = useState<Settings>(defaultReading);
+  const raw = useSyncExternalStore(noSubscribe, storedRaw, serverRaw);
+  const stored = useMemo(() => parseReading(raw), [raw]);
+  const [edited, setEdited] = useState<Settings | null>(null);
+  const settings = edited ?? stored;
   const progressId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
 
   // Applied before paint on client navigations (a full load already has them,
   // from the inline script in <head>), and removed when leaving the post
   useLayoutEffect(() => {
-    let stored = defaultReading;
-    try {
-      stored = parseReading(localStorage.getItem(readingStorageKey));
-    } catch {}
-    setSettings(stored);
-    applyReading(stored);
+    applyReading(parseReading(storedRaw()));
     return () => applyReading(null);
   }, []);
 
   function update(change: Partial<Settings>) {
     const next = { ...settings, ...change };
-    setSettings(next);
+    setEdited(next);
     save(next);
     applyReading(next);
   }

@@ -273,10 +273,8 @@ export function mcpPageJsonLd(locale: Locale = defaultLocale) {
           "Tool calling",
           "Retrieval-augmented generation",
         ],
-        ...{
-          [locale === defaultLocale ? "workTranslation" : "translationOfWork"]: {
-            "@id": `${pageUrl("/mcp", otherLocale(locale))}#article`,
-          },
+        [locale === defaultLocale ? "workTranslation" : "translationOfWork"]: {
+          "@id": `${pageUrl("/mcp", otherLocale(locale))}#article`,
         },
       },
       {

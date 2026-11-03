@@ -3,6 +3,9 @@ import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 import { rssUrl } from "app/lib/seo";
 import { business, person } from "app/lib/site";
 
+// Read once (pages are prerendered at build time), not on every render
+const year = new Date().getFullYear();
+
 function ArrowIcon() {
   return (
     <svg
@@ -100,7 +103,7 @@ export default function Footer({ locale }: { locale: Locale }) {
           </Link>
         </p>
         <p>
-          © {new Date().getFullYear()} {business.legalName} · CNPJ {business.cnpj}.{" "}
+          © {year} {business.legalName} · CNPJ {business.cnpj}.{" "}
           {dict.footer.license}
         </p>
       </div>

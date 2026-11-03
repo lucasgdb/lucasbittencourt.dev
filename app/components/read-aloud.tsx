@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+} from "react";
 import {
   HeadphonesIcon,
   LocateFixedIcon,
@@ -59,6 +67,20 @@ function save(key: string, value: string | null) {
       localStorage.setItem(key, value);
     }
   } catch {}
+}
+
+// Whether the browser has speech synthesis (unknown while server rendering)
+const noSubscribe = () => () => {};
+const canSpeak = () => "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+const serverCanSpeak = () => null;
+
+/** The speed saved last time (the player that shows it only opens on click) */
+function savedRate() {
+  if (typeof window === "undefined") {
+    return 1;
+  }
+  const saved = Number(load(storage.rate));
+  return rates.includes(saved) ? saved : 1;
 }
 
 function visibleText(element: Element) {
@@ -139,16 +161,20 @@ function pickVoice(voices: SpeechSynthesisVoice[], lang: string) {
  */
 export function ReadAloud({ title, labels }: { title: string; labels: Labels }) {
   // "checking" until the browser lists its voices (they load asynchronously)
-  const [support, setSupport] = useState<"checking" | "unsupported" | "noVoices" | "ready">("checking");
+  const speechApi = useSyncExternalStore(noSubscribe, canSpeak, serverCanSpeak);
+  const [voiceStatus, setVoiceStatus] = useState<"checking" | "noVoices" | "ready">("checking");
+  const support = speechApi === false ? "unsupported" : voiceStatus;
   const supported = support === "ready";
   const [open, setOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [following, setFollowing] = useState(false);
   const [index, setIndex] = useState(0);
-  const [total, setTotal] = useState(0);
+  // The post's passages: the ref for speech callbacks, the state for rendering
+  const [segmentList, setSegmentList] = useState<Segment[]>([]);
+  const total = segmentList.length;
   // Where the reading stopped, while on the page (a reload starts over)
   const [savedPosition, setSavedPosition] = useState(0);
-  const [rate, setRate] = useState(1);
+  const [rate, setRate] = useState(savedRate);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null);
 
@@ -160,21 +186,17 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
   const lang = useRef("en");
 
   useEffect(() => {
-    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
-      setSupport("unsupported");
+    if (!canSpeak()) {
       return;
     }
     lang.current = document.documentElement.lang || "en";
-    const savedRate = Number(load(storage.rate));
-    if (rates.includes(savedRate)) {
-      setRate(savedRate);
-    }
+    const runs = run;
 
     const loadVoices = () => {
       const all = speechSynthesis.getVoices();
       // Some browsers have the API but no voice installed: nothing would play
       if (all.length > 0) {
-        setSupport("ready");
+        setVoiceStatus("ready");
       }
       const base = lang.current.split("-")[0].toLowerCase();
       setVoices(all.filter((v) => v.lang.toLowerCase().startsWith(base)));
@@ -183,7 +205,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
     loadVoices();
     speechSynthesis.addEventListener("voiceschanged", loadVoices);
     // Still no voices after a while: say so (a late "voiceschanged" still enables it)
-    const noVoices = setTimeout(() => setSupport((current) => (current === "checking" ? "noVoices" : current)), 2000);
+    const noVoices = setTimeout(() => setVoiceStatus((current) => (current === "checking" ? "noVoices" : current)), 2000);
 
     const stop = () => speechSynthesis.cancel();
     window.addEventListener("pagehide", stop);
@@ -191,7 +213,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
       clearTimeout(noVoices);
       speechSynthesis.removeEventListener("voiceschanged", loadVoices);
       window.removeEventListener("pagehide", stop);
-      run.current++;
+      runs.current++;
       speechSynthesis.cancel();
       document.querySelector(".read-aloud-current")?.classList.remove("read-aloud-current");
       document.documentElement.classList.remove("read-aloud-open");
@@ -211,7 +233,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
   }, []);
 
   const speak = useCallback(
-    (segmentIndex: number, chunkIndex = 0) => {
+    function speak(segmentIndex: number, chunkIndex = 0) {
       const current = ++run.current;
       speechSynthesis.cancel();
       const segment = segments.current[segmentIndex];
@@ -276,7 +298,7 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
       return false;
     }
     segments.current = collectSegments(title, article, lang.current, labels.codeBlock);
-    setTotal(segments.current.length);
+    setSegmentList(segments.current);
     setOpen(true);
     document.documentElement.classList.add("read-aloud-open");
     return segments.current.length > 0;
@@ -359,16 +381,17 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
 
   // A new speed or voice applies from the current passage
   const restartWith = useRef(false);
-  useEffect(() => {
+  const restart = useEffectEvent(() => {
     if (restartWith.current && playing) {
       speak(index);
     }
     restartWith.current = false;
-  }, [rate, voice]);
+  });
+  useEffect(() => restart(), [rate, voice]);
 
   // The section being read: named in the player, and its title's button
   // shows "pause"
-  const readingElement = open ? segments.current[index]?.element : undefined;
+  const readingElement = open ? segmentList[index]?.element : undefined;
   const readingSection = readingElement?.closest("article.post > section") ?? null;
   const readingTitle = readingSection?.querySelector("h2")
     ? visibleText(readingSection.querySelector("h2")!)
@@ -416,8 +439,15 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
   const progress = total > 0 ? ((index + 1) / total) * 100 : 0;
   const unavailable = support === "checking" ? labels.checking : support === "unsupported" ? labels.unsupported : labels.noVoices;
 
+  // Unavailable: aria-disabled, not disabled, so it still gets hover and
+  // focus for the tooltip saying why (keyboard users included)
   const mainButton = (
-    <Button variant="outline" onClick={mainAction} disabled={!supported}>
+    <Button
+      variant="outline"
+      onClick={supported ? mainAction : undefined}
+      aria-disabled={!supported || undefined}
+      className="aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:active:translate-y-0"
+    >
       {open && playing ? <PauseIcon fill="currentColor" /> : <HeadphonesIcon />}
       {mainLabel}
     </Button>
@@ -428,14 +458,8 @@ export function ReadAloud({ title, labels }: { title: string; labels: Labels }) 
       {supported ? (
         mainButton
       ) : (
-        // Disabled buttons get no pointer or focus events: the wrapper carries
-        // the tooltip saying why (and is focusable, for keyboard users)
         <Tooltip>
-          <TooltipTrigger asChild>
-            <span tabIndex={0} className="inline-flex rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-              {mainButton}
-            </span>
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{mainButton}</TooltipTrigger>
           <TooltipContent className="max-w-64">{unavailable}</TooltipContent>
         </Tooltip>
       )}

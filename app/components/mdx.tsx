@@ -45,10 +45,14 @@ function CustomLink(props) {
   }
 
   if (href.startsWith("#")) {
-    return <a {...props} />;
+    return <a {...props}>{props.children}</a>;
   }
 
-  return <a target="_blank" rel="noopener noreferrer" {...props} />;
+  return (
+    <a target="_blank" rel="noopener noreferrer" {...props}>
+      {props.children}
+    </a>
+  );
 }
 
 function RoundedImage(props) {
@@ -140,7 +144,7 @@ export function CustomMDX(props) {
           rehypePlugins: [rehypeSections, ...(props.options?.mdxOptions?.rehypePlugins ?? [])],
         },
       }}
-      components={{ ...components, ...(props.components || {}) }}
+      components={{ ...components, ...props.components }}
     />
   );
 }

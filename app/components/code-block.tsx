@@ -1,7 +1,14 @@
 "use client";
 
 import { CheckIcon, CopyIcon, WrapTextIcon } from "lucide-react";
-import { useEffect, useRef, useState, type ComponentProps, type ReactElement } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+  type ReactElement,
+} from "react";
 import { Button } from "app/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
 
@@ -9,6 +16,11 @@ const labels = {
   en: { copy: "Copy code", copied: "Copied", wrap: "Wrap lines" },
   pt: { copy: "Copiar código", copied: "Copiado", wrap: "Quebrar linhas" },
 };
+
+// The page's language never changes while it's open
+const noSubscribe = () => () => {};
+const pageLabels = () => (document.documentElement.lang.startsWith("pt") ? labels.pt : labels.en);
+const serverLabels = () => labels.en;
 
 const buttonClass =
   "bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800";
@@ -21,12 +33,7 @@ function language(children: ComponentProps<"pre">["children"]) {
 export function CodeBlock({ children, style, ...props }: ComponentProps<"pre">) {
   const ref = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
-  const [dict, setDict] = useState(labels.en);
-  useEffect(() => {
-    if (document.documentElement.lang.startsWith("pt")) {
-      setDict(labels.pt);
-    }
-  }, []);
+  const dict = useSyncExternalStore(noSubscribe, pageLabels, serverLabels);
   // Diagrams and folder trees aren't meant to be run
   const copyable = language(children) !== "text";
   // Lines wrap only if the reader asks (off by default: code keeps its shape)

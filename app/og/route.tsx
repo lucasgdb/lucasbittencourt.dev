@@ -22,7 +22,9 @@ export function GET() {
           backgroundColor: "#000",
         }}
       >
-        <img src={logo} width={logoSize} height={logoSize} />
+        {/* Satori (next/og) renders plain <img>; next/image doesn't apply here */}
+        {/* oxlint-disable-next-line nextjs/no-img-element */}
+        <img src={logo} width={logoSize} height={logoSize} alt="" />
       </div>
     ),
     { width: 1200, height: 630 }

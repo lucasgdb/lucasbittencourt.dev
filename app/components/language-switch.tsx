@@ -5,7 +5,7 @@ import { cn } from "cn";
 import { buttonVariants } from "app/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "app/components/ui/tooltip";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   getDictionary,
   localeConfig,
@@ -17,15 +17,13 @@ import {
 
 // On the global 404 the server only sees /_not-found: render the other home page
 // first (matching the server HTML) and switch to the real URL after mounting.
+const noSubscribe = () => () => {};
+const browserPathname = () => location.pathname;
+const serverPathname = () => null;
+
 function useCurrentPath(notFound: boolean) {
   const routerPath = usePathname();
-  const [browserPath, setBrowserPath] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (notFound) {
-      setBrowserPath(location.pathname);
-    }
-  }, [notFound]);
+  const browserPath = useSyncExternalStore(noSubscribe, browserPathname, serverPathname);
 
   return notFound ? browserPath : routerPath;
 }
