@@ -50,7 +50,7 @@ export function LanguageSwitch({
           aria-label={description}
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "m-1 h-8 min-w-8 px-1.5 text-sm tracking-normal text-muted-foreground"
+            "mx-0.5 h-11 min-w-11 px-1.5 text-sm tracking-normal text-muted-foreground"
           )}
         >
           {label}

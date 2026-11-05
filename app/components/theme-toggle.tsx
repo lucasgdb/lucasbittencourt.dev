@@ -47,7 +47,7 @@ export function ThemeSelect({ labels }: { labels: Dictionary["theme"] }) {
     // Not modal: a modal menu locks the page's scroll (hiding the scrollbar)
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button ref={trigger} variant="ghost" size="icon" aria-label={labels.label} className="m-1 text-muted-foreground">
+        <Button ref={trigger} variant="ghost" size="icon" aria-label={labels.label} className="mx-0.5 size-11 text-muted-foreground">
           {themeChoices.map((option) => (
             <Icon key={option} choice={option} className={`hidden ${shownWhen[option]}`} />
           ))}

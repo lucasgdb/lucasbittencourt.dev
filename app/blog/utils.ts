@@ -7,6 +7,11 @@ type Metadata = {
   publishedAt: string;
   updatedAt?: string;
   summary: string;
+  /** Search result title, without the site name (falls back to the title) */
+  seoTitle?: string;
+  /** Meta description, up to ~160 characters (falls back to the summary) */
+  description?: string;
+  /** Cover image: a path under /public or an absolute URL */
   image?: string;
 };
 

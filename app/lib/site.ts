@@ -21,13 +21,19 @@ export const business = {
 };
 
 // Update when app/services/*.mdx changes
-export const servicesUpdatedAt = "2026-10-19";
+export const servicesUpdatedAt = "2026-11-04";
+
+// Update when the home page's own text changes (its feed of posts and tools
+// is dated by them)
+export const homeUpdatedAt = "2026-11-04";
 
 // Update when app/legal/<doc>.*.mdx changes (each document has its own date)
 export const legalUpdatedAt = { terms: "2026-10-28", privacy: "2026-10-19" };
 
 export const person = {
   name: "Lucas Bittencourt",
+  // The handle on GitHub and elsewhere: tells this Lucas Bittencourt apart
+  alternateName: "lucasgdb",
   jobTitle: "AI Software Engineer",
   expertise: [
     "Artificial intelligence",
@@ -37,10 +43,14 @@ export const person = {
   ],
   profiles: {
     github: "https://github.com/lucasgdb",
-    linkedin: "https://linkedin.com/in/lucas-bittencourt",
+    linkedin: "https://www.linkedin.com/in/lucas-bittencourt",
   },
   sourceCode: "https://github.com/lucasgdb/lucasbittencourt.dev",
 };
+
+// IndexNow (Bing, Yandex, Naver...): served at /<key>.txt from public/ and
+// sent by `pnpm indexnow` after a deploy. See docs/SEO.md.
+export const indexNowKey = "851cf4ce97e5a5cf9b64cf40515959c2";
 
 // AI training crawlers (GPTBot, Google-Extended, ...). See docs/SEO.md.
 export const allowAiTraining = true;

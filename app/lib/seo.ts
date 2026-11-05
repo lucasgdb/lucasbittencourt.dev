@@ -2,7 +2,7 @@
 
 import type { MetadataRoute } from "next";
 import { getLastModified as lastModified, type Post } from "../blog/utils.ts";
-import { getTools } from "../tools/registry.ts";
+import { getTools, type Tool } from "../tools/registry.ts";
 import {
   defaultLocale,
   getDictionary,
@@ -15,6 +15,8 @@ import {
 import {
   allowAiTraining,
   baseUrl,
+  business,
+  homeUpdatedAt,
   isIndexable,
   mcpEndpoint,
   legalUpdatedAt,
@@ -78,7 +80,21 @@ export function baseOpenGraph(locale: Locale = defaultLocale) {
 }
 
 export function postImageUrl(post: Post) {
-  return post.metadata.image ?? ogImageUrl;
+  const { image } = post.metadata;
+  return image ? new URL(image, baseUrl).href : ogImageUrl;
+}
+
+export function postTitle(post: Post) {
+  return post.metadata.seoTitle ?? post.metadata.title;
+}
+
+export function postDescription(post: Post) {
+  return post.metadata.description ?? post.metadata.summary;
+}
+
+/** The store listing a tool is installed from (its storeUrl may be a redirect) */
+export function toolStoreListing(tool: Tool) {
+  return tool.storeListingUrl ?? tool.storeUrl ?? undefined;
 }
 
 // JSON.stringify doesn't escape "<": "</script>" in a value would end the tag.
@@ -94,8 +110,11 @@ export function personJsonLd(locale: Locale = defaultLocale) {
     "@type": "Person",
     "@id": personId,
     name: person.name,
+    alternateName: person.alternateName,
     url: baseUrl,
     jobTitle: getDictionary(locale).jobTitle,
+    description: getDictionary(locale).home.intro,
+    email: `mailto:${business.email}`,
     knowsAbout: person.expertise,
     knowsLanguage: locales.map((l) => localeConfig[l].htmlLang),
     sameAs: Object.values(person.profiles),
@@ -157,6 +176,8 @@ export function blogJsonLd(posts: Post[], locale: Locale = defaultLocale) {
       url: postUrl(post.slug, locale),
       datePublished: post.metadata.publishedAt,
       dateModified: lastModified(post),
+      inLanguage: localeConfig[locale].htmlLang,
+      author: { "@id": personId },
     })),
   };
 }
@@ -179,7 +200,7 @@ export function postJsonLd(
         "@type": "BlogPosting",
         "@id": `${url}#article`,
         headline: post.metadata.title,
-        description: post.metadata.summary,
+        description: postDescription(post),
         datePublished: post.metadata.publishedAt,
         dateModified: lastModified(post),
         url,
@@ -214,7 +235,12 @@ export function postJsonLd(
             name: dict.breadcrumbs.blog,
             item: pageUrl("/blog", locale),
           },
-          { "@type": "ListItem", position: 3, name: post.metadata.title },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.metadata.title,
+            item: url,
+          },
         ],
       },
     ],
@@ -236,12 +262,26 @@ export function servicesJsonLd(locale: Locale = defaultLocale) {
         description: dict.services.fde,
         url,
         provider: { "@id": personId },
+        availableLanguage: locales.map((l) => localeConfig[l].htmlLang),
+        availableChannel: {
+          "@type": "ServiceChannel",
+          serviceUrl: url,
+          servicePhone: {
+            "@type": "ContactPoint",
+            contactType: "sales",
+            email: business.email,
+            telephone: business.whatsapp.replace(/[^+\d]/g, ""),
+            url: business.whatsappUrl,
+          },
+        },
+        inLanguage: localeConfig[locale].htmlLang,
+        isPartOf: { "@id": websiteId },
       },
       {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: dict.breadcrumbs.home, item: pageUrl("/", locale) },
-          { "@type": "ListItem", position: 2, name: dict.services.title },
+          { "@type": "ListItem", position: 2, name: dict.services.title, item: url },
         ],
       },
     ],
@@ -286,10 +326,96 @@ export function mcpPageJsonLd(locale: Locale = defaultLocale) {
             name: dict.breadcrumbs.home,
             item: pageUrl("/", locale),
           },
-          { "@type": "ListItem", position: 2, name: dict.mcp.title },
+          { "@type": "ListItem", position: 2, name: dict.mcp.title, item: url },
         ],
       },
     ],
+  };
+}
+
+function toolOffers(tool: Tool, locale: Locale) {
+  const offer = (name: string | undefined, price: number) => ({
+    "@type": "Offer",
+    ...(name && { name }),
+    price: price.toFixed(2),
+    priceCurrency: "BRL",
+  });
+  const credits = getDictionary(locale).tools.packs.credits;
+  // Free to install; what's sold inside it (credits, a license) is listed too
+  return [
+    offer(undefined, 0),
+    ...(tool.creditPacks ?? []).map((pack) =>
+      offer(`${pack.credits.toLocaleString(localeConfig[locale].intl)} ${credits}`, pack.priceBRL)
+    ),
+    ...(tool.lifetimeLicense
+      ? [offer(tool.lifetimeLicense.name, tool.lifetimeLicense.priceBRL)]
+      : []),
+  ];
+}
+
+export function toolJsonLd(tool: Tool, locale: Locale = defaultLocale) {
+  const url = pageUrl(`/tool/${tool.slug}`, locale);
+  const dict = getDictionary(locale);
+  const text = tool.text[locale];
+  const store = toolStoreListing(tool);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${url}#app`,
+        name: text.name,
+        description: text.summary,
+        url,
+        image: new URL(tool.icon, baseUrl).href,
+        applicationCategory: "BrowserApplication",
+        operatingSystem: tool.browsers.join(", "),
+        ...(tool.manualBuild && { softwareVersion: tool.manualBuild.version }),
+        datePublished: tool.publishedAt,
+        dateModified: tool.updatedAt,
+        inLanguage: localeConfig[locale].htmlLang,
+        ...(store && { installUrl: store, sameAs: [store] }),
+        offers: toolOffers(tool, locale),
+        author: { "@id": personId },
+        publisher: { "@id": personId },
+        isPartOf: { "@id": websiteId },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: dict.breadcrumbs.home, item: pageUrl("/", locale) },
+          { "@type": "ListItem", position: 2, name: dict.tools.title, item: pageUrl("/tools", locale) },
+          { "@type": "ListItem", position: 3, name: text.name, item: url },
+        ],
+      },
+    ],
+  };
+}
+
+export function toolsIndexJsonLd(locale: Locale = defaultLocale) {
+  const url = pageUrl("/tools", locale);
+  const dict = getDictionary(locale);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#page`,
+    url,
+    name: dict.tools.title,
+    description: dict.tools.description,
+    inLanguage: localeConfig[locale].htmlLang,
+    isPartOf: { "@id": websiteId },
+    author: { "@id": personId },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: getTools().map((tool, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: pageUrl(`/tool/${tool.slug}`, locale),
+        name: tool.text[locale].name,
+      })),
+    },
   };
 }
 
@@ -307,8 +433,12 @@ export function buildSitemap(
       alternates: { languages: languageAlternates(path) },
     });
 
+    const newestTool = getTools().map((tool) => tool.publishedAt).sort().at(-1);
+    // The home page lists posts and tools under its own text: the newest wins
+    const home = [latest, newestTool, homeUpdatedAt].filter(Boolean).sort().at(-1);
+
     entries.push(
-      page("/", latest),
+      page("/", home),
       page("/blog", latest),
       page("/services", servicesUpdatedAt),
       page("/mcp", mcpUpdatedAt),
@@ -347,8 +477,10 @@ export function buildRobots(
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow: "/api/" },
+      // A crawler follows only its most specific group, so this one repeats
+      // the /api/ rule instead of inheriting it from "*"
       allowTraining
-        ? { userAgent: aiTrainingCrawlers, allow: "/" }
+        ? { userAgent: aiTrainingCrawlers, allow: "/", disallow: "/api/" }
         : { userAgent: aiTrainingCrawlers, disallow: "/" },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
@@ -424,14 +556,14 @@ ${postLinks("en")}
 
 ## Services
 
-- [Services](${pageUrl("/services")}): AI Forward Deployed Engineer services, hourly or per project ([em português](${pageUrl("/services", "pt-br")}))
+- [Services](${pageUrl("/services")}): ${person.name} works embedded with a client's team to build, customize and deploy AI and agent systems to production, hourly or per project. Contact: ${business.email} ([em português](${pageUrl("/services", "pt-br")}))
 
 ## Tools
 
 ${getTools()
   .map(
     (tool) =>
-      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
+      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary}${toolStoreListing(tool) ? ` [Chrome Web Store](${toolStoreListing(tool)}) ·` : ""} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
   )
   .join("\n")}
 
@@ -453,6 +585,31 @@ ${postLinks("pt-br")}
 
 - [Blog index](${pageUrl("/blog")}): all posts ([em português](${pageUrl("/blog", "pt-br")}))
 - [RSS feed](${rssUrl()}) ([em português](${rssUrl("pt-br")}))
+- [Full text of every post](${baseUrl}/llms-full.txt): all English posts in Markdown, in one file
 - [Website source code](${person.sourceCode})
+`;
+}
+
+/** Every post's full Markdown in one file, for tools that read a whole site */
+export function buildLlmsFullTxt(posts: Post[]) {
+  const body = posts
+    .map(
+      (post) => `# ${post.metadata.title}
+
+URL: ${postUrl(post.slug)}
+Published: ${post.metadata.publishedAt}${post.metadata.updatedAt ? `\nUpdated: ${post.metadata.updatedAt}` : ""}
+Author: ${person.name}
+
+> ${post.metadata.summary}
+
+${post.content}`
+    )
+    .join("\n\n---\n\n");
+
+  return `# ${person.name}: full text of the blog
+
+> Every post of ${pageUrl("/blog")} in Markdown (MDX), newest first. The index is at ${baseUrl}/llms.txt.
+
+${body}
 `;
 }

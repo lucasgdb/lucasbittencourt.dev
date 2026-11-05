@@ -22,10 +22,10 @@ export function Navbar({
   const dict = getDictionary(locale);
 
   return (
-    <header className="site-header sticky top-0 z-40 mt-6 py-2 tracking-tight bg-background/80 backdrop-blur-md">
+    <header className="site-header sticky top-0 z-40 mt-6 py-1.5 tracking-tight bg-background/80 backdrop-blur-md">
       <div className="mx-auto w-[calc(100%-2rem)] max-w-(--column-width) px-2 md:px-0">
         <nav
-          className="-ml-2 flex flex-row items-start relative"
+          className="-ml-2 flex flex-row items-center relative"
           id="nav"
           aria-label={dict.nav.label}
         >
@@ -39,7 +39,7 @@ export function Navbar({
                 <Link
                   key={item}
                   href={localizePath(navPaths[item], locale)}
-                  className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-400 flex shrink-0 align-middle relative py-1 px-2 max-[400px]:px-1 m-1 max-[400px]:mx-0.5"
+                  className="transition-colors hover:text-neutral-500 dark:hover:text-neutral-400 flex shrink-0 items-center align-middle relative min-h-11 py-2.5 px-2 max-[400px]:px-1 mx-1 max-[400px]:mx-0.5"
                 >
                   {dict.nav[item]}
                 </Link>

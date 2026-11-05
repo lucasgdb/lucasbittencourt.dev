@@ -24,9 +24,12 @@ export function BlogIndexPage({ locale }: { locale: Locale }) {
   return (
     <section>
       <JsonLd data={blogJsonLd(getSortedBlogPosts(locale), locale)} />
-      <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
+      <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
         {getDictionary(locale).blog.heading}
       </h1>
+      <p className="mb-8 text-neutral-600 dark:text-neutral-400">
+        {getDictionary(locale).blogDescription}
+      </p>
       <BlogPosts locale={locale} />
     </section>
   );

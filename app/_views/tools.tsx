@@ -11,7 +11,8 @@ import { CustomMDX } from "app/components/mdx";
 import { InstallNowButton, ToolTabs } from "app/components/tool-tabs";
 import { formatDate } from "app/blog/utils";
 import { getDictionary, localeConfig, localizePath, type Locale } from "app/lib/i18n";
-import { baseOpenGraph, pageAlternates } from "app/lib/seo";
+import { JsonLd } from "app/components/json-ld";
+import { baseOpenGraph, pageAlternates, toolJsonLd, toolsIndexJsonLd } from "app/lib/seo";
 import { business } from "app/lib/site";
 import { getTool, getTools, type Tool } from "app/tools/registry";
 
@@ -74,9 +75,11 @@ export function ToolsIndexPage({ locale }: { locale: Locale }) {
 
   return (
     <section>
-      <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
+      <JsonLd data={toolsIndexJsonLd(locale)} />
+      <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
         {dict.tools.heading}
       </h1>
+      <p className="mb-8 text-neutral-600 dark:text-neutral-400">{dict.tools.description}</p>
       <ul className="flex flex-col gap-6">
         {getTools().map((tool) => {
           const text = tool.text[locale];
@@ -219,6 +222,7 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
 
   return (
     <section>
+      <JsonLd data={toolJsonLd(tool, locale)} />
       <div className="flex items-center gap-4">
         <ToolIcon tool={tool} size={56} />
         <div>
@@ -323,7 +327,8 @@ export function toolPrivacyMetadata(slug: string, locale: Locale): Metadata | un
   const description = dict.privacyDescription(name);
   const alternates = pageAlternates(privacyPath(slug), locale);
   return {
-    title,
+    // Long already: the site name would only be cut off in search results
+    title: { absolute: title },
     description,
     alternates,
     openGraph: { ...baseOpenGraph(locale), title, description, url: alternates.canonical },
@@ -369,7 +374,8 @@ export function toolEulaMetadata(slug: string, locale: Locale): Metadata | undef
   const description = dict.eulaDescription(name);
   const alternates = pageAlternates(eulaPath(slug), locale);
   return {
-    title,
+    // Long already: the site name would only be cut off in search results
+    title: { absolute: title },
     description,
     alternates,
     openGraph: { ...baseOpenGraph(locale), title, description, url: alternates.canonical },

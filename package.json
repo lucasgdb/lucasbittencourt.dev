@@ -12,7 +12,8 @@
     "test": "node --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "indexnow": "node scripts/indexnow.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.4.0",

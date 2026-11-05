@@ -41,7 +41,8 @@ export function rootMetadata(locale: Locale): Metadata {
       ...baseOpenGraph(locale),
       title: defaultTitle,
       description: dict.siteDescription,
-      url: "/",
+      // No url: a page without its own openGraph would otherwise claim to be
+      // the home page. Every page sets openGraph (with its url) in full.
     },
     twitter: {
       card: "summary_large_image",

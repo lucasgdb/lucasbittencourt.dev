@@ -25,6 +25,11 @@ export type Tool = {
   icon: string;
   /** Where it's installed from; null until it's published there */
   storeUrl: string | null;
+  /** The store listing itself, when storeUrl redirects to it: what search
+   * engines and AI assistants are shown (JSON-LD, llms.txt) */
+  storeListingUrl?: string;
+  /** Browsers it runs in (JSON-LD operatingSystem) */
+  browsers: string[];
   /** Builds to install by hand, if any: before the store, or for the
    * browsers it doesn't serve (Firefox) */
   manualBuild?: ManualBuild;
@@ -47,6 +52,9 @@ export const tools: Tool[] = [
     slug: "ai-summarizer",
     icon: "/tools/ai-summarizer/icon.svg",
     storeUrl: "https://ai-summarizer.lucasbittencourt.dev/",
+    storeListingUrl:
+      "https://chromewebstore.google.com/detail/ai-summarizer/nncoobaggikfokapffcihmfngbjmlece",
+    browsers: ["Chrome", "Edge", "Brave", "Opera", "Vivaldi", "Firefox"],
     manualBuild: {
       version: "0.1.0",
       releasedAt: "2026-10-24",
@@ -86,6 +94,7 @@ export const tools: Tool[] = [
     slug: "video-downloader",
     icon: "/tools/video-downloader/icon.svg",
     storeUrl: null,
+    browsers: ["Chrome", "Edge", "Brave", "Opera", "Vivaldi", "Firefox"],
     manualBuild: {
       version: "0.1.0",
       releasedAt: "2026-10-24",

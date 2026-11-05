@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import type { Metadata } from "next";
+import { MailIcon, MessageCircleIcon } from "lucide-react";
+import { Button } from "app/components/ui/button";
 import { CustomMDX } from "app/components/mdx";
 import { JsonLd } from "app/components/json-ld";
 import { getDictionary, type Locale } from "app/lib/i18n";
@@ -31,6 +33,30 @@ function Contact() {
   );
 }
 
+/** The page's main action, above the fold: talk about a project */
+function ContactButtons({ locale }: { locale: Locale }) {
+  const dict = getDictionary(locale).services;
+  return (
+    <div className="mt-6 mb-8">
+      <p className="mb-3 font-medium tracking-tight">{dict.contact}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="lg" className="h-11 px-4">
+          <a href={`mailto:${business.email}`}>
+            <MailIcon />
+            {dict.email}
+          </a>
+        </Button>
+        <Button asChild size="lg" variant="outline" className="h-11 px-4">
+          <a href={business.whatsappUrl} rel="noopener noreferrer" target="_blank">
+            <MessageCircleIcon />
+            WhatsApp
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function ServicesPage({ locale }: { locale: Locale }) {
   const content = fs.readFileSync(
     path.join(process.cwd(), "app", "services", `content.${locale}.mdx`),
@@ -43,6 +69,7 @@ export function ServicesPage({ locale }: { locale: Locale }) {
       <h1 className="title font-semibold text-2xl tracking-tighter">
         {getDictionary(locale).services.title}
       </h1>
+      <ContactButtons locale={locale} />
       <article className="prose">
         <CustomMDX source={content} components={{ Contact }} />
       </article>

@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { getBlogPosts, getSortedBlogPosts, type Post } from "../app/blog/utils.ts";
 import { locales } from "../app/lib/i18n.ts";
+import { existsSync, readFileSync } from "node:fs";
 import {
+  buildLlmsFullTxt,
   buildLlmsTxt,
   buildRobots,
   buildRss,
@@ -11,8 +13,11 @@ import {
   pageAlternates,
   postJsonLd,
   serializeJsonLd,
+  servicesJsonLd,
+  toolJsonLd,
+  toolsIndexJsonLd,
 } from "../app/lib/seo.ts";
-import { baseUrl, person } from "../app/lib/site.ts";
+import { baseUrl, indexNowKey, person } from "../app/lib/site.ts";
 import { getTools } from "../app/tools/registry.ts";
 
 const postsByLocale = {
@@ -45,6 +50,17 @@ test("every post has the required frontmatter, in every language", () => {
       if (post.metadata.updatedAt) {
         assert.match(post.metadata.updatedAt, /^\d{4}-\d{2}-\d{2}$/, id);
         assert.ok(post.metadata.updatedAt >= post.metadata.publishedAt, id);
+      }
+      // Search results cut titles past ~60 characters and descriptions past ~160
+      if (post.metadata.seoTitle) {
+        assert.ok(post.metadata.seoTitle.length <= 60, `${id}: seoTitle length`);
+      }
+      if (post.metadata.description) {
+        assert.ok(post.metadata.description.length <= 160, `${id}: description length`);
+      }
+      // A local cover image must exist in /public
+      if (post.metadata.image?.startsWith("/")) {
+        assert.ok(existsSync(`public${post.metadata.image}`), `${id}: ${post.metadata.image}`);
       }
     }
   }
@@ -120,7 +136,12 @@ test("robots.txt allows search crawlers and references the sitemap", () => {
 
   assert.deepEqual(rules[0], { userAgent: "*", allow: "/", disallow: "/api/" });
   assert.equal(robots.sitemap, `${baseUrl}/sitemap.xml`);
-  assert.ok(rules.slice(1).every((rule) => !("disallow" in rule)));
+  // A crawler follows only its most specific group: every group that allows
+  // the site must keep /api/ out too
+  for (const rule of rules) {
+    assert.equal(rule.allow, "/");
+    assert.equal(rule.disallow, "/api/");
+  }
 });
 
 test("robots.txt can block AI training crawlers without blocking search", () => {
@@ -188,6 +209,8 @@ test("home JSON-LD connects the profile page, person and website", () => {
 
     assert.equal(ids.size, nodes.length);
     assert.deepEqual(personNode.sameAs, Object.values(person.profiles));
+    assert.equal(personNode.alternateName, person.alternateName);
+    assert.ok(personNode.description);
     assert.ok(!("image" in personNode));
     assert.ok(ids.has(`${baseUrl}/#person`));
     assert.ok(ids.has(`${baseUrl}/#website`));
@@ -223,4 +246,61 @@ test("llms.txt follows the proposal structure and links every post", () => {
     assert.ok(llms.includes(`(${baseUrl}/blog/${post.slug})`), post.slug);
     assert.ok(llms.includes(`(${baseUrl}/pt-br/blog/${post.slug})`), post.slug);
   }
+});
+
+test("tool JSON-LD describes each extension, its store listing and prices", () => {
+  for (const locale of locales) {
+    for (const tool of getTools()) {
+      const [app, breadcrumbs] = graph(toolJsonLd(tool, locale));
+      const prefix = locale === "en" ? "" : "/pt-br";
+
+      assert.equal(app["@type"], "SoftwareApplication");
+      assert.equal(app.applicationCategory, "BrowserApplication");
+      assert.equal(app.url, `${baseUrl}${prefix}/tool/${tool.slug}`);
+      assert.equal(app.author["@id"], `${baseUrl}/#person`);
+      assert.ok(app.operatingSystem.includes("Chrome"));
+      assert.equal(app.offers[0].price, "0.00");
+      for (const offer of app.offers) {
+        assert.match(offer.price, /^\d+\.\d{2}$/);
+        assert.equal(offer.priceCurrency, "BRL");
+      }
+      // The store listing, not the redirect in storeUrl
+      if (tool.storeListingUrl) {
+        assert.equal(app.installUrl, tool.storeListingUrl);
+        assert.ok(app.installUrl.startsWith("https://chromewebstore.google.com/"));
+      }
+      assert.equal(breadcrumbs.itemListElement.length, 3);
+    }
+
+    const index = toolsIndexJsonLd(locale);
+    assert.equal(index.mainEntity.itemListElement.length, getTools().length);
+  }
+});
+
+test("services JSON-LD has the provider, contact channel and breadcrumbs", () => {
+  for (const locale of locales) {
+    const [service, breadcrumbs] = graph(servicesJsonLd(locale));
+    assert.equal(service["@type"], "Service");
+    assert.equal(service.provider["@id"], `${baseUrl}/#person`);
+    assert.match(service.availableChannel.servicePhone.telephone, /^\+\d+$/);
+    assert.ok(breadcrumbs.itemListElement.every((item: Node) => item.item));
+  }
+});
+
+test("llms-full.txt has every English post in full", () => {
+  const full = buildLlmsFullTxt(posts);
+  assert.match(full, /^# Lucas Bittencourt: full text of the blog\n/);
+  for (const post of posts) {
+    assert.ok(full.includes(`URL: ${baseUrl}/blog/${post.slug}`), post.slug);
+    assert.ok(full.includes(post.content.slice(0, 200)), post.slug);
+  }
+  assert.ok(buildLlmsTxt(postsByLocale).includes(`${baseUrl}/llms-full.txt`));
+});
+
+test("the IndexNow key file and security.txt are published", () => {
+  assert.equal(readFileSync(`public/${indexNowKey}.txt`, "utf-8"), indexNowKey);
+  const security = readFileSync("public/.well-known/security.txt", "utf-8");
+  assert.match(security, /^Contact: mailto:/m);
+  const expires = /^Expires: (.+)$/m.exec(security)?.[1];
+  assert.ok(expires && new Date(expires) > new Date(), "security.txt has expired");
 });

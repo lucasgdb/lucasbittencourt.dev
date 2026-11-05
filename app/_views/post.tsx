@@ -7,7 +7,7 @@ import { WatcherBar } from "app/components/watcher-bar";
 import { ReadAloud } from "app/components/read-aloud";
 import { ReadingSettings } from "app/components/reading-settings";
 import { Atkinson_Hyperlegible, Literata } from "next/font/google";
-import { formatDate, getBlogPosts } from "app/blog/utils";
+import { formatDate, getBlogPosts, getSortedBlogPosts } from "app/blog/utils";
 import {
   getDictionary,
   localizePath,
@@ -18,8 +18,10 @@ import {
   baseOpenGraph,
   ogImageSize,
   pageAlternates,
+  postDescription,
   postImageUrl,
   postJsonLd,
+  postTitle,
 } from "app/lib/seo";
 import { person } from "app/lib/site";
 
@@ -57,12 +59,15 @@ export function postMetadata(slug: string, locale: Locale): Metadata | undefined
     return;
   }
 
-  const { title, publishedAt, updatedAt, summary: description } = post.metadata;
+  const { publishedAt, updatedAt } = post.metadata;
+  // Search and social titles: the SEO title, without the site name
+  const title = postTitle(post);
+  const description = postDescription(post);
   const image = postImageUrl(post);
   const path = `/blog/${post.slug}`;
 
   return {
-    title,
+    title: post.metadata.seoTitle ? { absolute: title } : title,
     description,
     alternates: pageAlternates(path, locale),
     openGraph: {
@@ -89,6 +94,45 @@ export function postMetadata(slug: string, locale: Locale): Metadata | undefined
   };
 }
 
+const linkClass =
+  "underline underline-offset-2 decoration-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-100";
+
+/** After a post: the other posts and the services, so readers (and crawlers)
+ * have somewhere to go besides the nav */
+function MorePosts({ slug, locale }: { slug: string; locale: Locale }) {
+  const dict = getDictionary(locale).post;
+  const others = getSortedBlogPosts(locale).filter((post) => post.slug !== slug);
+  const [before, link, after] = dict.services;
+
+  return (
+    <aside className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
+      <h2 className="mb-4 font-medium tracking-tight">{dict.more}</h2>
+      <ul className="mb-8 flex flex-col gap-1">
+        {others.map((post) => (
+          <li key={post.slug}>
+            <Link
+              href={localizePath(`/blog/${post.slug}`, locale)}
+              className="block py-2 text-neutral-900 tracking-tight dark:text-neutral-100"
+            >
+              {post.metadata.title}
+              <span className="block text-sm text-neutral-600 dark:text-neutral-400">
+                {postDescription(post)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className="text-neutral-600 dark:text-neutral-400">
+        {before}
+        <Link className={linkClass} href={localizePath("/services", locale)}>
+          {link}
+        </Link>
+        {after}
+      </p>
+    </aside>
+  );
+}
+
 export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
   const post = findPost(slug, locale);
   if (!post) {
@@ -109,8 +153,9 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
       <div className="mt-2 mb-8 flex flex-col items-start gap-3 text-sm">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {dict.post.by} <Link href={localizePath("/", locale)}>{person.name}</Link> ·{" "}
+          {/* No "(2 years ago)": the page is prerendered, so it would go stale */}
           <time dateTime={publishedAt}>
-            {formatDate(publishedAt, true, locale)}
+            {formatDate(publishedAt, false, locale)}
           </time>
           {updatedAt && updatedAt !== publishedAt && (
             <>
@@ -130,6 +175,7 @@ export function PostPage({ slug, locale }: { slug: string; locale: Locale }) {
       <article className="prose post">
         <CustomMDX source={post.content} />
       </article>
+      <MorePosts slug={post.slug} locale={locale} />
     </section>
   );
 }

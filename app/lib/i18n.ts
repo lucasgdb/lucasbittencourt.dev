@@ -58,9 +58,9 @@ export function otherLocale(locale: Locale): Locale {
 const en = {
   jobTitle: "AI Software Engineer",
   siteDescription:
-    "Portfolio and blog of Lucas Bittencourt, a software engineer focused on AI: AI and agent systems in production, AI Forward Deployed Engineer services and tools such as AI Summarizer.",
+    "AI software engineer building AI and agent systems for production. AI Forward Deployed Engineer services, a technical blog and tools like AI Summarizer.",
   blogDescription:
-    "Articles by Lucas Bittencourt about software engineering and AI, and the tools and services built with them.",
+    "Articles on software engineering and AI: JavaScript, Node.js, React, algorithms and self-hosting, written from building real systems.",
   nav: {
     label: "Main",
     home: "home",
@@ -86,9 +86,11 @@ const en = {
     privacy: "Privacy policy",
   },
   services: {
-    title: "Services",
+    title: "AI Forward Deployed Engineer services",
     description:
       "AI Forward Deployed Engineer services: building, customizing and deploying real-world AI and agentic systems with your team, hourly or per project.",
+    contact: "Talk about your project",
+    email: "Email me",
     fde: "Software engineer embedded with clients or internal product groups to build, customize, and deploy real-world AI and agentic systems. Hourly (price on request) or per project.",
   },
   legal: {
@@ -109,15 +111,23 @@ const en = {
       "Software engineer focused on AI. I design, build and ship AI and agent systems to production, integrated with the systems and processes they serve.",
     writing: ["I also write about software engineering and AI on ", "my blog", "."],
     feed: { post: "Post", tool: "Tool" },
+    work: "Work with me",
+    email: "Email me",
   },
   blog: {
-    title: "Blog",
-    heading: "My Blog",
+    title: "Software engineering and AI blog",
+    heading: "Software engineering and AI blog",
     name: (author: string) => `${author}'s blog`,
   },
   post: {
     by: "By",
     updated: "Updated",
+    more: "More posts",
+    services: [
+      "Need AI or agent systems built and shipped to production? See my ",
+      "AI Forward Deployed Engineer services",
+      ".",
+    ],
     readAloud: {
       listen: "Listen",
       resume: "Resume listening",
@@ -160,10 +170,10 @@ const en = {
     },
   },
   tools: {
-    title: "Tools",
-    heading: "Tools",
+    title: "AI tools and browser extensions",
+    heading: "AI tools and browser extensions",
     description:
-      "Tools and digital products by Lucas Bittencourt: AI Summarizer, a browser extension that summarizes only the part of a page you pick, and Video Downloader, which finds and downloads the videos on a page. For Chrome, Edge, Firefox and other browsers.",
+      "AI Summarizer summarizes only the part of a page you pick; Video Downloader saves a page's videos. Extensions for Chrome, Edge, Firefox and more.",
     links: "Links",
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
@@ -220,9 +230,9 @@ export type Dictionary = typeof en;
 const ptBr: Dictionary = {
   jobTitle: "Engenheiro de Software de IA",
   siteDescription:
-    "Portfólio e blog de Lucas Bittencourt, engenheiro de software focado em IA: sistemas de IA e de agentes em produção, serviços de AI Forward Deployed Engineer e ferramentas como o AI Summarizer.",
+    "Engenheiro de software de IA: sistemas de IA e de agentes em produção, serviços de AI Forward Deployed Engineer, blog técnico e ferramentas como o AI Summarizer.",
   blogDescription:
-    "Artigos de Lucas Bittencourt sobre engenharia de software e IA, e sobre as ferramentas e serviços construídos com elas.",
+    "Artigos sobre engenharia de software e IA: JavaScript, Node.js, React, algoritmos e servidor em casa, escritos a partir de sistemas reais.",
   nav: {
     label: "Principal",
     home: "início",
@@ -248,9 +258,11 @@ const ptBr: Dictionary = {
     privacy: "Política de privacidade",
   },
   services: {
-    title: "Serviços",
+    title: "Serviços de AI Forward Deployed Engineer",
     description:
-      "Serviços de AI Forward Deployed Engineer: construir, customizar e colocar em produção sistemas reais de IA e de agentes junto com o seu time, por hora ou por projeto.",
+      "Serviços de AI Forward Deployed Engineer: construo, customizo e coloco em produção sistemas de IA e de agentes com o seu time, por hora ou por projeto.",
+    contact: "Fale sobre o seu projeto",
+    email: "Mandar e-mail",
     fde: "Engenheiro de software que trabalha junto ao cliente ou a times de produto internos para construir, customizar e colocar em produção sistemas reais de IA e de agentes. Por hora (sob consulta) ou por projeto.",
   },
   legal: {
@@ -271,15 +283,23 @@ const ptBr: Dictionary = {
       "Engenheiro de software focado em IA. Projeto, construo e coloco em produção sistemas de IA e de agentes, integrados aos sistemas e processos de cada negócio.",
     writing: ["Também escrevo sobre engenharia de software e IA no ", "meu blog", "."],
     feed: { post: "Post", tool: "Ferramenta" },
+    work: "Trabalhe comigo",
+    email: "Mandar e-mail",
   },
   blog: {
-    title: "Blog",
-    heading: "Meu blog",
+    title: "Blog de engenharia de software e IA",
+    heading: "Blog de engenharia de software e IA",
     name: (author) => `Blog de ${author}`,
   },
   post: {
     by: "Por",
     updated: "Atualizado em",
+    more: "Mais posts",
+    services: [
+      "Precisa construir e colocar em produção sistemas de IA ou de agentes? Veja os meus ",
+      "serviços de AI Forward Deployed Engineer",
+      ".",
+    ],
     readAloud: {
       listen: "Ouvir",
       resume: "Continuar ouvindo",
@@ -322,10 +342,10 @@ const ptBr: Dictionary = {
     },
   },
   tools: {
-    title: "Ferramentas",
-    heading: "Ferramentas",
+    title: "Ferramentas de IA e extensões para navegador",
+    heading: "Ferramentas de IA e extensões para navegador",
     description:
-      "Ferramentas e produtos digitais de Lucas Bittencourt: o AI Summarizer, uma extensão que resume só o trecho da página que você escolhe, e o Video Downloader, que encontra e baixa os vídeos de uma página. Para Chrome, Edge, Firefox e outros navegadores.",
+      "O AI Summarizer resume só o trecho da página que você escolhe; o Video Downloader baixa os vídeos de uma página. Para Chrome, Edge, Firefox e outros.",
     links: "Links",
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",

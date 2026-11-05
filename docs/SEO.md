@@ -14,7 +14,14 @@ None of this guarantees rankings, rich results or AI citations. It removes techn
 | Per-page canonical and Open Graph | `app/page.tsx`, `app/blog/page.tsx`, `app/blog/[slug]/page.tsx` |
 | Tests | `tests/seo.test.ts` (`pnpm test`) |
 
-Post frontmatter accepts an optional `updatedAt: "YYYY-MM-DD"`. Set it only when a post changes meaningfully. It feeds the visible "Updated" date, `dateModified` in JSON-LD, `article:modified_time` and the sitemap `lastmod`.
+Post frontmatter accepts optional fields:
+
+- `updatedAt: "YYYY-MM-DD"`: set it only when a post changes meaningfully. It feeds the visible "Updated" date, `dateModified` in JSON-LD, `article:modified_time` and the sitemap `lastmod`.
+- `seoTitle`: the `<title>` and social title, up to 60 characters and without the site name (the page's H1 stays `title`). Phrase it the way people search.
+- `description`: the meta description, up to 160 characters. `summary` (longer) still feeds RSS, llms.txt and the MCP tools.
+- `image`: the cover for social previews and JSON-LD, preferably a file under `public/blog/` (e.g. `/blog/<slug>.png`) rather than a third-party host.
+
+Tests fail if a `seoTitle` or `description` is too long, or a local `image` doesn't exist.
 
 ## Languages (English and Brazilian Portuguese)
 
@@ -36,16 +43,43 @@ robots.txt is a crawling policy, not access control. Well-behaved crawlers follo
 | OAI-SearchBot | ChatGPT Search results | Allowed (`*`) |
 | ChatGPT-User, Claude-User, Perplexity-User | Fetches triggered by a user's question | Allowed (`*`) |
 | PerplexityBot, Claude-SearchBot | AI search indexing | Allowed (`*`) |
-| GPTBot, ClaudeBot, CCBot | Collecting data for model training | Allowed (explicit group) |
+| GPTBot, ClaudeBot, CCBot | Collecting data for model training | Allowed (explicit group), except `/api/` |
 | Google-Extended, Applebot-Extended | Use of content for Gemini / Apple AI training (not a separate crawler) | Allowed (explicit group) |
 
 To block training without affecting search, set `allowAiTraining = false` in `app/lib/site.ts`.
+
+A crawler follows only the most specific group that names it, so the training group repeats `Disallow: /api/` instead of inheriting it from `*`.
 
 Preview and development deployments (`VERCEL_ENV !== "production"`) serve `Disallow: /` and `noindex`.
 
 ## llms.txt (`/llms.txt`)
 
-Generated at build time from the posts, following the [llms.txt proposal](https://llmstxt.org). It is **experimental**: it's not a Google, Bing or ChatGPT ranking requirement, and most crawlers ignore it. It's kept because it costs nothing to maintain (generated from the same data as the site).
+Generated at build time from the posts, following the [llms.txt proposal](https://llmstxt.org). `/llms-full.txt` has the full Markdown of every English post in one file. Tools link to their store listing (`storeListingUrl` in `app/tools/registry.ts`), not to the redirect in `storeUrl`. It is **experimental**: it's not a Google, Bing or ChatGPT ranking requirement, and most crawlers ignore it. It's kept because it costs nothing to maintain (generated from the same data as the site).
+
+## Structured data per page
+
+| Page | JSON-LD |
+| --- | --- |
+| Home | ProfilePage, Person (with `alternateName`, `description`, `sameAs`), WebSite |
+| Blog index | Blog with BlogPosting entries |
+| Posts | BlogPosting, BreadcrumbList |
+| Services | Service (provider, languages, contact channel), BreadcrumbList |
+| Tools index | CollectionPage with an ItemList |
+| Tool pages | SoftwareApplication (BrowserApplication, store listing, offers in BRL: free install plus credit packs or license), BreadcrumbList |
+| MCP | TechArticle, BreadcrumbList |
+
+FAQPage is deliberately not used: Google retired FAQ rich results.
+
+## HTTP headers
+
+`next.config.ts` adds `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and a Content-Security-Policy limited to `frame-ancestors`, `base-uri`, `object-src` and `form-action`. A `script-src` policy would need per-request nonces, which would make every prerendered page dynamic. Vercel already sends HSTS.
+
+There is no redirect from `/pt-BR` to `/pt-br`: Next.js matches redirect sources case-insensitively, so the rule would also match `/pt-br` and loop. `/pt-BR` returns a 404.
+
+## IndexNow and security.txt
+
+- The IndexNow key (`indexNowKey` in `app/lib/site.ts`) is served at `/<key>.txt` from `public/`. After a deploy that adds or changes pages, run `pnpm indexnow` (every URL in the live sitemap) or `pnpm indexnow /blog/<slug> /pt-br/blog/<slug>`. Bing, Yandex, Naver and Seznam use it; Google doesn't.
+- `public/.well-known/security.txt` has the security contact. Its `Expires` date must be renewed before it passes (a test fails once it has).
 
 ## Manual actions (outside the repository)
 
@@ -97,6 +131,15 @@ The site is also an MCP server, documented at `/mcp`:
 There is no public API/OpenAPI: the MCP tools, the RSS feed, the sitemap and llms.txt already expose the content in machine-readable form.
 
 ## Missing content (not invented)
+
+The November 2026 SEO audit found the home page (about 130 words) and the services page thin, and the name "Lucas Bittencourt" shared with a gymnast and an MMA fighter in search results. Only the owner can supply what fixes that:
+
+- A 300–500 word bio on the home page (or an `/about` page the post bylines link to): years of experience, roles, location, named projects
+- 2–3 client results for `/services` (problem, what was built, a measurable outcome), price ranges if public, and how an engagement runs
+- Posts about AI and agents in production, which the "AI Software Engineer" positioning needs
+- The GitHub bio and LinkedIn summary reusing the site's one-line bio and linking to it
+
+Also:
 
 AI assistants can only describe what the site states. These facts are not on the site and would improve "who is Lucas / what has Lucas built" answers if added by the owner:
 
