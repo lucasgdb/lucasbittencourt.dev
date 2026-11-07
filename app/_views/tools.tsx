@@ -14,7 +14,7 @@ import { getDictionary, localeConfig, localizePath, type Locale } from "app/lib/
 import { JsonLd } from "app/components/json-ld";
 import { baseOpenGraph, pageAlternates, toolJsonLd, toolsIndexJsonLd } from "app/lib/seo";
 import { business } from "app/lib/site";
-import { getTool, getTools, type Tool } from "app/tools/registry";
+import { getTool, getTools, toolAppUrl, type Tool } from "app/tools/registry";
 
 const toolPath = (slug: string) => `/tool/${slug}`;
 const privacyPath = (slug: string) => `/tool/${slug}/privacy`;
@@ -208,6 +208,7 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
   const tool = findTool(slug);
   const dict = getDictionary(locale).tools;
   const text = tool.text[locale];
+  const appUrl = toolAppUrl(tool, locale);
   const about = (
     <article className="prose">
       <CustomMDX
@@ -240,10 +241,10 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
       <div className="mt-6 flex flex-wrap gap-2">
         {/* Not in the store yet, but installable by hand: that comes first */}
         {!tool.storeUrl && tool.manualBuild && <InstallNowButton>{dict.installNow}</InstallNowButton>}
-        {tool.appUrl ? (
+        {appUrl ? (
           // A web app: nothing to install, it opens
           <Button asChild size="lg">
-            <a href={tool.appUrl} rel="noopener" target="_blank">
+            <a href={appUrl} rel="noopener" target="_blank">
               <ExternalLinkIcon />
               {dict.open(text.name)}
             </a>

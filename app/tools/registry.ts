@@ -24,8 +24,8 @@ export type Tool = {
   /** Square icon, under /public */
   icon: string;
   /** A web app's own address: the page's main action opens it (instead of
-   * installing from a store) */
-  appUrl?: string;
+   * installing from a store). One per locale when the app has both languages */
+  appUrl?: string | Record<Locale, string>;
   /** schema.org applicationCategory (JSON-LD). Browser extensions by default */
   applicationCategory?: string;
   /** Where it's installed from; null until it's published there */
@@ -140,7 +140,10 @@ export const tools: Tool[] = [
   {
     slug: "deckr",
     icon: "/tools/deckr/icon.svg",
-    appUrl: "https://deckr.lucasbittencourt.dev/",
+    appUrl: {
+      en: "https://deckr.lucasbittencourt.dev/en",
+      "pt-br": "https://deckr.lucasbittencourt.dev/",
+    },
     applicationCategory: "GameApplication",
     storeUrl: null,
     publishedAt: "2026-11-07",
@@ -189,6 +192,11 @@ export const tools: Tool[] = [
 
 export function getTools() {
   return tools;
+}
+
+/** The web app's address in the page's language, if it has one */
+export function toolAppUrl(tool: Tool, locale: Locale) {
+  return typeof tool.appUrl === "string" ? tool.appUrl : tool.appUrl?.[locale];
 }
 
 export function getTool(slug: string) {

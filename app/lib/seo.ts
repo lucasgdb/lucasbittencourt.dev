@@ -2,7 +2,7 @@
 
 import type { MetadataRoute } from "next";
 import { getLastModified as lastModified, type Post } from "../blog/utils.ts";
-import { getTools, type Tool } from "../tools/registry.ts";
+import { getTools, toolAppUrl, type Tool } from "../tools/registry.ts";
 import {
   defaultLocale,
   getDictionary,
@@ -358,6 +358,7 @@ export function toolJsonLd(tool: Tool, locale: Locale = defaultLocale) {
   const dict = getDictionary(locale);
   const text = tool.text[locale];
   const store = toolStoreListing(tool);
+  const appUrl = toolAppUrl(tool, locale);
 
   return {
     "@context": "https://schema.org",
@@ -378,7 +379,7 @@ export function toolJsonLd(tool: Tool, locale: Locale = defaultLocale) {
         inLanguage: localeConfig[locale].htmlLang,
         ...(store && { installUrl: store, sameAs: [store] }),
         // A web app's own site (which describes itself with the same author)
-        ...(tool.appUrl && { sameAs: [tool.appUrl] }),
+        ...(appUrl && { sameAs: [appUrl] }),
         offers: toolOffers(tool, locale),
         author: { "@id": personId },
         publisher: { "@id": personId },
@@ -566,7 +567,7 @@ ${postLinks("en")}
 ${getTools()
   .map(
     (tool) =>
-      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary}${tool.appUrl ? ` [Open the app](${tool.appUrl}) ·` : ""}${toolStoreListing(tool) ? ` [Chrome Web Store](${toolStoreListing(tool)}) ·` : ""} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
+      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary}${tool.appUrl ? ` [Open the app](${toolAppUrl(tool, "en")}) ·` : ""}${toolStoreListing(tool) ? ` [Chrome Web Store](${toolStoreListing(tool)}) ·` : ""} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
   )
   .join("\n")}
 

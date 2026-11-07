@@ -18,7 +18,7 @@ import {
   toolsIndexJsonLd,
 } from "../app/lib/seo.ts";
 import { baseUrl, indexNowKey, person } from "../app/lib/site.ts";
-import { getTools } from "../app/tools/registry.ts";
+import { getTools, toolAppUrl } from "../app/tools/registry.ts";
 
 const postsByLocale = {
   en: getSortedBlogPosts("en"),
@@ -261,7 +261,7 @@ test("tool JSON-LD describes each extension or web app, where to get it and pric
         // A web app: its own category, runs in any browser, linked to its site
         assert.equal(app.applicationCategory, tool.applicationCategory);
         assert.equal(app.operatingSystem, "Web");
-        assert.deepEqual(app.sameAs, [tool.appUrl]);
+        assert.deepEqual(app.sameAs, [toolAppUrl(tool, locale)]);
       } else {
         assert.equal(app.applicationCategory, "BrowserApplication");
         assert.ok(app.operatingSystem.includes("Chrome"));
@@ -283,9 +283,11 @@ test("tool JSON-LD describes each extension or web app, where to get it and pric
     assert.equal(index.mainEntity.itemListElement.length, getTools().length);
   }
 
-  // Deckr is listed as a web app, at its own address
+  // Deckr is listed as a web app, at its own address in the page's language
   const deckr = getTools().find((tool) => tool.slug === "deckr");
-  assert.equal(deckr?.appUrl, "https://deckr.lucasbittencourt.dev/");
+  assert.ok(deckr);
+  assert.equal(toolAppUrl(deckr, "en"), "https://deckr.lucasbittencourt.dev/en");
+  assert.equal(toolAppUrl(deckr, "pt-br"), "https://deckr.lucasbittencourt.dev/");
 });
 
 test("services JSON-LD has the provider, contact channel and breadcrumbs", () => {
