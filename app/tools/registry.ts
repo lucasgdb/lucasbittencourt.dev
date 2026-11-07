@@ -161,6 +161,30 @@ export const tools: Tool[] = [
       },
     },
   },
+  {
+    slug: "qrcode-generator",
+    icon: "/tools/qrcode-generator/icon.svg",
+    appUrl: "https://gerador-de-qrcode.lucasbittencourt.dev/",
+    applicationCategory: "UtilitiesApplication",
+    storeUrl: null,
+    publishedAt: "2026-11-07",
+    updatedAt: "2026-11-07",
+    privacyUpdatedAt: "2026-11-07",
+    text: {
+      en: {
+        name: "QR Code Generator",
+        summary:
+          "Creates QR codes for links, Wi-Fi, PIX, contacts, WhatsApp and more, with frames, colors and a logo, and exports PNG, SVG or JPEG.",
+        platform: "Web app",
+      },
+      "pt-br": {
+        name: "Gerador de QR Code",
+        summary:
+          "Cria QR Codes de link, Wi-Fi, PIX, contato, WhatsApp e outros, com moldura, cores e logo, e baixa em PNG, SVG ou JPEG.",
+        platform: "Aplicativo web",
+      },
+    },
+  },
 ];
 
 export function getTools() {
