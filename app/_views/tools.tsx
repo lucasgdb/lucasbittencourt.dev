@@ -1,4 +1,4 @@
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
 import { Button } from "app/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "app/components/ui/table";
 import fs from "fs";
@@ -240,7 +240,15 @@ export function ToolPage({ slug, locale }: { slug: string; locale: Locale }) {
       <div className="mt-6 flex flex-wrap gap-2">
         {/* Not in the store yet, but installable by hand: that comes first */}
         {!tool.storeUrl && tool.manualBuild && <InstallNowButton>{dict.installNow}</InstallNowButton>}
-        {tool.storeUrl ? (
+        {tool.appUrl ? (
+          // A web app: nothing to install, it opens
+          <Button asChild size="lg">
+            <a href={tool.appUrl} rel="noopener" target="_blank">
+              <ExternalLinkIcon />
+              {dict.open(text.name)}
+            </a>
+          </Button>
+        ) : tool.storeUrl ? (
           <>
           <Button asChild size="lg">
             <a href={tool.storeUrl} rel="noopener noreferrer" target="_blank">

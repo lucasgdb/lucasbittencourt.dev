@@ -170,14 +170,15 @@ const en = {
     },
   },
   tools: {
-    title: "AI tools and browser extensions",
-    heading: "AI tools and browser extensions",
+    title: "AI tools, browser extensions and web apps",
+    heading: "AI tools, browser extensions and web apps",
     description:
-      "AI Summarizer summarizes only the part of a page you pick; Video Downloader saves a page's videos. Extensions for Chrome, Edge, Firefox and more.",
+      "AI Summarizer summarizes only the part of a page you pick; Video Downloader saves a page's videos; Deckr builds Clash Royale decks. Extensions for Chrome, Edge, Firefox and more, and web apps.",
     links: "Links",
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
     installNow: "Install now",
+    open: (tool: string) => `Open ${tool}`,
     otherBrowsers: "Other browsers",
     tabs: { about: "About", install: "Install" },
     manual: {
@@ -195,7 +196,7 @@ const en = {
     packs: { pack: "Pack", price: "Price", bonus: "Bonus", total: "Total", credits: "credits" },
     privacyTitle: (tool: string) => `${tool} privacy policy`,
     privacyDescription: (tool: string) =>
-      `How the ${tool} extension collects, uses and protects personal data, under the Brazilian General Data Protection Law (LGPD).`,
+      `How ${tool} collects, uses and protects personal data, under the Brazilian General Data Protection Law (LGPD).`,
     eulaTitle: (tool: string) => `${tool} End user license agreement (EULA)`,
     eulaDescription: (tool: string) =>
       `The license to use the ${tool} extension: what it grants, its restrictions, intellectual property and responsibilities.`,
@@ -342,14 +343,15 @@ const ptBr: Dictionary = {
     },
   },
   tools: {
-    title: "Ferramentas de IA e extensões para navegador",
-    heading: "Ferramentas de IA e extensões para navegador",
+    title: "Ferramentas de IA, extensões para navegador e apps web",
+    heading: "Ferramentas de IA, extensões para navegador e apps web",
     description:
-      "O AI Summarizer resume só o trecho da página que você escolhe; o Video Downloader baixa os vídeos de uma página. Para Chrome, Edge, Firefox e outros.",
+      "O AI Summarizer resume só o trecho da página que você escolhe; o Video Downloader baixa os vídeos de uma página; o Deckr monta decks de Clash Royale. Extensões para Chrome, Edge, Firefox e outros, e apps web.",
     links: "Links",
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",
     installNow: "Instalar agora",
+    open: (tool) => `Abrir o ${tool}`,
     otherBrowsers: "Outros navegadores",
     tabs: { about: "Sobre", install: "Instalar" },
     manual: {
@@ -367,7 +369,7 @@ const ptBr: Dictionary = {
     packs: { pack: "Pacote", price: "Preço", bonus: "Bônus", total: "Total", credits: "créditos" },
     privacyTitle: (tool) => `Política de privacidade do ${tool}`,
     privacyDescription: (tool) =>
-      `Como a extensão ${tool} coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).`,
+      `Como o ${tool} coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).`,
     eulaTitle: (tool) => `Contrato de licença de usuário final (EULA) do ${tool}`,
     eulaDescription: (tool) =>
       `A licença de uso da extensão ${tool}: o que ela concede, as restrições, a propriedade intelectual e as responsabilidades.`,

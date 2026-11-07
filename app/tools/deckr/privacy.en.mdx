@@ -1,0 +1,104 @@
+This Privacy policy explains how **Lucas Genesses Dias Bittencourt** (trade name Lucas Bittencourt), a sole proprietorship registered in Brazil under CNPJ **42.564.890/0001-04**, processes personal data in **Deckr**, a web app for building Clash Royale decks ([deckr.lucasbittencourt.dev](https://deckr.lucasbittencourt.dev/en)), and in the servers it uses, under the Brazilian General Data Protection Law (Law No. 13,709/2018, "LGPD").
+
+This is a translation. In case of any difference, the [Portuguese version](/pt-br/tool/deckr/privacy) prevails. The lucasbittencourt.dev website has a [Privacy policy](/privacy) of its own; this one covers only Deckr.
+
+## 1. Controller and data protection officer
+
+The data controller is Lucas Genesses Dias Bittencourt (CNPJ 42.564.890/0001-04), who also acts as the data protection officer. Contact:
+
+- Address: Rua Expedicionário Benedito Vitoriano Siqueira, 44, Jardim do Vale, Guaratinguetá/SP, CEP 12519-370, Brazil
+- Email: [lucasgdbittencourt@gmail.com](mailto:lucasgdbittencourt@gmail.com)
+- WhatsApp: [+55 (12) 98834-4336](https://wa.me/5512988344336)
+
+## 2. What Deckr does
+
+Deckr rolls and builds 8-card Clash Royale decks, shows their average elixir cost and opens them in the game. **Building, rolling and saving decks works without an account**, and then everything stays in your browser.
+
+Logging in is optional: with your player tag and an official Clash Royale API key, Deckr shows your profile, collection, recent battles and upcoming chests, and keeps your decks in your account.
+
+Deckr is a fan project, not affiliated with Supercell, the publisher of Clash Royale.
+
+## 3. Data we process
+
+### Without logging in (only in your browser)
+
+Deckr keeps in your browser's local storage (`localStorage`) your card pool, the deck you're building, the decks you save and, if you type it, your player tag, to fill in the login next time. None of it is sent to my servers until you log in.
+
+### When you log in with Clash Royale
+
+To log in, you enter your **player tag** and your **Clash Royale API key**, which you create on Supercell's developer portal. Deckr uses the key to read your game data from the official Clash Royale API and keeps:
+
+- the **tag**;
+- the **API key**, **encrypted** (AES-256-GCM). It's only used to read your game data at your request and is never shown back;
+- a **copy of your public game profile**: in-game name, King level, trophies and best, arena, clan (name, tag and your role), wins, losses, three-crown wins, number of battles, current deck, favourite card and your cards with their levels;
+- your **last 25 battles**: mode, result, crowns, trophy change, date, both decks and, for the opponent, their name, tag, trophies and clan, which is public game data;
+- when it was last refreshed and, if that failed, why.
+
+This data is refreshed when you log in, when you press "Refresh" and when you come back to Deckr with a session still open and the copy is more than 30 minutes old. Nothing is refreshed while you aren't using Deckr.
+
+Logging in with the in-game token (Settings → API Token) isn't available yet. When it is, the token will only be verified with Supercell and won't be kept.
+
+### Decks saved to your account
+
+With an account, the decks you save are kept linked to your tag: the 8 cards, when they were saved and an id created in your browser. Decks saved without an account are added to it the next time you log in on that browser, and decks you remove without an account are removed from it.
+
+### Looking up other players' chests
+
+When you look up a tag's upcoming chests, Deckr asks the Clash Royale API with your key and shows the result. **The tag you looked up and its chests aren't kept.**
+
+### Hosting logs
+
+Deckr uses no analytics, no advertising pixels and no third-party scripts, and Deckr's servers don't log your visits. Railway, which hosts Deckr, records technical data about requests (such as IP address, date and time and the address requested) in its platform logs, for its retention period, for operations and security.
+
+## 4. Cookies and browser storage
+
+Deckr uses **a single cookie**, `deckr_session`, set only when you log in. It's essential to keep you logged in, is only sent to Deckr itself and can't be read by scripts (`HttpOnly`). There are no advertising or analytics cookies.
+
+Your browser's local storage keeps the card pool, the deck being built, saved decks, the last tag you typed and a flag saying a session was open, used only so the page opens with the right layout.
+
+## 5. Purposes and legal bases
+
+The legal bases are those in article 7 of the LGPD:
+
+- **Login, profile, collection, battles and decks in your account**: performance of a contract, at your request, when you use Deckr with your account.
+- **Security and technical logs**: legitimate interest and compliance with a legal obligation.
+
+## 6. Sharing
+
+We don't sell personal data, use it for advertising or pass it on to data brokers. Data is shared only with:
+
+- **Railway**: hosting of the app, the server and the database.
+- **Supercell**: the official Clash Royale API receives the requests made with your key (your tag, or the tag whose chests you look up), under its policies.
+- **Public authorities**: when required by law or court order.
+
+## 7. International transfer
+
+Railway stores and processes data on servers in the United States, and the Clash Royale API is operated by Supercell, in Finland. These transfers follow article 33 of the LGPD, with providers that adopt security and data protection measures.
+
+## 8. How long we keep data
+
+- **Data in your browser**: until you delete it (by clearing the site's data) or remove the decks.
+- **Session**: up to 90 days. Logging out deletes it, and expired sessions are deleted automatically.
+- **Tag, encrypted API key, profile copy and battles**: while you use Deckr, until you ask for deletion. Each refresh replaces the previous copy.
+- **Decks saved to your account**: until you remove them or ask for deletion.
+- **Hosting logs**: for Railway's retention period.
+
+After that, the data is deleted.
+
+## 9. Your rights
+
+Under article 18 of the LGPD, you may request confirmation of processing, access, correction, anonymization, blocking or deletion, portability, information about sharing and withdrawal of consent.
+
+To delete your data or exercise other rights, write to the email above with your player tag. You can also revoke your API key at any time at [developer.clashroyale.com](https://developer.clashroyale.com/), which stops Deckr from using it, and file a complaint with Brazil's National Data Protection Authority (ANPD).
+
+## 10. Security
+
+All communication is encrypted (HTTPS). The API key is stored encrypted (AES-256-GCM), with the encryption key kept outside the database. The session is stored hashed, and its cookie only goes to Deckr itself. Deckr's database and server are only reachable over the hosting's private network, and the browser only talks to the app. No system is fully immune to incidents; if a relevant incident occurs, the affected data subjects and the ANPD will be notified, as the law requires.
+
+## 11. Children and teenagers
+
+Deckr doesn't knowingly collect children's data. Logging in requires a Clash Royale API key, created on Supercell's developer portal, subject to its age rules; without logging in, no personal data is sent to the servers.
+
+## 12. Changes
+
+This policy may be updated. The date of the last update is shown at the top of the page. See also the [Terms of use](/terms) and the [website's Privacy policy](/privacy).

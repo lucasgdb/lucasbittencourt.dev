@@ -369,13 +369,16 @@ export function toolJsonLd(tool: Tool, locale: Locale = defaultLocale) {
         description: text.summary,
         url,
         image: new URL(tool.icon, baseUrl).href,
-        applicationCategory: "BrowserApplication",
-        operatingSystem: tool.browsers.join(", "),
+        applicationCategory: tool.applicationCategory ?? "BrowserApplication",
+        // A web app runs in any browser; an extension lists the ones it supports
+        operatingSystem: tool.browsers?.join(", ") ?? "Web",
         ...(tool.manualBuild && { softwareVersion: tool.manualBuild.version }),
         datePublished: tool.publishedAt,
         dateModified: tool.updatedAt,
         inLanguage: localeConfig[locale].htmlLang,
         ...(store && { installUrl: store, sameAs: [store] }),
+        // A web app's own site (which describes itself with the same author)
+        ...(tool.appUrl && { sameAs: [tool.appUrl] }),
         offers: toolOffers(tool, locale),
         author: { "@id": personId },
         publisher: { "@id": personId },
@@ -563,7 +566,7 @@ ${postLinks("en")}
 ${getTools()
   .map(
     (tool) =>
-      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary}${toolStoreListing(tool) ? ` [Chrome Web Store](${toolStoreListing(tool)}) ·` : ""} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
+      `- [${tool.text.en.name}](${pageUrl(`/tool/${tool.slug}`)}): ${tool.text.en.summary}${tool.appUrl ? ` [Open the app](${tool.appUrl}) ·` : ""}${toolStoreListing(tool) ? ` [Chrome Web Store](${toolStoreListing(tool)}) ·` : ""} [Privacy policy](${pageUrl(`/tool/${tool.slug}/privacy`)})${tool.eulaUpdatedAt ? ` · [EULA](${pageUrl(`/tool/${tool.slug}/eula`)})` : ""}`
   )
   .join("\n")}
 

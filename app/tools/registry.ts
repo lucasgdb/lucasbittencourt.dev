@@ -23,13 +23,19 @@ export type Tool = {
   slug: string;
   /** Square icon, under /public */
   icon: string;
+  /** A web app's own address: the page's main action opens it (instead of
+   * installing from a store) */
+  appUrl?: string;
+  /** schema.org applicationCategory (JSON-LD). Browser extensions by default */
+  applicationCategory?: string;
   /** Where it's installed from; null until it's published there */
   storeUrl: string | null;
   /** The store listing itself, when storeUrl redirects to it: what search
    * engines and AI assistants are shown (JSON-LD, llms.txt) */
   storeListingUrl?: string;
-  /** Browsers it runs in (JSON-LD operatingSystem) */
-  browsers: string[];
+  /** Browsers it runs in (JSON-LD operatingSystem); none for a web app, which
+   * runs in any browser */
+  browsers?: string[];
   /** Builds to install by hand, if any: before the store, or for the
    * browsers it doesn't serve (Firefox) */
   manualBuild?: ManualBuild;
@@ -128,6 +134,30 @@ export const tools: Tool[] = [
         summary:
           "Encontra os vídeos de uma página, arquivos e streams HLS ou DASH, e baixa dentro do navegador.",
         platform: "Extensão para navegadores",
+      },
+    },
+  },
+  {
+    slug: "deckr",
+    icon: "/tools/deckr/icon.svg",
+    appUrl: "https://deckr.lucasbittencourt.dev/",
+    applicationCategory: "GameApplication",
+    storeUrl: null,
+    publishedAt: "2026-11-07",
+    updatedAt: "2026-11-07",
+    privacyUpdatedAt: "2026-11-07",
+    text: {
+      en: {
+        name: "Deckr",
+        summary:
+          "Builds Clash Royale decks: rolls them from your cards or from meta archetypes, shows the average elixir and opens them in the game.",
+        platform: "Web app",
+      },
+      "pt-br": {
+        name: "Deckr",
+        summary:
+          "Monta decks de Clash Royale: sorteia a partir das suas cartas ou de arquétipos do meta, mostra o elixir médio e abre no jogo.",
+        platform: "Aplicativo web",
       },
     },
   },

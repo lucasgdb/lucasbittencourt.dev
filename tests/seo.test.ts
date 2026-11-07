@@ -248,17 +248,24 @@ test("llms.txt follows the proposal structure and links every post", () => {
   }
 });
 
-test("tool JSON-LD describes each extension, its store listing and prices", () => {
+test("tool JSON-LD describes each extension or web app, where to get it and prices", () => {
   for (const locale of locales) {
     for (const tool of getTools()) {
       const [app, breadcrumbs] = graph(toolJsonLd(tool, locale));
       const prefix = locale === "en" ? "" : "/pt-br";
 
       assert.equal(app["@type"], "SoftwareApplication");
-      assert.equal(app.applicationCategory, "BrowserApplication");
       assert.equal(app.url, `${baseUrl}${prefix}/tool/${tool.slug}`);
       assert.equal(app.author["@id"], `${baseUrl}/#person`);
-      assert.ok(app.operatingSystem.includes("Chrome"));
+      if (tool.appUrl) {
+        // A web app: its own category, runs in any browser, linked to its site
+        assert.equal(app.applicationCategory, tool.applicationCategory);
+        assert.equal(app.operatingSystem, "Web");
+        assert.deepEqual(app.sameAs, [tool.appUrl]);
+      } else {
+        assert.equal(app.applicationCategory, "BrowserApplication");
+        assert.ok(app.operatingSystem.includes("Chrome"));
+      }
       assert.equal(app.offers[0].price, "0.00");
       for (const offer of app.offers) {
         assert.match(offer.price, /^\d+\.\d{2}$/);
@@ -275,6 +282,10 @@ test("tool JSON-LD describes each extension, its store listing and prices", () =
     const index = toolsIndexJsonLd(locale);
     assert.equal(index.mainEntity.itemListElement.length, getTools().length);
   }
+
+  // Deckr is listed as a web app, at its own address
+  const deckr = getTools().find((tool) => tool.slug === "deckr");
+  assert.equal(deckr?.appUrl, "https://deckr.lucasbittencourt.dev/");
 });
 
 test("services JSON-LD has the provider, contact channel and breadcrumbs", () => {
