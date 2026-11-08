@@ -226,13 +226,13 @@ export const tools: Tool[] = [
       en: {
         name: "Cheatsheets",
         summary:
-          "Searchable cheat sheets for tmux, kubectl, Docker and Terraform, adapted to your setup (prefix key, alias, Podman or OpenTofu), with one click to copy.",
+          "Searchable cheat sheets for tmux, Vim, kubectl, Docker and Terraform, adapted to your setup (prefix key, Neovim, alias, Podman or OpenTofu), with one click to copy.",
         platform: "Web app",
       },
       "pt-br": {
         name: "Cheatsheets",
         summary:
-          "Cheat sheets pesquisáveis de tmux, kubectl, Docker e Terraform, adaptados ao seu ambiente (prefixo, alias, Podman ou OpenTofu), com cópia em um clique.",
+          "Cheat sheets pesquisáveis de tmux, Vim, kubectl, Docker e Terraform, adaptados ao seu ambiente (prefixo, Neovim, alias, Podman ou OpenTofu), com cópia em um clique.",
         platform: "Aplicativo web",
       },
     },
