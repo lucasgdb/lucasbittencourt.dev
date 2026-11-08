@@ -188,6 +188,31 @@ export const tools: Tool[] = [
       },
     },
   },
+  {
+    slug: "4people",
+    icon: "/tools/4people/icon.svg",
+    appUrl: "https://4people.lucasbittencourt.dev/",
+    applicationCategory: "DeveloperApplication",
+    storeUrl: null,
+    publishedAt: "2026-11-08",
+    updatedAt: "2026-11-08",
+    privacyUpdatedAt: "2026-11-08",
+    eulaUpdatedAt: "2026-11-08",
+    text: {
+      en: {
+        name: "4People",
+        summary:
+          "More than 100 free tools that run in the browser: Brazilian document generators and validators, JWT, regex, converters, subnet, unit and currency calculators.",
+        platform: "Web app",
+      },
+      "pt-br": {
+        name: "4People",
+        summary:
+          "Mais de 100 ferramentas grátis que rodam no navegador: geradores e validadores de documentos, JWT, regex, conversores, sub-rede, unidades e cotação de moedas.",
+        platform: "Aplicativo web",
+      },
+    },
+  },
 ];
 
 export function getTools() {
