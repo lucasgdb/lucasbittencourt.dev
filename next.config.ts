@@ -30,6 +30,13 @@ const nextConfig: NextConfig = {
   },
   // No redirect from /pt-BR to /pt-br: Next.js matches redirect sources
   // case-insensitively, so it would also match /pt-br and loop
+  // The services page was removed: send its indexed URLs home
+  redirects() {
+    return [
+      { source: "/services", destination: "/", permanent: true },
+      { source: "/pt-br/services", destination: "/pt-br", permanent: true },
+    ];
+  },
   headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

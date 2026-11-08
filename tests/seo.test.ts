@@ -13,7 +13,6 @@ import {
   pageAlternates,
   postJsonLd,
   serializeJsonLd,
-  servicesJsonLd,
   toolJsonLd,
   toolsIndexJsonLd,
 } from "../app/lib/seo.ts";
@@ -79,7 +78,6 @@ test("sitemap lists every page in both languages, with hreflang alternates", () 
   const paths = [
     "",
     "/blog",
-    "/services",
     "/mcp",
     "/terms",
     "/privacy",
@@ -288,16 +286,6 @@ test("tool JSON-LD describes each extension or web app, where to get it and pric
   assert.ok(deckr);
   assert.equal(toolAppUrl(deckr, "en"), "https://deckr.lucasbittencourt.dev/en");
   assert.equal(toolAppUrl(deckr, "pt-br"), "https://deckr.lucasbittencourt.dev/");
-});
-
-test("services JSON-LD has the provider, contact channel and breadcrumbs", () => {
-  for (const locale of locales) {
-    const [service, breadcrumbs] = graph(servicesJsonLd(locale));
-    assert.equal(service["@type"], "Service");
-    assert.equal(service.provider["@id"], `${baseUrl}/#person`);
-    assert.match(service.availableChannel.servicePhone.telephone, /^\+\d+$/);
-    assert.ok(breadcrumbs.itemListElement.every((item: Node) => item.item));
-  }
 });
 
 test("llms-full.txt has every English post in full", () => {

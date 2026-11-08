@@ -20,9 +20,6 @@ export const business = {
   whatsappUrl: "https://wa.me/5512988344336",
 };
 
-// Update when app/services/*.mdx changes
-export const servicesUpdatedAt = "2026-11-04";
-
 // Update when the home page's own text changes (its feed of posts and tools
 // is dated by them)
 export const homeUpdatedAt = "2026-11-04";

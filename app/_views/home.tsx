@@ -1,12 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MailIcon } from "lucide-react";
-import { Button } from "app/components/ui/button";
 import { Feed } from "app/components/feed";
 import { JsonLd } from "app/components/json-ld";
 import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 import { baseOpenGraph, homeJsonLd, pageAlternates } from "app/lib/seo";
-import { business, person } from "app/lib/site";
+import { person } from "app/lib/site";
 
 export function homeMetadata(locale: Locale): Metadata {
   const dict = getDictionary(locale);
@@ -50,17 +48,6 @@ export function HomePage({ locale }: { locale: Locale }) {
         </Link>
         {after}
       </p>
-      <div className="mt-6 flex flex-wrap gap-2">
-        <Button asChild size="lg" className="h-11 px-4">
-          <Link href={localizePath("/services", locale)}>{dict.home.work}</Link>
-        </Button>
-        <Button asChild size="lg" variant="outline" className="h-11 px-4">
-          <a href={`mailto:${business.email}`}>
-            <MailIcon />
-            {dict.home.email}
-          </a>
-        </Button>
-      </div>
       <div className="my-8">
         <Feed locale={locale} />
       </div>

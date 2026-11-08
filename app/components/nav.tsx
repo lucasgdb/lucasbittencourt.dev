@@ -3,12 +3,11 @@ import { ThemeSelect } from "./theme-toggle";
 import { LanguageSwitch } from "./language-switch";
 import { getDictionary, localizePath, type Locale } from "app/lib/i18n";
 
-const navItems = ["home", "blog", "tools", "services", "mcp"] as const;
+const navItems = ["home", "blog", "tools", "mcp"] as const;
 const navPaths = {
   home: "/",
   blog: "/blog",
   tools: "/tools",
-  services: "/services",
   mcp: "/mcp",
 };
 
@@ -29,7 +28,7 @@ export function Navbar({
           id="nav"
           aria-label={dict.nav.label}
         >
-          {/* Five links don't fit beside the language and theme buttons on
+          {/* Four links don't fit beside the language and theme buttons on
               narrow phones (especially in Portuguese): the links scroll
               sideways, fading at the edge to show there's more, the buttons
               stay put, and the page never scrolls */}

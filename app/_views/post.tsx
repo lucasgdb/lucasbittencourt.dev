@@ -94,20 +94,16 @@ export function postMetadata(slug: string, locale: Locale): Metadata | undefined
   };
 }
 
-const linkClass =
-  "underline underline-offset-2 decoration-neutral-500 transition-colors hover:text-neutral-800 dark:hover:text-neutral-100";
-
-/** After a post: the other posts and the services, so readers (and crawlers)
+/** After a post: the other posts, so readers (and crawlers)
  * have somewhere to go besides the nav */
 function MorePosts({ slug, locale }: { slug: string; locale: Locale }) {
   const dict = getDictionary(locale).post;
   const others = getSortedBlogPosts(locale).filter((post) => post.slug !== slug);
-  const [before, link, after] = dict.services;
 
   return (
     <aside className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800">
       <h2 className="mb-4 font-medium tracking-tight">{dict.more}</h2>
-      <ul className="mb-8 flex flex-col gap-1">
+      <ul className="flex flex-col gap-1">
         {others.map((post) => (
           <li key={post.slug}>
             <Link
@@ -122,13 +118,6 @@ function MorePosts({ slug, locale }: { slug: string; locale: Locale }) {
           </li>
         ))}
       </ul>
-      <p className="text-neutral-600 dark:text-neutral-400">
-        {before}
-        <Link className={linkClass} href={localizePath("/services", locale)}>
-          {link}
-        </Link>
-        {after}
-      </p>
     </aside>
   );
 }

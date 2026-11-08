@@ -58,7 +58,7 @@ export function otherLocale(locale: Locale): Locale {
 const en = {
   jobTitle: "AI Software Engineer",
   siteDescription:
-    "AI software engineer building AI and agent systems for production. AI Forward Deployed Engineer services, a technical blog and tools like AI Summarizer.",
+    "AI software engineer building AI and agent systems for production. A technical blog and tools like AI Summarizer.",
   blogDescription:
     "Articles on software engineering and AI: JavaScript, Node.js, React, algorithms and self-hosting, written from building real systems.",
   nav: {
@@ -66,7 +66,6 @@ const en = {
     home: "home",
     blog: "blog",
     tools: "tools",
-    services: "services",
     mcp: "mcp",
   },
   theme: {
@@ -84,14 +83,6 @@ const en = {
     contact: "Contact",
     terms: "Terms of use",
     privacy: "Privacy policy",
-  },
-  services: {
-    title: "AI Forward Deployed Engineer services",
-    description:
-      "AI Forward Deployed Engineer services: building, customizing and deploying real-world AI and agentic systems with your team, hourly or per project.",
-    contact: "Talk about your project",
-    email: "Email me",
-    fde: "Software engineer embedded with clients or internal product groups to build, customize, and deploy real-world AI and agentic systems. Hourly (price on request) or per project.",
   },
   legal: {
     updated: "Last updated",
@@ -111,8 +102,6 @@ const en = {
       "Software engineer focused on AI. I design, build and ship AI and agent systems to production, integrated with the systems and processes they serve.",
     writing: ["I also write about software engineering and AI on ", "my blog", "."],
     feed: { post: "Post", tool: "Tool" },
-    work: "Work with me",
-    email: "Email me",
   },
   blog: {
     title: "Software engineering and AI blog",
@@ -123,11 +112,6 @@ const en = {
     by: "By",
     updated: "Updated",
     more: "More posts",
-    services: [
-      "Need AI or agent systems built and shipped to production? See my ",
-      "AI Forward Deployed Engineer services",
-      ".",
-    ],
     readAloud: {
       listen: "Listen",
       resume: "Resume listening",
@@ -231,7 +215,7 @@ export type Dictionary = typeof en;
 const ptBr: Dictionary = {
   jobTitle: "Engenheiro de Software de IA",
   siteDescription:
-    "Engenheiro de software de IA: sistemas de IA e de agentes em produção, serviços de AI Forward Deployed Engineer, blog técnico e ferramentas como o AI Summarizer.",
+    "Engenheiro de software de IA: sistemas de IA e de agentes em produção, blog técnico e ferramentas como o AI Summarizer.",
   blogDescription:
     "Artigos sobre engenharia de software e IA: JavaScript, Node.js, React, algoritmos e servidor em casa, escritos a partir de sistemas reais.",
   nav: {
@@ -239,7 +223,6 @@ const ptBr: Dictionary = {
     home: "início",
     blog: "blog",
     tools: "ferramentas",
-    services: "serviços",
     mcp: "mcp",
   },
   theme: {
@@ -257,14 +240,6 @@ const ptBr: Dictionary = {
     contact: "Contato",
     terms: "Termos de uso",
     privacy: "Política de privacidade",
-  },
-  services: {
-    title: "Serviços de AI Forward Deployed Engineer",
-    description:
-      "Serviços de AI Forward Deployed Engineer: construo, customizo e coloco em produção sistemas de IA e de agentes com o seu time, por hora ou por projeto.",
-    contact: "Fale sobre o seu projeto",
-    email: "Mandar e-mail",
-    fde: "Engenheiro de software que trabalha junto ao cliente ou a times de produto internos para construir, customizar e colocar em produção sistemas reais de IA e de agentes. Por hora (sob consulta) ou por projeto.",
   },
   legal: {
     updated: "Última atualização",
@@ -284,8 +259,6 @@ const ptBr: Dictionary = {
       "Engenheiro de software focado em IA. Projeto, construo e coloco em produção sistemas de IA e de agentes, integrados aos sistemas e processos de cada negócio.",
     writing: ["Também escrevo sobre engenharia de software e IA no ", "meu blog", "."],
     feed: { post: "Post", tool: "Ferramenta" },
-    work: "Trabalhe comigo",
-    email: "Mandar e-mail",
   },
   blog: {
     title: "Blog de engenharia de software e IA",
@@ -296,11 +269,6 @@ const ptBr: Dictionary = {
     by: "Por",
     updated: "Atualizado em",
     more: "Mais posts",
-    services: [
-      "Precisa construir e colocar em produção sistemas de IA ou de agentes? Veja os meus ",
-      "serviços de AI Forward Deployed Engineer",
-      ".",
-    ],
     readAloud: {
       listen: "Ouvir",
       resume: "Continuar ouvindo",

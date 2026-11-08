@@ -20,7 +20,6 @@ import {
   isIndexable,
   mcpEndpoint,
   legalUpdatedAt,
-  servicesUpdatedAt,
   mcpUpdatedAt,
   person,
   site,
@@ -247,47 +246,6 @@ export function postJsonLd(
   };
 }
 
-export function servicesJsonLd(locale: Locale = defaultLocale) {
-  const url = pageUrl("/services", locale);
-  const dict = getDictionary(locale);
-
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Service",
-        "@id": `${url}#fde`,
-        name: "AI Forward Deployed Engineer",
-        serviceType: "AI Forward Deployed Engineer",
-        description: dict.services.fde,
-        url,
-        provider: { "@id": personId },
-        availableLanguage: locales.map((l) => localeConfig[l].htmlLang),
-        availableChannel: {
-          "@type": "ServiceChannel",
-          serviceUrl: url,
-          servicePhone: {
-            "@type": "ContactPoint",
-            contactType: "sales",
-            email: business.email,
-            telephone: business.whatsapp.replace(/[^+\d]/g, ""),
-            url: business.whatsappUrl,
-          },
-        },
-        inLanguage: localeConfig[locale].htmlLang,
-        isPartOf: { "@id": websiteId },
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: dict.breadcrumbs.home, item: pageUrl("/", locale) },
-          { "@type": "ListItem", position: 2, name: dict.services.title, item: url },
-        ],
-      },
-    ],
-  };
-}
-
 export function mcpPageJsonLd(locale: Locale = defaultLocale) {
   const url = pageUrl("/mcp", locale);
   const dict = getDictionary(locale);
@@ -444,7 +402,6 @@ export function buildSitemap(
     entries.push(
       page("/", home),
       page("/blog", latest),
-      page("/services", servicesUpdatedAt),
       page("/mcp", mcpUpdatedAt),
       page("/terms", legalUpdatedAt.terms),
       page("/privacy", legalUpdatedAt.privacy),
@@ -557,10 +514,6 @@ export function buildLlmsTxt(postsByLocale: Record<Locale, Post[]>) {
 ## Blog posts
 
 ${postLinks("en")}
-
-## Services
-
-- [Services](${pageUrl("/services")}): ${person.name} works embedded with a client's team to build, customize and deploy AI and agent systems to production, hourly or per project. Contact: ${business.email} ([em português](${pageUrl("/services", "pt-br")}))
 
 ## Tools
 
