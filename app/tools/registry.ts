@@ -213,6 +213,30 @@ export const tools: Tool[] = [
       },
     },
   },
+  {
+    slug: "cheatsheets",
+    icon: "/tools/cheatsheets/icon.svg",
+    appUrl: "https://cheatsheet.lucasbittencourt.dev/",
+    applicationCategory: "DeveloperApplication",
+    storeUrl: null,
+    publishedAt: "2026-11-08",
+    updatedAt: "2026-11-08",
+    privacyUpdatedAt: "2026-11-08",
+    text: {
+      en: {
+        name: "Cheatsheets",
+        summary:
+          "Searchable cheat sheets for tmux and kubectl, with your own prefix key or alias applied to every shortcut and command, and one click to copy.",
+        platform: "Web app",
+      },
+      "pt-br": {
+        name: "Cheatsheets",
+        summary:
+          "Cheat sheets pesquisáveis de tmux e kubectl, com a sua tecla de prefixo ou alias aplicados em todos os atalhos e comandos, e cópia com um clique.",
+        platform: "Aplicativo web",
+      },
+    },
+  },
 ];
 
 export function getTools() {

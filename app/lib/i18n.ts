@@ -173,7 +173,7 @@ const en = {
     title: "AI tools, browser extensions and web apps",
     heading: "AI tools, browser extensions and web apps",
     description:
-      "AI Summarizer summarizes only the part of a page you pick; Video Downloader saves a page's videos; Deckr builds Clash Royale decks; QR Code Generator creates QR codes; 4People brings together more than 100 tools for developers and students. Extensions for Chrome, Edge, Firefox and more, and web apps.",
+      "AI Summarizer summarizes only the part of a page you pick; Video Downloader saves a page's videos; Deckr builds Clash Royale decks; QR Code Generator creates QR codes; 4People brings together more than 100 tools for developers and students; Cheatsheets puts every tmux and kubectl shortcut on one searchable page. Extensions for Chrome, Edge, Firefox and more, and web apps.",
     links: "Links",
     install: "Install from the Chrome Web Store",
     comingSoon: "Chrome Web Store (coming soon)",
@@ -346,7 +346,7 @@ const ptBr: Dictionary = {
     title: "Ferramentas de IA, extensões para navegador e apps web",
     heading: "Ferramentas de IA, extensões para navegador e apps web",
     description:
-      "O AI Summarizer resume só o trecho da página que você escolhe; o Video Downloader baixa os vídeos de uma página; o Deckr monta decks de Clash Royale; o Gerador de QR Code cria QR Codes; o 4People reúne mais de 100 ferramentas para quem programa e estuda. Extensões para Chrome, Edge, Firefox e outros, e apps web.",
+      "O AI Summarizer resume só o trecho da página que você escolhe; o Video Downloader baixa os vídeos de uma página; o Deckr monta decks de Clash Royale; o Gerador de QR Code cria QR Codes; o 4People reúne mais de 100 ferramentas para quem programa e estuda; o Cheatsheets reúne os atalhos de tmux e kubectl numa página pesquisável. Extensões para Chrome, Edge, Firefox e outros, e apps web.",
     links: "Links",
     install: "Instalar pela Chrome Web Store",
     comingSoon: "Chrome Web Store (em breve)",
