@@ -226,13 +226,13 @@ export const tools: Tool[] = [
       en: {
         name: "Cheatsheets",
         summary:
-          "Searchable cheat sheets for tmux and kubectl, with your own prefix key or alias applied to every shortcut and command, and one click to copy.",
+          "Searchable cheat sheets for tmux, kubectl, Docker and Terraform, adapted to your setup (prefix key, alias, Podman or OpenTofu), with one click to copy.",
         platform: "Web app",
       },
       "pt-br": {
         name: "Cheatsheets",
         summary:
-          "Cheat sheets pesquisáveis de tmux e kubectl, com a sua tecla de prefixo ou alias aplicados em todos os atalhos e comandos, e cópia com um clique.",
+          "Cheat sheets pesquisáveis de tmux, kubectl, Docker e Terraform, adaptados ao seu ambiente (prefixo, alias, Podman ou OpenTofu), com cópia em um clique.",
         platform: "Aplicativo web",
       },
     },
